@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Practice Suite — Marc VASSEUR — Polytech Lille</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:  #0d1b2a;
+    --navy2: #162840;
+    --navy3: #1e3a5f;
+    --gold:  #c8993a;
+    --gold-l:#e8b84b;
+    --cream: #f8f4ed;
+    --cream2:#f0ead8;
+    --border:#d4c5a9;
+    --text:  #1a1a2e;
+    --muted: #6b7280;
+    --available: #1a7a4a;
+    --available-bg: #d1fae5;
+    --soon:  #92400e;
+    --soon-bg:#fef3c7;
+    --locked:#4b5563;
+    --locked-bg:#f3f4f6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.35);
+  }
+
+  .header-brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 28px 0;
+    border-right: 1px solid rgba(255,255,255,.08);
+    padding-right: 36px;
+  }
+  .header-brand h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.55rem;
+    color: var(--gold-l);
+    letter-spacing: .03em;
+    line-height: 1.1;
+  }
+  .header-brand p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    color: #94a3b8;
+    letter-spacing: .1em;
+    margin-top: 6px;
+  }
+
+  .header-stats {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    padding: 20px 0;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.9rem;
+    font-weight: 500;
+    color: white;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: .68rem;
+    color: #64748b;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .stat-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,.1);
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── PART SECTION ── */
+  .part-section {
+    margin-bottom: 52px;
+  }
+  .part-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .part-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    color: var(--navy);
+  }
+  .part-desc {
+    font-size: .88rem;
+    color: var(--muted);
+  }
+
+  /* ── TEST GRID ── */
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 18px;
+  }
+
+  .test-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow .2s, transform .2s;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+  }
+  .test-card.available:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,.12);
+    transform: translateY(-3px);
+  }
+  .test-card.locked {
+    opacity: .6;
+    cursor: default;
+  }
+
+  .card-top {
+    height: 6px;
+  }
+  .card-top.available { background: linear-gradient(90deg, var(--gold), var(--gold-l)); }
+  .card-top.soon      { background: repeating-linear-gradient(45deg,#fef3c7,#fef3c7 4px,#fde68a 4px,#fde68a 8px); }
+  .card-top.locked    { background: var(--locked-bg); }
+
+  .card-body {
+    padding: 20px 22px;
+    flex: 1;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    color: var(--muted);
+    letter-spacing: .08em;
+  }
+  .status-badge {
+    font-size: .68rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .badge-available { background: var(--available-bg); color: var(--available); }
+  .badge-soon      { background: var(--soon-bg);      color: var(--soon); }
+  .badge-locked    { background: var(--locked-bg);    color: var(--locked); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--navy);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .card-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .info-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    background: var(--cream);
+    color: var(--muted);
+    padding: 3px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+  }
+
+  .card-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--cream2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--cream);
+  }
+  .start-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--navy);
+    background: var(--gold-l);
+    border: none;
+    padding: 7px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: .04em;
+    transition: background .15s;
+    text-decoration: none;
+  }
+  .start-btn:hover { background: var(--gold); }
+  .start-btn.disabled { background: #e5e7eb; color: #9ca3af; cursor: default; }
+  .card-timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  /* ── INFO BAND ── */
+  .info-band {
+    background: var(--navy2);
+    border-radius: 10px;
+    padding: 20px 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .info-item { display: flex; flex-direction: column; gap: 4px; }
+  .info-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+  .info-val {
+    font-size: .92rem;
+    color: #e2d9c8;
+  }
+  .info-val strong { color: var(--gold-l); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .68rem;
+    color: #94a3b8;
+    letter-spacing: .06em;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 20px; flex-direction: column; }
+    .header-brand { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); padding-right: 0; padding-bottom: 16px; }
+    .header-stats { justify-content: space-around; width: 100%; }
+    main { padding: 28px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <h1>TOEIC Practice Suite</h1>
+    <p>MARC VASSEUR &nbsp;·&nbsp; POLYTECH LILLE</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat-item">
+      <div class="stat-num">1</div>
+      <div class="stat-label">Test disponible</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-num">54</div>
+      <div class="stat-label">Questions / test</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-num">48'</div>
+      <div class="stat-label">Durée</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="info-band">
+    <div class="info-item">
+      <div class="info-key">Format</div>
+      <div class="info-val">TOEIC Listening &amp; Reading</div>
+    </div>
+    <div class="info-item">
+      <div class="info-key">Section couverte</div>
+      <div class="info-val"><strong>Part 7</strong> — Reading Comprehension</div>
+    </div>
+    <div class="info-item">
+      <div class="info-key">Questions par test</div>
+      <div class="info-val">54 (Q147–200)</div>
+    </div>
+    <div class="info-item">
+      <div class="info-key">Correction</div>
+      <div class="info-val">Détaillée en <strong>français</strong> + vocabulaire</div>
+    </div>
+    <div class="info-item">
+      <div class="info-key">Établissement</div>
+      <div class="info-val">Polytech Lille</div>
+    </div>
+  </div>
+
+  <!-- PART 7 -->
+  <div class="part-section">
+    <div class="section-label">Parcours de préparation</div>
+    <div class="part-header">
+      <div class="part-title">Part 7 — Reading Comprehension</div>
+      <div class="part-desc">Single &amp; multiple passages · Q147–200</div>
+    </div>
+
+    <div class="test-grid">
+
+      <!-- TEST 1 — available -->
+      <a href="toeic_part7_test1.html" class="test-card available">
+        <div class="card-top available"></div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-num">PART 7 · N°01</span>
+            <span class="status-badge badge-available">Disponible</span>
+          </div>
+          <div class="card-title">Part 7 — Test 1</div>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.6">To-do lists, e-mails, text-message chains, articles de presse, formulaires et rapports techniques. Correction détaillée en français.</p>
+          <div class="card-info">
+            <span class="info-pill">54 questions</span>
+            <span class="info-pill">48 min</span>
+            <span class="info-pill">Q 147–200</span>
+            <span class="info-pill">Single &amp; double passages</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-timer">⏱ 48:00</span>
+          <span class="start-btn">Démarrer →</span>
+        </div>
+      </a>
+
+      <!-- TEST 2 — coming soon -->
+      <div class="test-card locked">
+        <div class="card-top soon"></div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-num">PART 7 · N°02</span>
+            <span class="status-badge badge-soon">À venir</span>
+          </div>
+          <div class="card-title">Part 7 — Test 2</div>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.6">Annonces, mémos, rapports d'entreprise et passages multi-textes. Nouveaux thèmes et vocabulaire professionnel.</p>
+          <div class="card-info">
+            <span class="info-pill">54 questions</span>
+            <span class="info-pill">48 min</span>
+            <span class="info-pill">Q 147–200</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-timer">⏱ 48:00</span>
+          <span class="start-btn disabled">Prochainement</span>
+        </div>
+      </div>
+
+      <!-- TEST 3 — coming soon -->
+      <div class="test-card locked">
+        <div class="card-top soon"></div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-num">PART 7 · N°03</span>
+            <span class="status-badge badge-soon">À venir</span>
+          </div>
+          <div class="card-title">Part 7 — Test 3</div>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.6">Textes authentiques niveau B2–C1 : articles de presse économique, chaînes de courriels, offres d'emploi et comptes-rendus.</p>
+          <div class="card-info">
+            <span class="info-pill">54 questions</span>
+            <span class="info-pill">48 min</span>
+            <span class="info-pill">Q 147–200</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-timer">⏱ 48:00</span>
+          <span class="start-btn disabled">Prochainement</span>
+        </div>
+      </div>
+
+      <!-- TEST 4 — locked -->
+      <div class="test-card locked">
+        <div class="card-top locked"></div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-num">PART 7 · N°04</span>
+            <span class="status-badge badge-locked">Verrouillé</span>
+          </div>
+          <div class="card-title">Part 7 — Test 4</div>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.6">Niveau avancé. Passages triples et vocabulaire spécialisé (finance, logistique, RH).</p>
+          <div class="card-info">
+            <span class="info-pill">54 questions</span>
+            <span class="info-pill">48 min</span>
+            <span class="info-pill">Q 147–200</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-timer">⏱ 48:00</span>
+          <span class="start-btn disabled">Verrouillé</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PARTS 5 & 6 — placeholder -->
+  <div class="part-section">
+    <div class="section-label">Autres parties (à venir)</div>
+    <div class="test-grid">
+
+      <div class="test-card locked">
+        <div class="card-top locked"></div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-num">PART 5</span>
+            <span class="status-badge badge-locked">Verrouillé</span>
+          </div>
+          <div class="card-title">Part 5 — Incomplete Sentences</div>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.6">40 questions de grammaire et vocabulaire à compléter. Timer 20 min.</p>
+          <div class="card-info">
+            <span class="info-pill">40 questions</span>
+            <span class="info-pill">20 min</span>
+            <span class="info-pill">Q 101–140</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-timer">⏱ 20:00</span>
+          <span class="start-btn disabled">Verrouillé</span>
+        </div>
+      </div>
+
+      <div class="test-card locked">
+        <div class="card-top locked"></div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-num">PART 6</span>
+            <span class="status-badge badge-locked">Verrouillé</span>
+          </div>
+          <div class="card-title">Part 6 — Text Completion</div>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.6">16 questions. Textes lacunaires avec options de grammaire, vocabulaire et cohérence textuelle.</p>
+          <div class="card-info">
+            <span class="info-pill">16 questions</span>
+            <span class="info-pill">12 min</span>
+            <span class="info-pill">Q 131–146</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-timer">⏱ 12:00</span>
+          <span class="start-btn disabled">Verrouillé</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer>MARC VASSEUR &nbsp;·&nbsp; POLYTECH LILLE &nbsp;·&nbsp; TOEIC PRACTICE SUITE</footer>
+
+</body>
+</html>

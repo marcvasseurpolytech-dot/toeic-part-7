@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Part 7 — Test 1 — Marc VASSEUR — Polytech Lille</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy2: #162840;
+    --navy3: #1e3a5f;
+    --gold: #c8993a;
+    --gold-light: #e8b84b;
+    --cream: #f8f4ed;
+    --cream2: #f0ead8;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --correct: #1a7a4a;
+    --wrong: #9b1c1c;
+    --correct-bg: #d1fae5;
+    --wrong-bg: #fee2e2;
+    --unanswered: #fef3c7;
+    --border: #d4c5a9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  #header {
+    background: var(--navy);
+    color: white;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  }
+  #header-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    letter-spacing: .04em;
+    color: var(--gold-light);
+  }
+  #header-left p {
+    font-size: .75rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .06em;
+  }
+
+  #timer-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  #timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.1rem;
+    font-weight: 500;
+    color: var(--gold-light);
+    letter-spacing: .1em;
+    transition: color .3s;
+  }
+  #timer.warning { color: #f97316; }
+  #timer.danger  { color: #ef4444; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  #timer-label { font-size: .65rem; color: #94a3b8; letter-spacing: .08em; text-transform: uppercase; }
+
+  #progress-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  #progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .85rem;
+    color: #cbd5e1;
+  }
+  #progress-bar-wrap {
+    width: 160px;
+    height: 6px;
+    background: rgba(255,255,255,.15);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 99px;
+    transition: width .4s ease;
+    width: 0%;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ── DIRECTIONS ── */
+  .directions-box {
+    background: var(--navy2);
+    color: #e2d9c8;
+    border-left: 4px solid var(--gold);
+    padding: 18px 24px;
+    border-radius: 6px;
+    margin-bottom: 36px;
+    font-size: .9rem;
+    line-height: 1.7;
+  }
+  .directions-box strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--gold-light);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* ── PASSAGE BLOCK ── */
+  .passage-block {
+    margin-bottom: 44px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  }
+  .passage-header {
+    background: var(--navy3);
+    color: var(--gold-light);
+    padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .passage-text {
+    background: white;
+    padding: 20px 24px;
+    font-size: .93rem;
+    line-height: 1.75;
+    border-bottom: 1px solid var(--border);
+  }
+  .passage-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--navy);
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--cream2);
+    padding-bottom: 6px;
+  }
+  .passage-text .source-meta {
+    font-size: .78rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .passage-text table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .88rem;
+    margin: 10px 0;
+  }
+  .passage-text th {
+    background: var(--navy);
+    color: var(--gold-light);
+    padding: 7px 12px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+  }
+  .passage-text td {
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+  }
+  .passage-text tr:nth-child(even) td { background: var(--cream); }
+  .msg-chain { display: flex; flex-direction: column; gap: 8px; }
+  .msg { max-width: 80%; padding: 9px 14px; border-radius: 14px; font-size: .9rem; }
+  .msg-left { background: #f1f5f9; border-bottom-left-radius: 4px; align-self: flex-start; }
+  .msg-right { background: #dbeafe; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .msg-name { font-size: .72rem; font-family: 'JetBrains Mono', monospace; color: var(--muted); margin-bottom: 3px; }
+  .msg-time { font-size: .68rem; color: var(--muted); text-align: right; margin-top: 3px; }
+  .bullet-list { margin: 8px 0 8px 20px; }
+  .bullet-list li { margin-bottom: 5px; }
+
+  /* ── QUESTIONS ── */
+  .questions-area {
+    background: var(--cream);
+    padding: 20px 24px;
+  }
+  .question-item {
+    margin-bottom: 22px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .question-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .question-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    color: var(--gold);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .question-text {
+    font-weight: 600;
+    font-size: .95rem;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    color: var(--navy);
+  }
+  .options { display: flex; flex-direction: column; gap: 6px; }
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .9rem;
+    transition: all .2s;
+    background: white;
+  }
+  .option-label:hover { border-color: var(--navy3); background: #f0f4ff; }
+  .option-label input[type="radio"] { accent-color: var(--navy); }
+  .option-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--navy3);
+    min-width: 18px;
+  }
+
+  /* answered state */
+  .question-item.answered .option-label { opacity: .85; }
+
+  /* ── SUBMIT ── */
+  #submit-section {
+    text-align: center;
+    margin-top: 40px;
+    padding: 30px;
+    background: var(--navy);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  }
+  #submit-section p {
+    color: #94a3b8;
+    font-size: .88rem;
+    margin-bottom: 16px;
+  }
+  #unanswered-count {
+    color: var(--gold-light);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+  }
+  #submit-btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--navy);
+    border: none;
+    padding: 14px 48px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 4px 14px rgba(200,153,58,.4);
+  }
+  #submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,153,58,.5); }
+  #submit-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  /* ── CORRECTION ── */
+  #correction-section { display: none; }
+  #correction-section.visible { display: block; }
+
+  .score-banner {
+    background: var(--navy);
+    color: white;
+    text-align: center;
+    padding: 40px 24px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.25);
+  }
+  .score-banner h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+  }
+  .score-banner .big-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 4rem;
+    font-weight: 600;
+    color: white;
+    line-height: 1;
+  }
+  .score-banner .score-sub {
+    color: #94a3b8;
+    font-size: .9rem;
+    margin-top: 8px;
+  }
+  .score-banner .toeic-estimate {
+    margin-top: 20px;
+    padding: 14px 24px;
+    background: rgba(200,153,58,.15);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    display: inline-block;
+    font-size: .95rem;
+    color: var(--gold-light);
+  }
+
+  .correction-passage {
+    margin-bottom: 44px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  }
+  .correction-passage-header {
+    background: var(--navy3);
+    color: var(--gold-light);
+    padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .correction-item {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--cream2);
+    background: white;
+  }
+  .correction-item:last-child { border-bottom: none; }
+
+  .correction-item.correct { border-left: 4px solid var(--correct); }
+  .correction-item.wrong { border-left: 4px solid var(--wrong); }
+  .correction-item.unanswered { border-left: 4px solid #f59e0b; }
+
+  .correction-q-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .q-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+  .correct .q-badge { background: var(--correct-bg); color: var(--correct); }
+  .wrong .q-badge   { background: var(--wrong-bg);    color: var(--wrong); }
+  .unanswered .q-badge { background: var(--unanswered); color: #92400e; }
+
+  .result-icon { font-size: 1.2rem; }
+  .correction-q-text {
+    font-weight: 600;
+    font-size: .93rem;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+
+  .answer-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: .85rem;
+  }
+  .answer-pill {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+  }
+  .pill-your-correct { background: var(--correct-bg); color: var(--correct); }
+  .pill-your-wrong   { background: var(--wrong-bg); color: var(--wrong); text-decoration: line-through; }
+  .pill-correct-ans  { background: #dbeafe; color: #1d4ed8; }
+
+  .explication {
+    background: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: .88rem;
+    line-height: 1.7;
+  }
+  .explication strong { color: var(--navy); }
+  .vocab-box {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #f0f4ff;
+    border-radius: 6px;
+    font-size: .83rem;
+    line-height: 1.65;
+  }
+  .vocab-box span { font-family: 'JetBrains Mono', monospace; color: var(--navy3); font-weight: 500; }
+
+  /* Timeout overlay */
+  #timeout-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,27,42,.92);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+  }
+  #timeout-overlay.show { display: flex; }
+  #timeout-box {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 40px 48px;
+    text-align: center;
+    max-width: 400px;
+  }
+  #timeout-box h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--navy);
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+  #timeout-box p { color: var(--muted); margin-bottom: 20px; }
+  #timeout-btn {
+    background: var(--navy);
+    color: var(--gold-light);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  @media (max-width: 640px) {
+    #header { flex-wrap: wrap; gap: 12px; }
+    #main { padding: 20px 14px 60px; }
+    .passage-text, .questions-area { padding: 14px 16px; }
+    #timer { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TIMEOUT OVERLAY -->
+<div id="timeout-overlay">
+  <div id="timeout-box">
+    <h2>⏰ Temps écoulé</h2>
+    <p>Les 48 minutes sont terminées. Le test est soumis automatiquement avec vos réponses actuelles.</p>
+    <button id="timeout-btn" onclick="forceSubmit()">Voir la correction</button>
+  </div>
+</div>
+
+<!-- STICKY HEADER -->
+<div id="header">
+  <div id="header-left">
+    <h1>TOEIC — Part 7 &nbsp;·&nbsp; Test 1</h1>
+    <p>MARC VASSEUR &nbsp;|&nbsp; POLYTECH LILLE</p>
+  </div>
+  <div id="timer-block">
+    <div id="timer">48:00</div>
+    <div id="timer-label">Temps restant</div>
+  </div>
+  <div id="progress-block">
+    <div id="progress-text">0 / 54 réponses</div>
+    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  </div>
+</div>
+
+<div id="main">
+
+  <div class="directions-box">
+    <strong>PART 7 — Directions</strong>
+    In this part you will read a selection of texts, such as magazine and newspaper articles, e-mails, and instant messages. Each text or set of texts is followed by several questions. Select the best answer for each question and mark the letter (A), (B), (C), or (D). You must answer all 54 questions before submitting. Detailed corrections in French will be shown after submission.
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Q147-148 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 147–148 — To-Do List</div>
+    <div class="passage-text">
+      <h3>Amy Mandelbaum's To-Do List</h3>
+      <p class="source-meta">Things To Do Today, Wednesday, January 4</p>
+      <ul class="bullet-list">
+        <li>Meet with Floral Wellspring representative to discuss contract</li>
+        <li>Create flower arrangements for the Bernstein wedding</li>
+        <li>Draw up invoice for Ms. Swartz's order (rose bouquet)</li>
+        <li>Interview Ms. Knight for the shop assistant position</li>
+        <li>Send instructions to Mr. Franks on caring for tulips</li>
+        <li>Begin writing quarterly report</li>
+      </ul>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-147">
+        <div class="question-num">Question 147</div>
+        <div class="question-text">Who most likely is Ms. Mandelbaum?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q147" value="A"><span class="option-letter">A</span> An accounting consultant</label>
+          <label class="option-label"><input type="radio" name="q147" value="B"><span class="option-letter">B</span> A fashion designer</label>
+          <label class="option-label"><input type="radio" name="q147" value="C"><span class="option-letter">C</span> A reporter</label>
+          <label class="option-label"><input type="radio" name="q147" value="D"><span class="option-letter">D</span> A florist</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-148">
+        <div class="question-num">Question 148</div>
+        <div class="question-text">What should Ms. Mandelbaum do today?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q148" value="A"><span class="option-letter">A</span> Prepare a bill</label>
+          <label class="option-label"><input type="radio" name="q148" value="B"><span class="option-letter">B</span> Read an article</label>
+          <label class="option-label"><input type="radio" name="q148" value="C"><span class="option-letter">C</span> Cancel a meeting</label>
+          <label class="option-label"><input type="radio" name="q148" value="D"><span class="option-letter">D</span> Attend a marriage ceremony</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q149-150 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 149–150 — Text-Message Chain</div>
+    <div class="passage-text">
+      <div class="msg-chain">
+        <div class="msg msg-left"><div class="msg-name">Alex Dang</div>Hi, Batari. I'm in Apartment 6C fixing the leaky faucet. I forgot a package of screws I'll need. Can you get them?<div class="msg-time">12:30 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Batari Sanjaya</div>Sure. But I'm heading back from lunch, so it'll be about 10 minutes.<div class="msg-time">12:35 P.M.</div></div>
+        <div class="msg msg-left"><div class="msg-name">Alex Dang</div>OK. No problem. I think I left them in the shed. They're in a green plastic bag.<div class="msg-time">12:36 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Batari Sanjaya</div>I remember seeing a green bag on one of the workbenches.<div class="msg-time">12:45 P.M.</div></div>
+        <div class="msg msg-left"><div class="msg-name">Alex Dang</div>That should be it.<div class="msg-time">12:47 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Batari Sanjaya</div>Great. I'll grab it and be over in a few minutes.<div class="msg-time">12:48 P.M.</div></div>
+      </div>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-149">
+        <div class="question-num">Question 149</div>
+        <div class="question-text">What most likely is Mr. Dang's occupation?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q149" value="A"><span class="option-letter">A</span> A carpenter</label>
+          <label class="option-label"><input type="radio" name="q149" value="B"><span class="option-letter">B</span> A maintenance worker</label>
+          <label class="option-label"><input type="radio" name="q149" value="C"><span class="option-letter">C</span> A clerk at a hardware store</label>
+          <label class="option-label"><input type="radio" name="q149" value="D"><span class="option-letter">D</span> The owner of a restaurant</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-150">
+        <div class="question-num">Question 150</div>
+        <div class="question-text">At 12:47 P.M., what does Mr. Dang most likely mean when he writes, "That should be it"?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q150" value="A"><span class="option-letter">A</span> Work on the faucet is now complete.</label>
+          <label class="option-label"><input type="radio" name="q150" value="B"><span class="option-letter">B</span> Ms. Sanjaya is probably referring to the item he needs.</label>
+          <label class="option-label"><input type="radio" name="q150" value="C"><span class="option-letter">C</span> There are just enough screws to finish the job.</label>
+          <label class="option-label"><input type="radio" name="q150" value="D"><span class="option-letter">D</span> Ms. Sanjaya is using the proper workbench.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q151-152 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 151–152 — Resort Notice</div>
+    <div class="passage-text">
+      <h3>DUNSBRIDGE RESORT</h3>
+      <p>The wireless network at Dunsbridge Resort is available in most public areas, as well as inside all guest rooms. Instructions explaining how to connect are included in the informational packet provided in each room. If you experience difficulty accessing the network, contact our front desk. We will provide the assistance of an Internet technician. Please be advised that our wireless service is an unsecured network. Your communications may be visible to others.</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-151">
+        <div class="question-num">Question 151</div>
+        <div class="question-text">What is the purpose of the notice?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q151" value="A"><span class="option-letter">A</span> To inform guests about a service</label>
+          <label class="option-label"><input type="radio" name="q151" value="B"><span class="option-letter">B</span> To explain a new procedure</label>
+          <label class="option-label"><input type="radio" name="q151" value="C"><span class="option-letter">C</span> To remind employees of a policy</label>
+          <label class="option-label"><input type="radio" name="q151" value="D"><span class="option-letter">D</span> To announce a computer maintenance schedule</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-152">
+        <div class="question-num">Question 152</div>
+        <div class="question-text">What does the notice suggest readers should be cautious about?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q152" value="A"><span class="option-letter">A</span> Leaving computers unattended</label>
+          <label class="option-label"><input type="radio" name="q152" value="B"><span class="option-letter">B</span> Transferring large amounts of data</label>
+          <label class="option-label"><input type="radio" name="q152" value="C"><span class="option-letter">C</span> Sending confidential information</label>
+          <label class="option-label"><input type="radio" name="q152" value="D"><span class="option-letter">D</span> Opening unfamiliar computer files</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q153-154 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 153–154 — Online Review</div>
+    <div class="passage-text">
+      <div class="source-meta">http://www.thunderbrushcafe.com — Feedback Form</div>
+      <h3>THUNDERBRUSH CAFÉ — Customer Review</h3>
+      <p><strong>Name:</strong> Amaya S.</p><br>
+      <p>This is a great place to get fresh Mexican food! The Manor Oaks location was a little slow when it first opened and the staff was new, but service is great now. Considering the prices and the generous food portions, this café is a deal! I eat regularly at the location on 42nd Street, and I usually end up with leftovers to take home with me. I do wish, however, that there were more options to choose from. A few new specials that rotate throughout the week would be a welcome addition to the current menu.</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-153">
+        <div class="question-num">Question 153</div>
+        <div class="question-text">What is true about Thunderbrush Café?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q153" value="A"><span class="option-letter">A</span> It has multiple locations.</label>
+          <label class="option-label"><input type="radio" name="q153" value="B"><span class="option-letter">B</span> It will be raising its prices.</label>
+          <label class="option-label"><input type="radio" name="q153" value="C"><span class="option-letter">C</span> It recently changed ownership.</label>
+          <label class="option-label"><input type="radio" name="q153" value="D"><span class="option-letter">D</span> It is seeking new serving staff.</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-154">
+        <div class="question-num">Question 154</div>
+        <div class="question-text">According to the review, what needs to be improved?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q154" value="A"><span class="option-letter">A</span> The speed of service</label>
+          <label class="option-label"><input type="radio" name="q154" value="B"><span class="option-letter">B</span> The quality of the food</label>
+          <label class="option-label"><input type="radio" name="q154" value="C"><span class="option-letter">C</span> The size of the portions</label>
+          <label class="option-label"><input type="radio" name="q154" value="D"><span class="option-letter">D</span> The variety of menu offerings</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q155-158 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 155–158 — E-mail</div>
+    <div class="passage-text">
+      <p><strong>To:</strong> Pilar Garcia &lt;pgarcia@bartlehospitality.ca&gt;<br>
+      <strong>From:</strong> Felicia Dooley &lt;fdooley@dooleycareerfilms.ca&gt;<br>
+      <strong>Subject:</strong> Dooley Career Films<br>
+      <strong>Date:</strong> 2 May<br>
+      <strong>Attachment:</strong> Dooley1</p><br>
+      <p>Dear Pilar,</p><br>
+      <p>It was a pleasure to speak with you on the telephone yesterday. — [1] —. Thank you for agreeing to participate in our project. I think our videos give people a good idea of what it is like to work in jobs in various industries. Your perspective as a fairly new employee in the hospitality field will be a valuable addition to our series. — [2] —. I am grateful to Cam Bartle for recommending you!</p><br>
+      <p>I have attached a document that explains how to log on to our Web site to access information you will need for the project. Once you are on the Web site, you should also complete the brief personal information form there. — [3] —. That way we will have your most up-to-date biographical and contact information. — [4] —. I will be in touch next week to go over the timing of our filming sessions, but please call me before then at 416-555-0179 if you have any questions.</p><br>
+      <p>Sincerely,<br>Felicia Dooley</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-155">
+        <div class="question-num">Question 155</div>
+        <div class="question-text">What is the purpose of the e-mail?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q155" value="A"><span class="option-letter">A</span> To request a recommendation</label>
+          <label class="option-label"><input type="radio" name="q155" value="B"><span class="option-letter">B</span> To inquire about a job opportunity</label>
+          <label class="option-label"><input type="radio" name="q155" value="C"><span class="option-letter">C</span> To provide project details</label>
+          <label class="option-label"><input type="radio" name="q155" value="D"><span class="option-letter">D</span> To promote a new business</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-156">
+        <div class="question-num">Question 156</div>
+        <div class="question-text">What is attached to the e-mail?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q156" value="A"><span class="option-letter">A</span> A catalog</label>
+          <label class="option-label"><input type="radio" name="q156" value="B"><span class="option-letter">B</span> A video</label>
+          <label class="option-label"><input type="radio" name="q156" value="C"><span class="option-letter">C</span> A company profile</label>
+          <label class="option-label"><input type="radio" name="q156" value="D"><span class="option-letter">D</span> A set of instructions</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-157">
+        <div class="question-num">Question 157</div>
+        <div class="question-text">According to the e-mail, what will Ms. Dooley do next week?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q157" value="A"><span class="option-letter">A</span> Discuss a schedule</label>
+          <label class="option-label"><input type="radio" name="q157" value="B"><span class="option-letter">B</span> Update contact information</label>
+          <label class="option-label"><input type="radio" name="q157" value="C"><span class="option-letter">C</span> Send a questionnaire</label>
+          <label class="option-label"><input type="radio" name="q157" value="D"><span class="option-letter">D</span> Interview Ms. Garcia</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-158">
+        <div class="question-num">Question 158</div>
+        <div class="question-text">In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong? <em>"We will surely benefit from any fresh insights you may contribute."</em></div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q158" value="A"><span class="option-letter">A</span> [1]</label>
+          <label class="option-label"><input type="radio" name="q158" value="B"><span class="option-letter">B</span> [2]</label>
+          <label class="option-label"><input type="radio" name="q158" value="C"><span class="option-letter">C</span> [3]</label>
+          <label class="option-label"><input type="radio" name="q158" value="D"><span class="option-letter">D</span> [4]</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q159-161 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 159–161 — Bank Notice</div>
+    <div class="passage-text">
+      <h3>NOTICE REGARDING MATUNIS BANK'S SOCIAL MEDIA PRESENCE</h3>
+      <p>Matunis Bank uses Splenster, the social networking service, to connect with customers. Splenster provides access to updates on weekly promotions, policy changes, and branch openings. — [1] —. The platform also allows clients to chat online with Matunis Bank consultants. — [2] —. Please note that communication on Splenster should not be viewed as legal advice regarding any of our products, services, or accounts.</p><br>
+      <p>Splenster is a public platform and anything posted on the site can be viewed by others. — [3] —. Remember: Matunis Bank will never ask you to disclose any confidential information. Keep all passwords, account information, and other personal credentials private. — [4] —.</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-159">
+        <div class="question-num">Question 159</div>
+        <div class="question-text">What is a purpose of the information?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q159" value="A"><span class="option-letter">A</span> To warn of a recent security violation</label>
+          <label class="option-label"><input type="radio" name="q159" value="B"><span class="option-letter">B</span> To describe the benefits of a service</label>
+          <label class="option-label"><input type="radio" name="q159" value="C"><span class="option-letter">C</span> To encourage customers to update their e-mail addresses</label>
+          <label class="option-label"><input type="radio" name="q159" value="D"><span class="option-letter">D</span> To tell clients about alternative access to accounts</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-160">
+        <div class="question-num">Question 160</div>
+        <div class="question-text">Where might this information appear?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q160" value="A"><span class="option-letter">A</span> In a financial magazine</label>
+          <label class="option-label"><input type="radio" name="q160" value="B"><span class="option-letter">B</span> In packaging for a product</label>
+          <label class="option-label"><input type="radio" name="q160" value="C"><span class="option-letter">C</span> On a company Web page</label>
+          <label class="option-label"><input type="radio" name="q160" value="D"><span class="option-letter">D</span> On an invitation</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-161">
+        <div class="question-num">Question 161</div>
+        <div class="question-text">In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong? <em>"For this reason, we discourage posting sensitive information on Splenster."</em></div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q161" value="A"><span class="option-letter">A</span> [1]</label>
+          <label class="option-label"><input type="radio" name="q161" value="B"><span class="option-letter">B</span> [2]</label>
+          <label class="option-label"><input type="radio" name="q161" value="C"><span class="option-letter">C</span> [3]</label>
+          <label class="option-label"><input type="radio" name="q161" value="D"><span class="option-letter">D</span> [4]</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q162-164 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 162–164 — E-mail (Work Schedule)</div>
+    <div class="passage-text">
+      <p><strong>To:</strong> Peter Weiss &lt;pweiss@linshore.ca&gt;<br>
+      <strong>From:</strong> Juanita Rios &lt;jrios@linshore.ca&gt;<br>
+      <strong>Date:</strong> June 22<br>
+      <strong>Re:</strong> Tomorrow's schedule<br>
+      <strong>Attachment:</strong> For Tuesday's meeting</p><br>
+      <p>Dear Peter,</p><br>
+      <p>I wanted to remind you that I'll be arriving at the office late tomorrow because of a previously scheduled dental appointment.</p><br>
+      <p>The monthly meeting on new flight and hotel packages will take place as usual at 10:00 A.M. in room 220. Coffee, tea, and pastries have been ordered and will be delivered to the room a half hour before the meeting. Please set these up on the small table in the corner of the room. Also, could you please make sure that, during the meeting, all calls from customers are automatically directed to Ms. Vesela at the front desk?</p><br>
+      <p>I expect to arrive in the office by noon, in time for the training session on the new itinerary system at 12:30 P.M. The user's guide for the new system is attached. Please print it out and make twelve copies to distribute at the training session.</p><br>
+      <p>Thank you for your help. I appreciate it.<br>Sincerely, Juanita</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-162">
+        <div class="question-num">Question 162</div>
+        <div class="question-text">Where does Juanita most likely work?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q162" value="A"><span class="option-letter">A</span> At a travel agency</label>
+          <label class="option-label"><input type="radio" name="q162" value="B"><span class="option-letter">B</span> At a dental office</label>
+          <label class="option-label"><input type="radio" name="q162" value="C"><span class="option-letter">C</span> At a catering service</label>
+          <label class="option-label"><input type="radio" name="q162" value="D"><span class="option-letter">D</span> At a software company</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-163">
+        <div class="question-num">Question 163</div>
+        <div class="question-text">What does Juanita ask Peter to do?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q163" value="A"><span class="option-letter">A</span> Reschedule an appointment</label>
+          <label class="option-label"><input type="radio" name="q163" value="B"><span class="option-letter">B</span> Reserve a room for a meeting</label>
+          <label class="option-label"><input type="radio" name="q163" value="C"><span class="option-letter">C</span> Arrange the refreshments</label>
+          <label class="option-label"><input type="radio" name="q163" value="D"><span class="option-letter">D</span> Answer phone calls</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-164">
+        <div class="question-num">Question 164</div>
+        <div class="question-text">What did Juanita send with the e-mail?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q164" value="A"><span class="option-letter">A</span> A meeting agenda</label>
+          <label class="option-label"><input type="radio" name="q164" value="B"><span class="option-letter">B</span> A training handout</label>
+          <label class="option-label"><input type="radio" name="q164" value="C"><span class="option-letter">C</span> An updated calendar</label>
+          <label class="option-label"><input type="radio" name="q164" value="D"><span class="option-letter">D</span> A customer invoice</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q165-167 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 165–167 — Company Invitation</div>
+    <div class="passage-text">
+      <h3>HJG ENTERPRISES</h3>
+      <p>Dear staff members,</p><br>
+      <p>We have reached some major milestones in our efforts to incorporate green practices in the workplace. Our corporate offices are now powered almost exclusively by solar energy! Come celebrate our commitment to environmental sustainability by joining your colleagues for our first annual "Going Green at Work" day. Rain or shine, the event will be held in the front courtyard on Monday, April 22.</p><br>
+      <p><strong>Activities for Going Green at Work Day:</strong></p>
+      <ul class="bullet-list">
+        <li><strong>10:30 A.M.</strong> — Ceremony honoring achievements in sustainability, including the implementation of our recycling program and our transition to solar energy</li>
+        <li><strong>11 A.M. to 1:30 P.M.</strong> — Green fair featuring entertainment, games, and information booths; lunch options provided by organic food vendors serving a wide variety of natural treats</li>
+      </ul><br>
+      <p>Even if you do not normally carpool to work, we encourage you to do so on that day in order to support our mission to conserve energy. Contact Mindy Simms in the administration office if you are interested in either driving or joining an existing car pool. She is keeping a list of employees who will be traveling to the event from different areas.</p><br>
+      <p>I hope all will attend!<br>Walter Gregory — CEO, HJG Enterprises</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-165">
+        <div class="question-num">Question 165</div>
+        <div class="question-text">What are staff members invited to celebrate?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q165" value="A"><span class="option-letter">A</span> Meeting important goals for recent projects</label>
+          <label class="option-label"><input type="radio" name="q165" value="B"><span class="option-letter">B</span> Winning several new business contracts</label>
+          <label class="option-label"><input type="radio" name="q165" value="C"><span class="option-letter">C</span> The promotions awarded to colleagues</label>
+          <label class="option-label"><input type="radio" name="q165" value="D"><span class="option-letter">D</span> The purchase of a clean energy company</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-166">
+        <div class="question-num">Question 166</div>
+        <div class="question-text">Where will events and activities take place?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q166" value="A"><span class="option-letter">A</span> At a local recycling center</label>
+          <label class="option-label"><input type="radio" name="q166" value="B"><span class="option-letter">B</span> At various locations throughout town</label>
+          <label class="option-label"><input type="radio" name="q166" value="C"><span class="option-letter">C</span> Outside the company's corporate offices</label>
+          <label class="option-label"><input type="radio" name="q166" value="D"><span class="option-letter">D</span> In a local conference center</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-167">
+        <div class="question-num">Question 167</div>
+        <div class="question-text">Why are employees encouraged to contact Ms. Simms?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q167" value="A"><span class="option-letter">A</span> To sign up for a building tour</label>
+          <label class="option-label"><input type="radio" name="q167" value="B"><span class="option-letter">B</span> To arrange for transportation</label>
+          <label class="option-label"><input type="radio" name="q167" value="C"><span class="option-letter">C</span> To obtain driving directions</label>
+          <label class="option-label"><input type="radio" name="q167" value="D"><span class="option-letter">D</span> To learn about sustainability policies</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q168-171 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 168–171 — Newspaper Article</div>
+    <div class="passage-text">
+      <h3>NOMINATIONS BEING ACCEPTED FOR TOP WORKPLACE</h3>
+      <p class="source-meta">4 September — Mumbai Times Journal</p>
+      <p>Once again, Mumbai Times Journal is seeking out the best workplaces in the city. Anyone employed at a company in Mumbai, inclusive of executives and managers, is invited to complete a survey conducted by the independent research firm Clearfield Workforce Solutions. The survey will help us identify the companies that provide the highest level of employee satisfaction in terms of workload, financial compensation and benefits, and career advancement. The survey can be accessed at www.mtj.co.in/workplaces until 31 October.</p><br>
+      <p>Businesses in the greater Mumbai area with 40 or more employees are eligible for nomination, though smaller firms with high reviews may receive an honourable mention. Private and public firms, nonprofit institutions, and government organizations are all eligible, as are companies headquartered outside the city that have a Mumbai-based branch.</p><br>
+      <p>Employees who respond to the survey remain anonymous, but their comments may be posted when the winners are announced in January.</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-168">
+        <div class="question-num">Question 168</div>
+        <div class="question-text">What is suggested about the survey?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q168" value="A"><span class="option-letter">A</span> It has been administered previously.</label>
+          <label class="option-label"><input type="radio" name="q168" value="B"><span class="option-letter">B</span> It will be published in October.</label>
+          <label class="option-label"><input type="radio" name="q168" value="C"><span class="option-letter">C</span> Its deadline has been extended.</label>
+          <label class="option-label"><input type="radio" name="q168" value="D"><span class="option-letter">D</span> Its results will lead to the giving of a cash award.</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-169">
+        <div class="question-num">Question 169</div>
+        <div class="question-text">What is most likely true about Clearfield Workforce Solutions?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q169" value="A"><span class="option-letter">A</span> It has fewer than 40 employees.</label>
+          <label class="option-label"><input type="radio" name="q169" value="B"><span class="option-letter">B</span> It was nominated as one of the best workplaces.</label>
+          <label class="option-label"><input type="radio" name="q169" value="C"><span class="option-letter">C</span> It has been hired by Mumbai Times Journal.</label>
+          <label class="option-label"><input type="radio" name="q169" value="D"><span class="option-letter">D</span> Its headquarters are outside of Mumbai.</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-170">
+        <div class="question-num">Question 170</div>
+        <div class="question-text">What information is NOT collected by the survey?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q170" value="A"><span class="option-letter">A</span> An employee's salary</label>
+          <label class="option-label"><input type="radio" name="q170" value="B"><span class="option-letter">B</span> An employee's workload</label>
+          <label class="option-label"><input type="radio" name="q170" value="C"><span class="option-letter">C</span> The likelihood of promotion</label>
+          <label class="option-label"><input type="radio" name="q170" value="D"><span class="option-letter">D</span> The quality of company leadership</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-171">
+        <div class="question-num">Question 171</div>
+        <div class="question-text">What is indicated about the survey participants?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q171" value="A"><span class="option-letter">A</span> They must be government employees.</label>
+          <label class="option-label"><input type="radio" name="q171" value="B"><span class="option-letter">B</span> They will be paid for participating.</label>
+          <label class="option-label"><input type="radio" name="q171" value="C"><span class="option-letter">C</span> Their identities will remain confidential.</label>
+          <label class="option-label"><input type="radio" name="q171" value="D"><span class="option-letter">D</span> Their comments must be approved by a manager.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q172-175 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 172–175 — Text-Message Chain (Birthday)</div>
+    <div class="passage-text">
+      <div class="msg-chain">
+        <div class="msg msg-left"><div class="msg-name">Allie Mosby</div>Hi, everyone. I just realized that tomorrow is Bryan's birthday.<div class="msg-time">3:40 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Jen Evanston</div>We should definitely do something. Any ideas?<div class="msg-time">3:41 P.M.</div></div>
+        <div class="msg msg-left"><div class="msg-name">Allie Mosby</div>I'll bring in a birthday card for everyone in our department to sign. We can give it to him at lunch.<div class="msg-time">3:42 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Dustin Walker</div>And maybe have some cake?<div class="msg-time">3:43 P.M.</div></div>
+        <div class="msg msg-left"><div class="msg-name">Chris Nowak</div>I like that idea.<div class="msg-time">3:44 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Jen Evanston</div>I can pick one up on my way into work.<div class="msg-time">3:44 P.M.</div></div>
+        <div class="msg msg-left"><div class="msg-name">Chris Nowak</div>Great! I'll collect some donations this afternoon so you don't have to pay for the whole thing.<div class="msg-time">3:45 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Allie Mosby</div>Thanks for offering to do that, Jen.<div class="msg-time">3:46 P.M.</div></div>
+        <div class="msg msg-left"><div class="msg-name">Jen Evanston</div>It's no problem. This will be a nice treat for Bryan.<div class="msg-time">3:47 P.M.</div></div>
+        <div class="msg msg-right"><div class="msg-name">Dustin Walker</div>I forgot that I have a lunch meeting tomorrow.<div class="msg-time">3:48 P.M.</div></div>
+        <div class="msg msg-left"><div class="msg-name">Allie Mosby</div>Don't worry. Some of us will probably go out after work, too.<div class="msg-time">3:49 P.M.</div></div>
+      </div>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-172">
+        <div class="question-num">Question 172</div>
+        <div class="question-text">Why did Ms. Mosby send the initial message?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q172" value="A"><span class="option-letter">A</span> To remind colleagues of an event</label>
+          <label class="option-label"><input type="radio" name="q172" value="B"><span class="option-letter">B</span> To ask about a missing document</label>
+          <label class="option-label"><input type="radio" name="q172" value="C"><span class="option-letter">C</span> To recommend a local bakery</label>
+          <label class="option-label"><input type="radio" name="q172" value="D"><span class="option-letter">D</span> To schedule a department meeting</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-173">
+        <div class="question-num">Question 173</div>
+        <div class="question-text">What will Mr. Nowak do this afternoon?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q173" value="A"><span class="option-letter">A</span> Purchase a birthday card</label>
+          <label class="option-label"><input type="radio" name="q173" value="B"><span class="option-letter">B</span> Order refreshments</label>
+          <label class="option-label"><input type="radio" name="q173" value="C"><span class="option-letter">C</span> Collect some money</label>
+          <label class="option-label"><input type="radio" name="q173" value="D"><span class="option-letter">D</span> Sign a contract</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-174">
+        <div class="question-num">Question 174</div>
+        <div class="question-text">At 3:47 P.M., what does Ms. Evanston mean when she writes, "It's no problem"?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q174" value="A"><span class="option-letter">A</span> She knows where to buy a card.</label>
+          <label class="option-label"><input type="radio" name="q174" value="B"><span class="option-letter">B</span> She is willing to buy a cake.</label>
+          <label class="option-label"><input type="radio" name="q174" value="C"><span class="option-letter">C</span> She can change the time of a meeting.</label>
+          <label class="option-label"><input type="radio" name="q174" value="D"><span class="option-letter">D</span> She does not mind paying for the decorations.</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-175">
+        <div class="question-num">Question 175</div>
+        <div class="question-text">Why will Mr. Walker miss the celebration at lunch?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q175" value="A"><span class="option-letter">A</span> He will be out of town.</label>
+          <label class="option-label"><input type="radio" name="q175" value="B"><span class="option-letter">B</span> He has a doctor's appointment.</label>
+          <label class="option-label"><input type="radio" name="q175" value="C"><span class="option-letter">C</span> He is starting a new project.</label>
+          <label class="option-label"><input type="radio" name="q175" value="D"><span class="option-letter">D</span> He is attending another meeting.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- PDF 2 — Q176-200 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <!-- Q176-180 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 176–180 — Internal Company Report</div>
+    <div class="passage-text">
+      <h3>Industrial Automation &amp; Sensor Calibration Standards</h3>
+      <p>To maintain peak performance across our decentralized processing facilities, a revised operational protocol has been enacted regarding system automation frameworks. Preliminary evaluations from our field testing teams indicate that automated thermal management controllers must be calibrated every 90 days rather than biannually. This update comes in response to unexpected sensor lag observed during peak output windows.</p><br>
+      <p>Technicians are required to report all diagnostic variances exceeding a 2% baseline threshold to the department director immediately. Failure to record these metrics in the shared centralized database could compromise project deadlines and void our standard structural warranties.</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-176">
+        <div class="question-num">Question 176</div>
+        <div class="question-text">What is the primary focus of the internal report?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q176" value="A"><span class="option-letter">A</span> Hiring new senior field engineers</label>
+          <label class="option-label"><input type="radio" name="q176" value="B"><span class="option-letter">B</span> Modifying sensor calibration frequencies</label>
+          <label class="option-label"><input type="radio" name="q176" value="C"><span class="option-letter">C</span> Relocating decentralized warehouses</label>
+          <label class="option-label"><input type="radio" name="q176" value="D"><span class="option-letter">D</span> Introducing a new employee benefit system</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-177">
+        <div class="question-num">Question 177</div>
+        <div class="question-text">According to the document, why was the operational protocol revised?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q177" value="A"><span class="option-letter">A</span> To comply with international safety regulations</label>
+          <label class="option-label"><input type="radio" name="q177" value="B"><span class="option-letter">B</span> Because of sensor lag during periods of high output</label>
+          <label class="option-label"><input type="radio" name="q177" value="C"><span class="option-letter">C</span> Due to a recent shortage of maintenance staff</label>
+          <label class="option-label"><input type="radio" name="q177" value="D"><span class="option-letter">D</span> To reduce overall quarterly utility expenditures</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-178">
+        <div class="question-num">Question 178</div>
+        <div class="question-text">How often must thermal controllers now be calibrated?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q178" value="A"><span class="option-letter">A</span> Every 30 days</label>
+          <label class="option-label"><input type="radio" name="q178" value="B"><span class="option-letter">B</span> Every 90 days</label>
+          <label class="option-label"><input type="radio" name="q178" value="C"><span class="option-letter">C</span> Twice a year</label>
+          <label class="option-label"><input type="radio" name="q178" value="D"><span class="option-letter">D</span> Once every calendar year</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-179">
+        <div class="question-num">Question 179</div>
+        <div class="question-text">What variance threshold requires an immediate escalation to the director?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q179" value="A"><span class="option-letter">A</span> More than 2%</label>
+          <label class="option-label"><input type="radio" name="q179" value="B"><span class="option-letter">B</span> Exactly 5%</label>
+          <label class="option-label"><input type="radio" name="q179" value="C"><span class="option-letter">C</span> Between 10% and 15%</label>
+          <label class="option-label"><input type="radio" name="q179" value="D"><span class="option-letter">D</span> Less than 1%</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-180">
+        <div class="question-num">Question 180</div>
+        <div class="question-text">What is a consequence of neglecting to update the database?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q180" value="A"><span class="option-letter">A</span> A financial penalty fine for the technician</label>
+          <label class="option-label"><input type="radio" name="q180" value="B"><span class="option-letter">B</span> The cancellation of standard structural warranties</label>
+          <label class="option-label"><input type="radio" name="q180" value="C"><span class="option-letter">C</span> Immediate network shutoffs across the campus</label>
+          <label class="option-label"><input type="radio" name="q180" value="D"><span class="option-letter">D</span> A revision of local administrative zoning laws</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q181-185 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 181–185 — Online Form (Shipping Complaint)</div>
+    <div class="passage-text">
+      <div class="source-meta">http://www.gandwshipping.com/customer_complaints</div>
+      <h3>G&amp;W Shipping — Dispute &amp; Resolution Intake</h3>
+      <p><strong>Customer Name:</strong> Akira Koyama &nbsp;|&nbsp; <strong>Account Reference:</strong> 9281-M &nbsp;|&nbsp; <strong>Submission Date:</strong> November 12</p><br>
+      <p>I recently utilized your express international route to deliver an extremely fragile glass sculpture to an art broker in London. I explicitly selected the premium "Special Handling" option and paid an extra $45 fee. Unfortunately, when the package arrived, the artwork was completely broken. While the exterior box showed no major damage, the internal protective packing materials were completely crushed. I expect a total reimbursement of my shipping costs ($120) plus the full market value of the sculpture ($350).</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-181">
+        <div class="question-num">Question 181</div>
+        <div class="question-text">Why did Mr. Koyama complete this specific intake form?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q181" value="A"><span class="option-letter">A</span> To verify a warehouse delivery address change</label>
+          <label class="option-label"><input type="radio" name="q181" value="B"><span class="option-letter">B</span> To seek financial compensation for a damaged item</label>
+          <label class="option-label"><input type="radio" name="q181" value="C"><span class="option-letter">C</span> To inquire about standard customs clearing procedures</label>
+          <label class="option-label"><input type="radio" name="q181" value="D"><span class="option-letter">D</span> To complain about an impolite delivery driver</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-182">
+        <div class="question-num">Question 182</div>
+        <div class="question-text">What fee was added specifically for the delicate item protection?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q182" value="A"><span class="option-letter">A</span> $45</label>
+          <label class="option-label"><input type="radio" name="q182" value="B"><span class="option-letter">B</span> $75</label>
+          <label class="option-label"><input type="radio" name="q182" value="C"><span class="option-letter">C</span> $120</label>
+          <label class="option-label"><input type="radio" name="q182" value="D"><span class="option-letter">D</span> $350</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-183">
+        <div class="question-num">Question 183</div>
+        <div class="question-text">What aspect of the delivery did the customer blame for the failure?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q183" value="A"><span class="option-letter">A</span> A delay caused by transatlantic severe weather</label>
+          <label class="option-label"><input type="radio" name="q183" value="B"><span class="option-letter">B</span> Inadequate performance of internal packing layers</label>
+          <label class="option-label"><input type="radio" name="q183" value="C"><span class="option-letter">C</span> An incorrect shipping label attachment</label>
+          <label class="option-label"><input type="radio" name="q183" value="D"><span class="option-letter">D</span> A missing barcode scan upon arrival</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-184">
+        <div class="question-num">Question 184</div>
+        <div class="question-text">What is the total monetary compensation requested by the sender?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q184" value="A"><span class="option-letter">A</span> $120</label>
+          <label class="option-label"><input type="radio" name="q184" value="B"><span class="option-letter">B</span> $350</label>
+          <label class="option-label"><input type="radio" name="q184" value="C"><span class="option-letter">C</span> $470</label>
+          <label class="option-label"><input type="radio" name="q184" value="D"><span class="option-letter">D</span> $515</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-185">
+        <div class="question-num">Question 185</div>
+        <div class="question-text">What can be inferred about the external box?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q185" value="A"><span class="option-letter">A</span> It was misplaced for several weeks.</label>
+          <label class="option-label"><input type="radio" name="q185" value="B"><span class="option-letter">B</span> It arrived without any deep external marks or scratches.</label>
+          <label class="option-label"><input type="radio" name="q185" value="C"><span class="option-letter">C</span> It was entirely built out of recycled alloy sheets.</label>
+          <label class="option-label"><input type="radio" name="q185" value="D"><span class="option-letter">D</span> It was rejected by customs officials in London.</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q186-190 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 186–190 — Conference Agenda</div>
+    <div class="passage-text">
+      <h3>Vanguard Advanced Engineering Conference — Lille Convention Center</h3>
+      <p class="source-meta">Presentation Clusters — Wednesday, July 9</p>
+      <table>
+        <tr><th>Time Frame</th><th>Auditorium Alpha (Smart Systems)</th><th>Auditorium Beta (Renewable Hardware)</th></tr>
+        <tr><td>09:00 – 11:00</td><td>Session A1: Solar Array Grid Optimization<br><em>Speaker: Dr. Julian Vance</em></td><td>Session B1: High-Performance Heat Pumps<br><em>Speaker: Prof. Clara Dupont</em></td></tr>
+        <tr><td>13:00 – 15:00</td><td>Session A2: Lithium-Ion Storage Units<br><em>Speaker: Helen Sterling</em></td><td>Session B2: Decentralized Micro-Grid Safety<br><em>Speaker: Marcus Thorne</em></td></tr>
+      </table>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-186">
+        <div class="question-num">Question 186</div>
+        <div class="question-text">Where does the Vanguard Engineering conference take place?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q186" value="A"><span class="option-letter">A</span> Vancouver</label>
+          <label class="option-label"><input type="radio" name="q186" value="B"><span class="option-letter">B</span> London</label>
+          <label class="option-label"><input type="radio" name="q186" value="C"><span class="option-letter">C</span> Lille</label>
+          <label class="option-label"><input type="radio" name="q186" value="D"><span class="option-letter">D</span> Paris</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-187">
+        <div class="question-num">Question 187</div>
+        <div class="question-text">Which cluster room focuses explicitly on Smart Systems track?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q187" value="A"><span class="option-letter">A</span> Auditorium Alpha</label>
+          <label class="option-label"><input type="radio" name="q187" value="B"><span class="option-letter">B</span> Auditorium Beta</label>
+          <label class="option-label"><input type="radio" name="q187" value="C"><span class="option-letter">C</span> Center Hallway</label>
+          <label class="option-label"><input type="radio" name="q187" value="D"><span class="option-letter">D</span> Suite 405</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-188">
+        <div class="question-num">Question 188</div>
+        <div class="question-text">Who leads the presentation block regarding alternative thermal heat pumps?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q188" value="A"><span class="option-letter">A</span> Dr. Julian Vance</label>
+          <label class="option-label"><input type="radio" name="q188" value="B"><span class="option-letter">B</span> Prof. Clara Dupont</label>
+          <label class="option-label"><input type="radio" name="q188" value="C"><span class="option-letter">C</span> Helen Sterling</label>
+          <label class="option-label"><input type="radio" name="q188" value="D"><span class="option-letter">D</span> Marcus Thorne</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-189">
+        <div class="question-num">Question 189</div>
+        <div class="question-text">At what time is the Lithium-Ion Storage Units session scheduled?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q189" value="A"><span class="option-letter">A</span> 09:00</label>
+          <label class="option-label"><input type="radio" name="q189" value="B"><span class="option-letter">B</span> 11:00</label>
+          <label class="option-label"><input type="radio" name="q189" value="C"><span class="option-letter">C</span> 13:00</label>
+          <label class="option-label"><input type="radio" name="q189" value="D"><span class="option-letter">D</span> 15:00</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-190">
+        <div class="question-num">Question 190</div>
+        <div class="question-text">Which speaker covers the topic of Decentralized Micro-Grid Safety?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q190" value="A"><span class="option-letter">A</span> Dr. Julian Vance</label>
+          <label class="option-label"><input type="radio" name="q190" value="B"><span class="option-letter">B</span> Helen Sterling</label>
+          <label class="option-label"><input type="radio" name="q190" value="C"><span class="option-letter">C</span> Marcus Thorne</label>
+          <label class="option-label"><input type="radio" name="q190" value="D"><span class="option-letter">D</span> Akira Koyama</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q191-195 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 191–195 — Courier Policy + Feedback Form</div>
+    <div class="passage-text">
+      <h3>Apex Courier Services — Liability Protection Policies</h3>
+      <p>Our baseline cargo service covers commercial equipment items up to a fixed protective liability threshold of $150. For customers sending fragile items or artisan prototypes, we highly advise adding Premium Protection Insurance ($50 supplemental fee), which increases the corporate liability coverage cap to a maximum value of $600 against structural flight damage.</p><br>
+      <hr style="border-color:var(--border);margin:16px 0">
+      <p><strong>Sender Name:</strong> Marc VASSEUR — Polytech Lille<br>
+      <strong>Shipment Index:</strong> Entry #4092 &nbsp;|&nbsp; <strong>Distribution Tier:</strong> Standard Flight ($85)<br>
+      <strong>Declared Valuation:</strong> $400 (Glass Interface Engineering Models)<br>
+      <strong>Incident Log:</strong> Package arrived on time, but internal testing modules sustained deep structural fractures due to heavy mechanical shifts during mid-flight turbulence.</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-191">
+        <div class="question-num">Question 191</div>
+        <div class="question-text">What is the standard baseline liability protection limit?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q191" value="A"><span class="option-letter">A</span> $50</label>
+          <label class="option-label"><input type="radio" name="q191" value="B"><span class="option-letter">B</span> $85</label>
+          <label class="option-label"><input type="radio" name="q191" value="C"><span class="option-letter">C</span> $150</label>
+          <label class="option-label"><input type="radio" name="q191" value="D"><span class="option-letter">D</span> $400</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-192">
+        <div class="question-num">Question 192</div>
+        <div class="question-text">What category of items did Mr. Vasseur dispatch under entry #4092?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q192" value="A"><span class="option-letter">A</span> Lithium batteries</label>
+          <label class="option-label"><input type="radio" name="q192" value="B"><span class="option-letter">B</span> Glass interface engineering models</label>
+          <label class="option-label"><input type="radio" name="q192" value="C"><span class="option-letter">C</span> Ceramic heat pump tubes</label>
+          <label class="option-label"><input type="radio" name="q192" value="D"><span class="option-letter">D</span> Software training user guides</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-193">
+        <div class="question-num">Question 193</div>
+        <div class="question-text">Why is Mr. Vasseur restricted to the standard $150 reimbursement check?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q193" value="A"><span class="option-letter">A</span> His items were delivered after the deadline.</label>
+          <label class="option-label"><input type="radio" name="q193" value="B"><span class="option-letter">B</span> He did not opt for the Premium Protection Insurance.</label>
+          <label class="option-label"><input type="radio" name="q193" value="C"><span class="option-letter">C</span> The total package weight exceeded safety limits.</label>
+          <label class="option-label"><input type="radio" name="q193" value="D"><span class="option-letter">D</span> He used an invalid business email account.</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-194">
+        <div class="question-num">Question 194</div>
+        <div class="question-text">What base transport fee applies to the Standard Flight distribution tier?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q194" value="A"><span class="option-letter">A</span> $50</label>
+          <label class="option-label"><input type="radio" name="q194" value="B"><span class="option-letter">B</span> $85</label>
+          <label class="option-label"><input type="radio" name="q194" value="C"><span class="option-letter">C</span> $150</label>
+          <label class="option-label"><input type="radio" name="q194" value="D"><span class="option-letter">D</span> $600</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-195">
+        <div class="question-num">Question 195</div>
+        <div class="question-text">What caused the structural damage according to the incident log?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q195" value="A"><span class="option-letter">A</span> Severe moisture in the loading dock</label>
+          <label class="option-label"><input type="radio" name="q195" value="B"><span class="option-letter">B</span> Mechanical shifts during mid-flight turbulence</label>
+          <label class="option-label"><input type="radio" name="q195" value="C"><span class="option-letter">C</span> An improper drop by a sorting courier</label>
+          <label class="option-label"><input type="radio" name="q195" value="D"><span class="option-letter">D</span> High temperature exposure inside the container</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q196-200 -->
+  <div class="passage-block">
+    <div class="passage-header">Questions 196–200 — Promotional Advertisement</div>
+    <div class="passage-text">
+      <h3>Oasis Workspace Solutions — Premium Shared Corporate Space</h3>
+      <p>Oasis Workspace Solutions provides flexible real estate rentals in the heart of Vancouver's commercial zones. Every layout tier includes enterprise-grade high-speed Internet routing, dedicated administrative support desks, and shared executive conference suites.</p><br>
+      <p>Our <strong>Yaletown Waterfront</strong> space ($1,200/mo) caters directly to media and creative marketing agencies. The <strong>Gastown Innovation Hub</strong> ($950/mo) is custom-built for software engineers, high-tech startups, and independent digital testing groups. Lastly, our <strong>Coal Harbour Executive</strong> suites ($1,650/mo) provide premium accommodations for corporate branches and financial broker firms.</p>
+    </div>
+    <div class="questions-area">
+      <div class="question-item" id="qi-196">
+        <div class="question-num">Question 196</div>
+        <div class="question-text">Which company is publishing the promotional advertisement?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q196" value="A"><span class="option-letter">A</span> G&amp;W Shipping Services</label>
+          <label class="option-label"><input type="radio" name="q196" value="B"><span class="option-letter">B</span> Apex Logistics Inc.</label>
+          <label class="option-label"><input type="radio" name="q196" value="C"><span class="option-letter">C</span> Oasis Workspace Solutions</label>
+          <label class="option-label"><input type="radio" name="q196" value="D"><span class="option-letter">D</span> Vanguard Engineering Hub</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-197">
+        <div class="question-num">Question 197</div>
+        <div class="question-text">Where are these commercial properties located?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q197" value="A"><span class="option-letter">A</span> Lille</label>
+          <label class="option-label"><input type="radio" name="q197" value="B"><span class="option-letter">B</span> London</label>
+          <label class="option-label"><input type="radio" name="q197" value="C"><span class="option-letter">C</span> Vancouver</label>
+          <label class="option-label"><input type="radio" name="q197" value="D"><span class="option-letter">D</span> Toronto</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-198">
+        <div class="question-num">Question 198</div>
+        <div class="question-text">Which suite tier is specifically tailored for software developers and tech startups?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q198" value="A"><span class="option-letter">A</span> Yaletown Waterfront</label>
+          <label class="option-label"><input type="radio" name="q198" value="B"><span class="option-letter">B</span> Gastown Innovation Hub</label>
+          <label class="option-label"><input type="radio" name="q198" value="C"><span class="option-letter">C</span> Coal Harbour Executive</label>
+          <label class="option-label"><input type="radio" name="q198" value="D"><span class="option-letter">D</span> Polytech Center</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-199">
+        <div class="question-num">Question 199</div>
+        <div class="question-text">What is the standard monthly rental fee for a Coal Harbour Executive suite?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q199" value="A"><span class="option-letter">A</span> $950</label>
+          <label class="option-label"><input type="radio" name="q199" value="B"><span class="option-letter">B</span> $1,200</label>
+          <label class="option-label"><input type="radio" name="q199" value="C"><span class="option-letter">C</span> $1,650</label>
+          <label class="option-label"><input type="radio" name="q199" value="D"><span class="option-letter">D</span> $1,800</label>
+        </div>
+      </div>
+      <div class="question-item" id="qi-200">
+        <div class="question-num">Question 200</div>
+        <div class="question-text">What utility is included across all office tiers?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q200" value="A"><span class="option-letter">A</span> Free commercial flights</label>
+          <label class="option-label"><input type="radio" name="q200" value="B"><span class="option-letter">B</span> High-speed Internet routing</label>
+          <label class="option-label"><input type="radio" name="q200" value="C"><span class="option-letter">C</span> Unlimited storage container insurance</label>
+          <label class="option-label"><input type="radio" name="q200" value="D"><span class="option-letter">D</span> Premium solar array hardware</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div id="submit-section">
+    <span id="unanswered-count">54 questions sans réponse</span>
+    <p>Répondez à toutes les questions pour activer la soumission.</p>
+    <button id="submit-btn" disabled onclick="submitTest()">Terminer &amp; voir la correction</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- CORRECTION SECTION -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="correction-section">
+    <div class="score-banner">
+      <h2>Résultats — Marc VASSEUR — Polytech Lille</h2>
+      <div class="big-score" id="score-display">--/54</div>
+      <div class="score-sub" id="score-pct">--% de bonnes réponses</div>
+      <div class="toeic-estimate" id="toeic-est"></div>
+    </div>
+    <div id="correction-content"></div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ─── ANSWER KEY ───────────────────────────────────────────────
+const KEYS = {
+  q147:'D', q148:'A', q149:'B', q150:'B',
+  q151:'A', q152:'C', q153:'A', q154:'D',
+  q155:'C', q156:'D', q157:'A', q158:'B',
+  q159:'B', q160:'C', q161:'C',
+  q162:'A', q163:'C', q164:'B',
+  q165:'A', q166:'C', q167:'B',
+  q168:'A', q169:'C', q170:'D', q171:'C',
+  q172:'A', q173:'C', q174:'B', q175:'D',
+  q176:'B', q177:'B', q178:'B', q179:'A', q180:'B',
+  q181:'B', q182:'A', q183:'B', q184:'C', q185:'B',
+  q186:'C', q187:'A', q188:'B', q189:'C', q190:'C',
+  q191:'C', q192:'B', q193:'B', q194:'B', q195:'B',
+  q196:'C', q197:'C', q198:'B', q199:'C', q200:'B'
+};
+
+// ─── EXPLANATIONS (French) ────────────────────────────────────
+const EXPL = {
+  q147: {
+    q: "Who most likely is Ms. Mandelbaum?",
+    correct: "D",
+    optLabels: {A:"An accounting consultant",B:"A fashion designer",C:"A reporter",D:"A florist"},
+    fr: `La liste cite "flower arrangements" (compositions florales), une facture pour un bouquet de roses, et une réunion avec un représentant de <em>Floral Wellspring</em>. L'ensemble de ces tâches est typique d'une fleuriste.`,
+    vocab: `<span>florist</span> = fleuriste | <span>flower arrangement</span> = composition florale | <span>bouquet</span> = bouquet | <span>invoice</span> = facture (syn. bill)`
+  },
+  q148: {
+    q: "What should Ms. Mandelbaum do today?",
+    correct: "A",
+    optLabels: {A:"Prepare a bill",B:"Read an article",C:"Cancel a meeting",D:"Attend a marriage ceremony"},
+    fr: `"Draw up invoice for Ms. Swartz's order" signifie rédiger une facture = préparer une note/bill. Attention : elle <em>crée</em> les arrangements pour le mariage Bernstein, elle n'y assiste pas (piège (D)).`,
+    vocab: `<span>draw up</span> = rédiger, préparer | <span>invoice</span> = <span>bill</span> = facture | <span>wedding</span> = mariage (≠ marriage ceremony, qui est la cérémonie elle-même)`
+  },
+  q149: {
+    q: "What most likely is Mr. Dang's occupation?",
+    correct: "B",
+    optLabels: {A:"A carpenter",B:"A maintenance worker",C:"A clerk at a hardware store",D:"The owner of a restaurant"},
+    fr: `Il répare un robinet qui fuit dans un appartement et stocke du matériel dans un hangar de l'immeuble. Il s'agit d'un agent de maintenance. Un charpentier (A) travaille le bois, pas la plomberie.`,
+    vocab: `<span>leaky faucet</span> = robinet qui fuit | <span>maintenance worker</span> = agent/technicien de maintenance | <span>screws</span> = vis | <span>shed</span> = remise, hangar | <span>workbench</span> = établi`
+  },
+  q150: {
+    q: `"That should be it" — what does Mr. Dang mean?`,
+    correct: "B",
+    optLabels: {A:"Work on the faucet is now complete.",B:"Ms. Sanjaya is probably referring to the item he needs.",C:"There are just enough screws to finish the job.",D:"Ms. Sanjaya is using the proper workbench."},
+    fr: `Ms. Sanjaya décrit un sac vert sur un établi. Mr. Dang répond "That should be it" = "C'est probablement ça", confirmant qu'elle désigne bien le bon objet. "Should" exprime la probabilité, pas la certitude.`,
+    vocab: `<span>That should be it</span> = c'est probablement ça / ça devrait être ça | <span>grab</span> = attraper, prendre`
+  },
+  q151: {
+    q: "What is the purpose of the notice?",
+    correct: "A",
+    optLabels: {A:"To inform guests about a service",B:"To explain a new procedure",C:"To remind employees of a policy",D:"To announce a computer maintenance schedule"},
+    fr: `L'avis informe les clients (guests) de la disponibilité du Wi-Fi dans les chambres et zones communes. Ce n'est pas une nouvelle procédure (B), mais une information sur un service existant.`,
+    vocab: `<span>notice</span> = avis, affichette | <span>wireless network</span> = réseau sans fil | <span>guest room</span> = chambre d'hôtel | <span>front desk</span> = réception`
+  },
+  q152: {
+    q: "What should readers be cautious about?",
+    correct: "C",
+    optLabels: {A:"Leaving computers unattended",B:"Transferring large amounts of data",C:"Sending confidential information",D:"Opening unfamiliar computer files"},
+    fr: `L'avis précise que le réseau est non sécurisé et que les communications "may be visible to others" → risque d'interception des informations confidentielles. Les autres options ne sont pas mentionnées.`,
+    vocab: `<span>unsecured network</span> = réseau non sécurisé | <span>cautious</span> = prudent | <span>confidential</span> = confidentiel | <span>visible to others</span> = visible par d'autres`
+  },
+  q153: {
+    q: "What is true about Thunderbrush Café?",
+    correct: "A",
+    optLabels: {A:"It has multiple locations.",B:"It will be raising its prices.",C:"It recently changed ownership.",D:"It is seeking new serving staff."},
+    fr: `La critique mentionne "the Manor Oaks location" ET "the location on 42nd Street" → au moins deux sites = multiple locations. Aucune hausse de prix, changement de propriétaire, ou offre d'emploi n'est évoqué.`,
+    vocab: `<span>location</span> = emplacement, établissement, site | <span>multiple locations</span> = plusieurs adresses | <span>generous portions</span> = portions généreuses | <span>leftovers</span> = restes`
+  },
+  q154: {
+    q: "What needs to be improved?",
+    correct: "D",
+    optLabels: {A:"The speed of service",B:"The quality of the food",C:"The size of the portions",D:"The variety of menu offerings"},
+    fr: `"I do wish there were more options to choose from. A few new specials that rotate throughout the week would be a welcome addition." → elle regrette le manque de variété. Le service (A) s'est amélioré ; la qualité (B) et les portions (C) sont louées.`,
+    vocab: `<span>specials</span> = plats du jour | <span>rotate</span> = alterner, tourner | <span>a welcome addition</span> = un ajout bienvenu | <span>offerings</span> = propositions, offres`
+  },
+  q155: {
+    q: "What is the purpose of the e-mail?",
+    correct: "C",
+    optLabels: {A:"To request a recommendation",B:"To inquire about a job opportunity",C:"To provide project details",D:"To promote a new business"},
+    fr: `L'e-mail explique la pièce jointe (comment se connecter au site), demande de remplir un formulaire, et annonce un contact la semaine suivante pour le calendrier de tournage. C'est la communication de détails sur un projet.`,
+    vocab: `<span>provide details</span> = fournir des informations | <span>log on</span> = se connecter | <span>filming sessions</span> = sessions de tournage | <span>attachment</span> = pièce jointe`
+  },
+  q156: {
+    q: "What is attached to the e-mail?",
+    correct: "D",
+    optLabels: {A:"A catalog",B:"A video",C:"A company profile",D:"A set of instructions"},
+    fr: `"I have attached a document that explains how to log on to our Web site" → c'est un document d'instructions (mode de connexion). Attention : les vidéos sont le <em>produit</em> de Dooley Career Films, pas la pièce jointe.`,
+    vocab: `<span>attachment</span> = pièce jointe | <span>a set of instructions</span> = un ensemble d'instructions, un guide | <span>log on</span> = se connecter`
+  },
+  q157: {
+    q: "What will Ms. Dooley do next week?",
+    correct: "A",
+    optLabels: {A:"Discuss a schedule",B:"Update contact information",C:"Send a questionnaire",D:"Interview Ms. Garcia"},
+    fr: `"I will be in touch next week to go over the timing of our filming sessions" → discuter du calendrier/planning des tournages. "Go over the timing" = examiner, discuter du calendrier.`,
+    vocab: `<span>go over</span> = passer en revue, discuter | <span>timing</span> = calendrier, planification | <span>filming sessions</span> = séances de tournage | <span>schedule</span> = programme, planning`
+  },
+  q158: {
+    q: `Insert: "We will surely benefit from any fresh insights you may contribute."`,
+    correct: "B",
+    optLabels: {A:"[1]",B:"[2]",C:"[3]",D:"[4]"},
+    fr: `La phrase à insérer ("nous bénéficierons certainement de vos nouvelles perspectives") prolonge logiquement [2], qui se trouve juste après "Your perspective as a fairly new employee... will be a valuable addition to our series." Les deux phrases parlent de la valeur de la contribution de Pilar.`,
+    vocab: `<span>fresh insights</span> = nouvelles perspectives, regard neuf | <span>contribute</span> = apporter, contribuer | <span>surely benefit</span> = en tirer certainement profit`
+  },
+  q159: {
+    q: "What is a purpose of the information?",
+    correct: "B",
+    optLabels: {A:"To warn of a recent security violation",B:"To describe the benefits of a service",C:"To encourage customers to update their e-mail addresses",D:"To tell clients about alternative access to accounts"},
+    fr: `L'avis présente les fonctionnalités de Splenster (promotions, changements de politique, chat avec conseillers) → description des avantages d'un service. Il n'y a pas de violation de sécurité récente (A), ni d'invitation à mettre à jour des e-mails (C).`,
+    vocab: `<span>social networking service</span> = réseau social | <span>policy changes</span> = changements de politique | <span>branch openings</span> = ouvertures d'agences | <span>legal advice</span> = conseil juridique`
+  },
+  q160: {
+    q: "Where might this information appear?",
+    correct: "C",
+    optLabels: {A:"In a financial magazine",B:"In packaging for a product",C:"On a company Web page",D:"On an invitation"},
+    fr: `Il s'agit d'un communiqué officiel d'une banque concernant sa présence sur les réseaux sociaux, typique d'une page web bancaire. Le ton institutionnel et le contenu excluent les magazines (A) ou emballages (B).`,
+    vocab: `<span>company Web page</span> = page web d'entreprise | <span>financial institution</span> = établissement financier | <span>disclose</span> = divulguer, révéler`
+  },
+  q161: {
+    q: `Insert: "For this reason, we discourage posting sensitive information on Splenster."`,
+    correct: "C",
+    optLabels: {A:"[1]",B:"[2]",C:"[3]",D:"[4]"},
+    fr: `La phrase commence par "For this reason" → elle suit une explication de la raison. [3] est juste après "Splenster is a public platform and anything posted on the site can be viewed by others." Cette visibilité publique EST la raison de déconseiller les informations sensibles.`,
+    vocab: `<span>discourage</span> = déconseiller | <span>sensitive information</span> = informations sensibles | <span>public platform</span> = plateforme publique | <span>credentials</span> = identifiants, accréditations`
+  },
+  q162: {
+    q: "Where does Juanita most likely work?",
+    correct: "A",
+    optLabels: {A:"At a travel agency",B:"At a dental office",C:"At a catering service",D:"At a software company"},
+    fr: `La réunion porte sur "new flight and hotel packages" et elle mentionne un "new itinerary system" → secteur des voyages. Elle a un rendez-vous chez le dentiste (B) mais n'y travaille pas.`,
+    vocab: `<span>travel agency</span> = agence de voyages | <span>itinerary</span> = itinéraire, programme de voyage | <span>packages</span> = forfaits | <span>dental appointment</span> = rendez-vous chez le dentiste`
+  },
+  q163: {
+    q: "What does Juanita ask Peter to do?",
+    correct: "C",
+    optLabels: {A:"Reschedule an appointment",B:"Reserve a room for a meeting",C:"Arrange the refreshments",D:"Answer phone calls"},
+    fr: `"Please set these up on the small table in the corner of the room." → il doit disposer les rafraîchissements (café, thé, viennoiseries). Rediriger les appels (D) est aussi demandé, mais la question principale est d'installer les boissons/collations.`,
+    vocab: `<span>refreshments</span> = rafraîchissements | <span>pastries</span> = viennoiseries, pâtisseries | <span>set up</span> = installer, disposer | <span>arrange</span> = organiser, mettre en place`
+  },
+  q164: {
+    q: "What did Juanita send with the e-mail?",
+    correct: "B",
+    optLabels: {A:"A meeting agenda",B:"A training handout",C:"An updated calendar",D:"A customer invoice"},
+    fr: `"The user's guide for the new system is attached. Please print it out and make twelve copies to distribute at the training session." → c'est un support de formation (handout). L'intitulé de la pièce jointe est "For Tuesday's meeting" mais le contenu décrit est un guide utilisateur à distribuer en formation.`,
+    vocab: `<span>handout</span> = document distribué, support de cours | <span>user's guide</span> = manuel d'utilisation | <span>training session</span> = séance de formation | <span>distribute</span> = distribuer`
+  },
+  q165: {
+    q: "What are staff members invited to celebrate?",
+    correct: "A",
+    optLabels: {A:"Meeting important goals for recent projects",B:"Winning several new business contracts",C:"The promotions awarded to colleagues",D:"The purchase of a clean energy company"},
+    fr: `"We have reached some major milestones in our efforts to incorporate green practices" → atteinte de jalons importants = objectifs accomplis. La cérémonie honore la mise en place du programme de recyclage et la transition vers l'énergie solaire.`,
+    vocab: `<span>milestones</span> = jalons, étapes clés | <span>sustainability</span> = durabilité, développement durable | <span>recycling program</span> = programme de recyclage | <span>solar energy</span> = énergie solaire`
+  },
+  q166: {
+    q: "Where will events take place?",
+    correct: "C",
+    optLabels: {A:"At a local recycling center",B:"At various locations throughout town",C:"Outside the company's corporate offices",D:"In a local conference center"},
+    fr: `"Rain or shine, the event will be held in the front courtyard" → la cour avant des bureaux = à l'extérieur des locaux de l'entreprise. "Rain or shine" = qu'il pleuve ou qu'il fasse beau.`,
+    vocab: `<span>courtyard</span> = cour | <span>corporate offices</span> = bureaux de l'entreprise | <span>rain or shine</span> = par tous les temps | <span>front</span> = avant, devant`
+  },
+  q167: {
+    q: "Why contact Ms. Simms?",
+    correct: "B",
+    optLabels: {A:"To sign up for a building tour",B:"To arrange for transportation",C:"To obtain driving directions",D:"To learn about sustainability policies"},
+    fr: `"Contact Mindy Simms... if you are interested in either driving or joining an existing car pool." → s'inscrire au covoiturage = organiser son transport. Elle ne donne pas d'itinéraire (C) ni d'informations sur le développement durable (D).`,
+    vocab: `<span>carpool</span> = covoiturage | <span>arrange for transportation</span> = organiser le transport | <span>conserve energy</span> = économiser l'énergie`
+  },
+  q168: {
+    q: "What is suggested about the survey?",
+    correct: "A",
+    optLabels: {A:"It has been administered previously.",B:"It will be published in October.",C:"Its deadline has been extended.",D:"Its results will lead to the giving of a cash award."},
+    fr: `"Once again, Mumbai Times Journal is seeking out the best workplaces" → <em>once again</em> (une fois de plus) implique que cela a déjà été fait. C'est l'indice clé. Il n'est pas question d'argent (D) ni d'extension de délai (C).`,
+    vocab: `<span>once again</span> = une fois de plus, à nouveau | <span>administer / conduct a survey</span> = mener un sondage | <span>honourable mention</span> = mention honorable | <span>anonymous</span> = anonyme`
+  },
+  q169: {
+    q: "What is likely true about Clearfield Workforce Solutions?",
+    correct: "C",
+    optLabels: {A:"It has fewer than 40 employees.",B:"It was nominated as one of the best workplaces.",C:"It has been hired by Mumbai Times Journal.",D:"Its headquarters are outside of Mumbai."},
+    fr: `"a survey conducted by the independent research firm Clearfield Workforce Solutions" → le journal a mandaté (hired) ce cabinet pour mener l'enquête. "Conduct" ici = réaliser pour le compte de quelqu'un.`,
+    vocab: `<span>independent research firm</span> = cabinet d'études indépendant | <span>conduct</span> = mener, réaliser | <span>hire</span> = embaucher, mandater | <span>headquarters</span> = siège social`
+  },
+  q170: {
+    q: "What information is NOT collected by the survey?",
+    correct: "D",
+    optLabels: {A:"An employee's salary",B:"An employee's workload",C:"The likelihood of promotion",D:"The quality of company leadership"},
+    fr: `Le sondage évalue : workload (charge de travail ✓), financial compensation/salary (rémunération ✓), career advancement/promotion (évolution ✓). La qualité du management/leadership n'est pas mentionnée → (D) est la bonne réponse.`,
+    vocab: `<span>workload</span> = charge de travail | <span>financial compensation</span> = rémunération | <span>career advancement</span> = évolution professionnelle | <span>leadership</span> = direction, encadrement`
+  },
+  q171: {
+    q: "What is indicated about survey participants?",
+    correct: "C",
+    optLabels: {A:"They must be government employees.",B:"They will be paid for participating.",C:"Their identities will remain confidential.",D:"Their comments must be approved by a manager."},
+    fr: `"Employees who respond to the survey remain anonymous" → leurs identités restent confidentielles. Les commentaires peuvent être publiés mais sans nom, ce qui exclut (D).`,
+    vocab: `<span>anonymous</span> = anonyme | <span>confidential</span> = confidentiel | <span>identity</span> = identité | <span>participants</span> = participants`
+  },
+  q172: {
+    q: "Why did Ms. Mosby send the initial message?",
+    correct: "A",
+    optLabels: {A:"To remind colleagues of an event",B:"To ask about a missing document",C:"To recommend a local bakery",D:"To schedule a department meeting"},
+    fr: `"I just realized that tomorrow is Bryan's birthday." → elle informe/rappelle à ses collègues un événement imminent (l'anniversaire). Elle n'organise pas une réunion (D), elle déclenche simplement une discussion spontanée.`,
+    vocab: `<span>remind</span> = rappeler | <span>initial message</span> = premier message | <span>colleagues</span> = collègues | <span>realize</span> = se rendre compte`
+  },
+  q173: {
+    q: "What will Mr. Nowak do this afternoon?",
+    correct: "C",
+    optLabels: {A:"Purchase a birthday card",B:"Order refreshments",C:"Collect some money",D:"Sign a contract"},
+    fr: `"I'll collect some donations this afternoon so you don't have to pay for the whole thing." → il collecte des dons = ramasse de l'argent auprès des collègues. C'est Jen Evanston qui achètera le gâteau.`,
+    vocab: `<span>donations</span> = dons, contributions | <span>collect</span> = collecter, réunir | <span>pay for the whole thing</span> = payer entièrement | <span>pick up</span> = passer prendre, acheter`
+  },
+  q174: {
+    q: `"It's no problem" — what does Ms. Evanston mean?`,
+    correct: "B",
+    optLabels: {A:"She knows where to buy a card.",B:"She is willing to buy a cake.",C:"She can change the time of a meeting.",D:"She does not mind paying for the decorations."},
+    fr: `À 3:46, Allie remercie Jen pour son offre d'apporter le gâteau ("Thanks for offering to do that, Jen"). La réponse "It's no problem" à 3:47 confirme qu'elle est prête à acheter le gâteau. "It's no problem" = ça ne me dérange pas, avec plaisir.`,
+    vocab: `<span>It's no problem</span> = pas de problème, avec plaisir | <span>willing to</span> = prêt(e) à, disposé(e) à | <span>pick one up</span> = en acheter un en passant`
+  },
+  q175: {
+    q: "Why will Mr. Walker miss the lunch celebration?",
+    correct: "D",
+    optLabels: {A:"He will be out of town.",B:"He has a doctor's appointment.",C:"He is starting a new project.",D:"He is attending another meeting."},
+    fr: `"I forgot that I have a lunch meeting tomorrow." → il a une réunion à l'heure du déjeuner = he is attending another meeting. "I forgot" signifie qu'il l'avait oublié, mais c'est bien le motif de son absence.`,
+    vocab: `<span>lunch meeting</span> = réunion déjeuner | <span>miss</span> = manquer, rater | <span>attend</span> = assister à | <span>celebration</span> = célébration, fête`
+  },
+  q176: {
+    q: "What is the primary focus of the internal report?",
+    correct: "B",
+    optLabels: {A:"Hiring new senior field engineers",B:"Modifying sensor calibration frequencies",C:"Relocating decentralized warehouses",D:"Introducing a new employee benefit system"},
+    fr: `Le rapport annonce la révision du protocole : les contrôleurs thermiques doivent maintenant être calibrés tous les 90 jours au lieu de deux fois par an. Focus = changement de fréquence de calibration des capteurs.`,
+    vocab: `<span>calibration</span> = étalonnage, calibration | <span>frequency</span> = fréquence | <span>sensor</span> = capteur | <span>thermal management controller</span> = contrôleur de gestion thermique`
+  },
+  q177: {
+    q: "Why was the operational protocol revised?",
+    correct: "B",
+    optLabels: {A:"To comply with international safety regulations",B:"Because of sensor lag during periods of high output",C:"Due to a recent shortage of maintenance staff",D:"To reduce overall quarterly utility expenditures"},
+    fr: `"This update comes in response to unexpected sensor lag observed during peak output windows." → des retards de capteurs ont été constatés pendant les pics de production, d'où la révision.`,
+    vocab: `<span>sensor lag</span> = retard/décalage des capteurs | <span>peak output</span> = production maximale, pic de production | <span>revise / update</span> = réviser, mettre à jour`
+  },
+  q178: {
+    q: "How often must thermal controllers now be calibrated?",
+    correct: "B",
+    optLabels: {A:"Every 30 days",B:"Every 90 days",C:"Twice a year",D:"Once every calendar year"},
+    fr: `"must be calibrated every 90 days rather than biannually" → tous les 90 jours. Auparavant : biannually = deux fois par an (C). Ne pas confondre biannually (2×/an) et biennially (tous les 2 ans).`,
+    vocab: `<span>biannually</span> = deux fois par an | <span>biennially</span> = tous les deux ans | <span>calibrate</span> = calibrer, étalonner | <span>rather than</span> = plutôt que`
+  },
+  q179: {
+    q: "What variance threshold requires immediate escalation?",
+    correct: "A",
+    optLabels: {A:"More than 2%",B:"Exactly 5%",C:"Between 10% and 15%",D:"Less than 1%"},
+    fr: `"report all diagnostic variances exceeding a 2% baseline threshold" → toute variance <em>dépassant</em> 2% doit être signalée. "Exceeding" = qui dépasse = more than.`,
+    vocab: `<span>threshold</span> = seuil | <span>variance</span> = écart, variance | <span>exceed</span> = dépasser | <span>escalation</span> = signalement, remontée hiérarchique | <span>baseline</span> = de référence, de base`
+  },
+  q180: {
+    q: "What is a consequence of neglecting to update the database?",
+    correct: "B",
+    optLabels: {A:"A financial penalty fine for the technician",B:"The cancellation of standard structural warranties",C:"Immediate network shutoffs across the campus",D:"A revision of local administrative zoning laws"},
+    fr: `"Failure to record these metrics... could... void our standard structural warranties." → "void" signifie annuler, invalider → les garanties structurelles standard seraient annulées.`,
+    vocab: `<span>void</span> = annuler, invalider | <span>warranty</span> = garantie | <span>neglect</span> = négliger, omettre | <span>metrics</span> = métriques, données de mesure | <span>centralized database</span> = base de données centralisée`
+  },
+  q181: {
+    q: "Why did Mr. Koyama complete the intake form?",
+    correct: "B",
+    optLabels: {A:"To verify a warehouse delivery address change",B:"To seek financial compensation for a damaged item",C:"To inquire about standard customs clearing procedures",D:"To complain about an impolite delivery driver"},
+    fr: `Il demande le remboursement des frais d'expédition ($120) et la valeur de la sculpture ($350) suite à un dommage. Il cherche une indemnisation financière = financial compensation.`,
+    vocab: `<span>compensation / reimbursement</span> = indemnisation, remboursement | <span>damaged item</span> = article endommagé | <span>intake form</span> = formulaire de dépôt (de plainte) | <span>fragile</span> = fragile`
+  },
+  q182: {
+    q: "What fee was added for delicate item protection?",
+    correct: "A",
+    optLabels: {A:"$45",B:"$75",C:"$120",D:"$350"},
+    fr: `"I explicitly selected the premium 'Special Handling' option and paid an extra $45 fee." → $45 est le supplément pour la manipulation spéciale. $120 = total des frais d'expédition ; $350 = valeur de la sculpture.`,
+    vocab: `<span>Special Handling</span> = traitement/manipulation spéciale | <span>supplemental fee</span> = supplément, frais additionnels | <span>explicitly</span> = explicitement`
+  },
+  q183: {
+    q: "What did the customer blame for the failure?",
+    correct: "B",
+    optLabels: {A:"A delay caused by transatlantic severe weather",B:"Inadequate performance of internal packing layers",C:"An incorrect shipping label attachment",D:"A missing barcode scan upon arrival"},
+    fr: `"the internal protective packing materials were completely crushed" → il met en cause l'emballage intérieur insuffisant/défaillant. L'extérieur de la boîte était intact, ce qui exclut un choc externe visible.`,
+    vocab: `<span>internal packing materials</span> = matériaux d'emballage intérieur | <span>inadequate</span> = inadéquat, insuffisant | <span>crushed</span> = écrasé | <span>blame for</span> = rendre responsable de`
+  },
+  q184: {
+    q: "What is the total compensation requested?",
+    correct: "C",
+    optLabels: {A:"$120",B:"$350",C:"$470",D:"$515"},
+    fr: `$120 (frais d'expédition totaux) + $350 (valeur marchande de la sculpture) = $470. Calcul simple mais attention aux distracteurs : $120 et $350 sont les montants partiels.`,
+    vocab: `<span>reimbursement</span> = remboursement | <span>shipping costs</span> = frais d'expédition | <span>market value</span> = valeur marchande | <span>total compensation</span> = indemnisation totale`
+  },
+  q185: {
+    q: "What can be inferred about the external box?",
+    correct: "B",
+    optLabels: {A:"It was misplaced for several weeks.",B:"It arrived without any deep external marks or scratches.",C:"It was entirely built out of recycled alloy sheets.",D:"It was rejected by customs officials in London."},
+    fr: `"the exterior box showed no major damage" → la boîte extérieure ne présentait pas de dommages visibles = pas de marques ni d'égratignures profondes. "Infer" = déduire du texte sans que ce soit dit explicitement.`,
+    vocab: `<span>exterior</span> = extérieur | <span>scratches</span> = égratignures, rayures | <span>infer</span> = déduire, inférer | <span>marks</span> = marques, traces`
+  },
+  q186: {
+    q: "Where does the Vanguard Engineering conference take place?",
+    correct: "C",
+    optLabels: {A:"Vancouver",B:"London",C:"Lille",D:"Paris"},
+    fr: `"Vanguard Advanced Engineering Conference — Lille Convention Center" → la conférence se tient à Lille. Attention au piège Vancouver (A) qui apparaît dans un autre document du test.`,
+    vocab: `<span>convention center</span> = centre des congrès, palais des congrès | <span>conference</span> = conférence, colloque | <span>take place</span> = avoir lieu`
+  },
+  q187: {
+    q: "Which room focuses on Smart Systems track?",
+    correct: "A",
+    optLabels: {A:"Auditorium Alpha",B:"Auditorium Beta",C:"Center Hallway",D:"Suite 405"},
+    fr: `Le tableau indique explicitement : "Auditorium Alpha (Smart Systems)" vs "Auditorium Beta (Renewable Hardware)". Question directe de lecture de tableau.`,
+    vocab: `<span>smart systems</span> = systèmes intelligents | <span>track</span> = filière, piste, thématique | <span>auditorium</span> = auditorium, amphithéâtre`
+  },
+  q188: {
+    q: "Who leads the presentation on alternative thermal heat pumps?",
+    correct: "B",
+    optLabels: {A:"Dr. Julian Vance",B:"Prof. Clara Dupont",C:"Helen Sterling",D:"Marcus Thorne"},
+    fr: `"Session B1: High-Performance Heat Pumps — Speaker: Prof. Clara Dupont" → les pompes à chaleur haute performance correspondent aux "alternative thermal heat pumps" de la question.`,
+    vocab: `<span>heat pump</span> = pompe à chaleur | <span>high-performance</span> = haute performance | <span>speaker</span> = intervenant, conférencier | <span>renewable hardware</span> = matériel renouvelable`
+  },
+  q189: {
+    q: "At what time is the Lithium-Ion Storage Units session?",
+    correct: "C",
+    optLabels: {A:"09:00",B:"11:00",C:"13:00",D:"15:00"},
+    fr: `"13:00 – 15:00 | Session A2: Lithium-Ion Storage Units" → la session <em>commence</em> à 13h00. 15:00 est l'heure de fin, pas de début — attention au piège (D).`,
+    vocab: `<span>lithium-ion</span> = lithium-ion | <span>storage units</span> = unités de stockage | <span>scheduled</span> = prévu, programmé`
+  },
+  q190: {
+    q: "Who covers Decentralized Micro-Grid Safety?",
+    correct: "C",
+    optLabels: {A:"Dr. Julian Vance",B:"Helen Sterling",C:"Marcus Thorne",D:"Akira Koyama"},
+    fr: `"Session B2: Decentralized Micro-Grid Safety — Speaker: Marcus Thorne". Akira Koyama (D) est un personnage d'un autre passage du test → distraction inter-passages.`,
+    vocab: `<span>decentralized</span> = décentralisé | <span>micro-grid</span> = micro-réseau | <span>safety</span> = sécurité`
+  },
+  q191: {
+    q: "What is the standard baseline liability protection limit?",
+    correct: "C",
+    optLabels: {A:"$50",B:"$85",C:"$150",D:"$400"},
+    fr: `"Our baseline cargo service covers commercial equipment items up to a fixed protective liability threshold of $150." → $150 est la limite de couverture standard. $50 = supplément pour l'assurance premium ; $85 = frais de transport Standard Flight.`,
+    vocab: `<span>baseline</span> = de base, standard | <span>liability</span> = responsabilité civile | <span>threshold</span> = seuil, plafond | <span>coverage</span> = couverture (d'assurance)`
+  },
+  q192: {
+    q: "What did Mr. Vasseur dispatch under entry #4092?",
+    correct: "B",
+    optLabels: {A:"Lithium batteries",B:"Glass interface engineering models",C:"Ceramic heat pump tubes",D:"Software training user guides"},
+    fr: `"Declared Valuation: $400 (Glass Interface Engineering Models)" → il a expédié des maquettes d'interface en verre. Lecture directe du formulaire.`,
+    vocab: `<span>dispatch</span> = expédier, envoyer | <span>declared valuation</span> = valeur déclarée | <span>engineering models</span> = maquettes d'ingénierie`
+  },
+  q193: {
+    q: "Why is Mr. Vasseur restricted to a $150 reimbursement?",
+    correct: "B",
+    optLabels: {A:"His items were delivered after the deadline.",B:"He did not opt for the Premium Protection Insurance.",C:"The total package weight exceeded safety limits.",D:"He used an invalid business email account."},
+    fr: `Le formulaire ne mentionne que le "Standard Flight" sans assurance premium. Selon la politique, sans assurance premium ($50 de supplément), la couverture est plafonnée à $150 quelle que soit la valeur déclarée.`,
+    vocab: `<span>opt for</span> = opter pour, choisir | <span>Premium Protection Insurance</span> = assurance protection premium | <span>restricted to</span> = limité à | <span>reimbursement</span> = remboursement`
+  },
+  q194: {
+    q: "What base transport fee applies to Standard Flight tier?",
+    correct: "B",
+    optLabels: {A:"$50",B:"$85",C:"$150",D:"$600"},
+    fr: `"Distribution Tier: Standard Flight ($85)" → le tarif de base est $85. $50 = supplément assurance premium ; $150 = plafond de garantie ; $600 = plafond avec assurance premium.`,
+    vocab: `<span>distribution tier</span> = niveau de service, palier de distribution | <span>transport fee</span> = frais de transport | <span>base fee</span> = tarif de base`
+  },
+  q195: {
+    q: "What caused the structural damage?",
+    correct: "B",
+    optLabels: {A:"Severe moisture in the loading dock",B:"Mechanical shifts during mid-flight turbulence",C:"An improper drop by a sorting courier",D:"High temperature exposure inside the container"},
+    fr: `"internal testing modules sustained deep structural fractures due to heavy mechanical shifts during mid-flight turbulence" → des déplacements mécaniques pendant des turbulences en vol sont à l'origine des dommages.`,
+    vocab: `<span>turbulence</span> = turbulences | <span>mechanical shifts</span> = déplacements mécaniques | <span>mid-flight</span> = en cours de vol | <span>fracture</span> = fracture, fissure | <span>incident log</span> = journal d'incident`
+  },
+  q196: {
+    q: "Which company publishes the advertisement?",
+    correct: "C",
+    optLabels: {A:"G&W Shipping Services",B:"Apex Logistics Inc.",C:"Oasis Workspace Solutions",D:"Vanguard Engineering Hub"},
+    fr: `Le titre du document est "Oasis Workspace Solutions — Premium Shared Corporate Space". Question directe d'identification de l'émetteur.`,
+    vocab: `<span>promotional advertisement</span> = publicité promotionnelle | <span>workspace</span> = espace de travail | <span>solutions</span> = solutions`
+  },
+  q197: {
+    q: "Where are these commercial properties located?",
+    correct: "C",
+    optLabels: {A:"Lille",B:"London",C:"Vancouver",D:"Toronto"},
+    fr: `"Oasis Workspace Solutions provides flexible real estate rentals in the heart of Vancouver's commercial zones." → Vancouver. Lille (A) apparaît dans le passage de la conférence → distraction inter-passages.`,
+    vocab: `<span>commercial zones</span> = zones commerciales | <span>real estate rentals</span> = locations immobilières | <span>properties</span> = biens immobiliers, locaux`
+  },
+  q198: {
+    q: "Which suite is tailored for software developers and tech startups?",
+    correct: "B",
+    optLabels: {A:"Yaletown Waterfront",B:"Gastown Innovation Hub",C:"Coal Harbour Executive",D:"Polytech Center"},
+    fr: `"The Gastown Innovation Hub ($950/mo) is custom-built for software engineers, high-tech startups, and independent digital testing groups." → la bonne réponse est sans ambiguïté (B).`,
+    vocab: `<span>startup</span> = start-up, jeune entreprise innovante | <span>custom-built</span> = conçu sur mesure | <span>hub</span> = pôle, centre | <span>tailored for</span> = conçu pour, adapté à`
+  },
+  q199: {
+    q: "What is the monthly rental fee for Coal Harbour Executive?",
+    correct: "C",
+    optLabels: {A:"$950",B:"$1,200",C:"$1,650",D:"$1,800"},
+    fr: `"Coal Harbour Executive suites ($1,650/mo)" → $1 650 par mois. $950 = Gastown Innovation Hub ; $1 200 = Yaletown Waterfront. Question de mémorisation des chiffres du passage.`,
+    vocab: `<span>monthly rental fee</span> = loyer mensuel | <span>suite</span> = suite, bureau haut de gamme | <span>executive</span> = cadre, direction`
+  },
+  q200: {
+    q: "What utility is included across all office tiers?",
+    correct: "B",
+    optLabels: {A:"Free commercial flights",B:"High-speed Internet routing",C:"Unlimited storage container insurance",D:"Premium solar array hardware"},
+    fr: `"Every layout tier includes enterprise-grade high-speed Internet routing" → le Wi-Fi/Internet haut débit est inclus dans tous les niveaux. "Every layout tier" = chaque niveau/formule.`,
+    vocab: `<span>utility</span> = service, commodité | <span>high-speed Internet</span> = Internet haut débit | <span>enterprise-grade</span> = de qualité professionnelle | <span>routing</span> = acheminement, routage | <span>layout tier</span> = formule, niveau d'offre`
+  }
+};
+
+// ─── TIMER ────────────────────────────────────────────────────
+let totalSeconds = 48 * 60;
+let timerInterval = null;
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    totalSeconds--;
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    const el = document.getElementById('timer');
+    el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    el.className = '';
+    if (totalSeconds <= 300) el.classList.add('warning');
+    if (totalSeconds <= 60)  el.classList.add('danger');
+    if (totalSeconds <= 0) {
+      clearInterval(timerInterval);
+      el.textContent = '00:00';
+      document.getElementById('timeout-overlay').classList.add('show');
+    }
+  }, 1000);
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────
+const qNums = Array.from({length:54}, (_,i) => 147+i);
+const answered = {};
+
+function updateProgress() {
+  const count = Object.keys(answered).length;
+  document.getElementById('progress-text').textContent = count + ' / 54 réponses';
+  document.getElementById('progress-bar').style.width = (count/54*100) + '%';
+  const left = 54 - count;
+  document.getElementById('unanswered-count').textContent =
+    left === 0 ? '✓ Toutes les questions répondues !' : left + ' question' + (left>1?'s':'') + ' sans réponse';
+  document.getElementById('submit-btn').disabled = count < 54;
+}
+
+// Listen to all radio changes
+document.querySelectorAll('input[type="radio"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    answered[this.name] = this.value;
+    const qid = this.name.replace('q','qi-');
+    document.getElementById(qid).classList.add('answered');
+    updateProgress();
+  });
+});
+
+// ─── SUBMIT ───────────────────────────────────────────────────
+function forceSubmit() {
+  document.getElementById('timeout-overlay').classList.remove('show');
+  submitTest();
+}
+
+function submitTest() {
+  clearInterval(timerInterval);
+  // Scroll to correction
+  document.getElementById('submit-section').style.display = 'none';
+  // Disable all inputs
+  document.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = true);
+
+  // Calculate score
+  let correct = 0;
+  for (let n = 147; n <= 200; n++) {
+    const key = 'q' + n;
+    if (answered[key] && answered[key] === KEYS[key]) correct++;
+  }
+  const pct = Math.round(correct/54*100);
+
+  // TOEIC estimate (Reading score 5-495, part 7 ~54 questions)
+  // Very rough linear estimate
+  const readingEst = Math.round(5 + (correct/54) * 490);
+  const toeicMsg = `Estimation score Reading TOEIC : ~${readingEst}/495`;
+
+  document.getElementById('score-display').textContent = correct + '/54';
+  document.getElementById('score-pct').textContent = pct + '% de bonnes réponses';
+  document.getElementById('toeic-est').textContent = toeicMsg;
+
+  // Build correction
+  const container = document.getElementById('correction-content');
+  container.innerHTML = '';
+
+  // Group passages for display
+  const passageGroups = [
+    { label: 'Q 147–148 — Amy Mandelbaum\'s To-Do List', qs:[147,148] },
+    { label: 'Q 149–150 — Text-Message Chain (Alex Dang)', qs:[149,150] },
+    { label: 'Q 151–152 — Dunsbridge Resort Notice', qs:[151,152] },
+    { label: 'Q 153–154 — Thunderbrush Café Review', qs:[153,154] },
+    { label: 'Q 155–158 — E-mail (Dooley Career Films)', qs:[155,156,157,158] },
+    { label: 'Q 159–161 — Matunis Bank Social Media Notice', qs:[159,160,161] },
+    { label: 'Q 162–164 — E-mail (Juanita → Peter)', qs:[162,163,164] },
+    { label: 'Q 165–167 — HJG Enterprises Invitation', qs:[165,166,167] },
+    { label: 'Q 168–171 — Mumbai Times Journal Article', qs:[168,169,170,171] },
+    { label: 'Q 172–175 — Text-Message Chain (Birthday)', qs:[172,173,174,175] },
+    { label: 'Q 176–180 — Internal Report (Sensor Calibration)', qs:[176,177,178,179,180] },
+    { label: 'Q 181–185 — G&W Shipping Complaint Form', qs:[181,182,183,184,185] },
+    { label: 'Q 186–190 — Vanguard Conference Agenda', qs:[186,187,188,189,190] },
+    { label: 'Q 191–195 — Apex Courier Services + Feedback Form', qs:[191,192,193,194,195] },
+    { label: 'Q 196–200 — Oasis Workspace Solutions Ad', qs:[196,197,198,199,200] },
+  ];
+
+  passageGroups.forEach(group => {
+    const block = document.createElement('div');
+    block.className = 'correction-passage';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'correction-passage-header';
+    hdr.textContent = group.label;
+    block.appendChild(hdr);
+
+    group.qs.forEach(n => {
+      const key = 'q' + n;
+      const userAns = answered[key] || null;
+      const correctAns = KEYS[key];
+      const isCorrect = userAns === correctAns;
+      const expl = EXPL[key];
+
+      const item = document.createElement('div');
+      item.className = 'correction-item ' + (userAns === null ? 'unanswered' : (isCorrect ? 'correct' : 'wrong'));
+
+      const optText = expl.optLabels[correctAns];
+      const userOptText = userAns ? expl.optLabels[userAns] : null;
+
+      item.innerHTML = `
+        <div class="correction-q-header">
+          <span class="result-icon">${userAns === null ? '—' : (isCorrect ? '✔' : '✗')}</span>
+          <span class="q-badge">Q ${n}</span>
+        </div>
+        <div class="correction-q-text">${expl.q}</div>
+        <div class="answer-row">
+          ${userAns && !isCorrect ? `<span class="answer-pill pill-your-wrong">Votre réponse : (${userAns}) ${userOptText}</span>` : ''}
+          ${isCorrect ? `<span class="answer-pill pill-your-correct">✔ (${correctAns}) ${optText}</span>` : `<span class="answer-pill pill-correct-ans">Bonne réponse : (${correctAns}) ${optText}</span>`}
+          ${!userAns ? `<span class="answer-pill" style="background:#fef3c7;color:#92400e">Non répondue</span>` : ''}
+        </div>
+        <div class="explication">
+          ${expl.fr}
+          ${expl.vocab ? `<div class="vocab-box">📚 <strong>Vocabulaire :</strong> ${expl.vocab}</div>` : ''}
+        </div>
+      `;
+      block.appendChild(item);
+    });
+
+    container.appendChild(block);
+  });
+
+  document.getElementById('correction-section').classList.add('visible');
+  document.getElementById('correction-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Start timer on load
+startTimer();
+updateProgress();
+</script>
+</body>
+</html>
