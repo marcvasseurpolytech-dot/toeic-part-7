@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Part 7 — Test 6 — Marc VASSEUR — Polytech Lille</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a;--navy2:#162840;--navy3:#1e3a5f;
+    --gold:#c8993a;--gold-l:#e8b84b;
+    --cream:#f8f4ed;--cream2:#f0ead8;
+    --text:#1a1a2e;--muted:#6b7280;--border:#d4c5a9;
+    --correct:#1a7a4a;--wrong:#9b1c1c;
+    --correct-bg:#d1fae5;--wrong-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Source Serif 4',Georgia,serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+  /* HEADER */
+  #hdr{background:var(--navy);color:white;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+  #hdr h1{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold-l);letter-spacing:.03em}
+  #hdr p{font-size:.68rem;color:#94a3b8;margin-top:2px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em}
+  #timer{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:500;color:var(--gold-l);letter-spacing:.1em;transition:color .3s}
+  #timer.warn{color:#f97316}#timer.danger{color:#ef4444;animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  #timer-lbl{font-size:.6rem;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center}
+  #prog-txt{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#cbd5e1}
+  #prog-wrap{width:150px;height:5px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:4px}
+  #prog-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:99px;transition:width .4s;width:0%}
+
+  /* MAIN */
+  #main{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+
+  /* DIRECTIONS */
+  .dir-box{background:var(--navy2);color:#e2d9c8;border-left:4px solid var(--gold);padding:16px 22px;border-radius:6px;margin-bottom:32px;font-size:.88rem;line-height:1.7}
+  .dir-box strong{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--gold-l);display:block;margin-bottom:6px}
+
+  /* SPLIT BLOCK */
+  .pb{border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:36px}
+  .pb-hdr{background:var(--navy3);color:var(--gold-l);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+  .pb-body{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+  .pb-body.wide{grid-template-columns:1.1fr .9fr}
+  /* For 2-question passages, single column is cleaner */
+  .pb-body.narrow{grid-template-columns:1fr 1fr}
+
+  /* PASSAGE PANE */
+  .pass-pane{background:white;padding:18px 22px;font-size:.88rem;line-height:1.75;border-right:1px solid var(--border);position:sticky;top:56px;max-height:calc(100vh - 76px);overflow-y:auto}
+  .pass-pane h3{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--cream2);padding-bottom:5px}
+  .pass-pane .meta{font-size:.74rem;color:var(--muted);font-style:italic;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+  .pass-pane p{margin-bottom:.6em}
+  .pass-pane table{width:100%;border-collapse:collapse;font-size:.83rem;margin:8px 0}
+  .pass-pane th{background:var(--navy);color:var(--gold-l);padding:6px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.74rem}
+  .pass-pane td{border:1px solid var(--border);padding:6px 10px}
+  .pass-pane tr:nth-child(even) td{background:var(--cream)}
+  .msg-chain{display:flex;flex-direction:column;gap:7px}
+  .msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:.86rem}
+  .ml{background:#f1f5f9;border-bottom-left-radius:3px;align-self:flex-start}
+  .mr{background:#dbeafe;border-bottom-right-radius:3px;align-self:flex-end}
+  .mn{font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:2px}
+  .mt{font-size:.64rem;color:var(--muted);text-align:right;margin-top:2px}
+  .blist{margin:6px 0 6px 18px}
+  .blist li{margin-bottom:4px}
+
+  /* QUESTIONS PANE */
+  .q-pane{background:var(--cream);padding:18px 20px}
+  .qi{margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)}
+  .qi:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .qnum{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+  .qtxt{font-weight:600;font-size:.9rem;margin-bottom:10px;line-height:1.45;color:var(--navy)}
+  .opts{display:flex;flex-direction:column;gap:5px}
+  .opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:.86rem;transition:all .18s;background:white;line-height:1.4}
+  .opt:hover{border-color:var(--navy3);background:#f0f4ff}
+  .opt input{accent-color:var(--navy);margin-top:2px;flex-shrink:0}
+  .opt-l{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.82rem;color:var(--navy3);min-width:16px;flex-shrink:0}
+
+  /* SUBMIT */
+  #sub-sec{text-align:center;margin-top:36px;padding:28px;background:var(--navy);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+  #sub-sec p{color:#94a3b8;font-size:.86rem;margin-bottom:14px}
+  #unans{color:var(--gold-l);font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;display:block;margin-bottom:8px}
+  #sub-btn{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--navy);border:none;padding:13px 44px;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(200,153,58,.4)}
+  #sub-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,153,58,.5)}
+  #sub-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+  /* CORRECTION */
+  #corr-sec{display:none;margin-top:40px}
+  #corr-sec.vis{display:block}
+  .score-banner{background:var(--navy);color:white;text-align:center;padding:36px 24px;border-radius:12px;margin-bottom:36px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+  .score-banner h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold-l);margin-bottom:8px}
+  .big-score{font-family:'JetBrains Mono',monospace;font-size:3.8rem;font-weight:600;color:white;line-height:1}
+  .score-sub{color:#94a3b8;font-size:.88rem;margin-top:8px}
+  .toeic-est{margin-top:16px;padding:12px 22px;background:rgba(200,153,58,.15);border:1px solid var(--gold);border-radius:8px;display:inline-block;font-size:.9rem;color:var(--gold-l)}
+  .corr-pg{margin-bottom:36px;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .corr-pg-hdr{background:var(--navy3);color:var(--gold-l);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+  .ci{padding:18px 22px;border-bottom:1px solid var(--cream2);background:white}
+  .ci:last-child{border-bottom:none}
+  .ci.ok{border-left:4px solid var(--correct)}.ci.ko{border-left:4px solid var(--wrong)}.ci.na{border-left:4px solid #f59e0b}
+  .ci-top{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .ci-icon{font-size:1.1rem}
+  .ci-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:2px 8px;border-radius:99px;font-weight:600}
+  .ok .ci-badge{background:var(--correct-bg);color:var(--correct)}.ko .ci-badge{background:var(--wrong-bg);color:var(--wrong)}.na .ci-badge{background:#fef3c7;color:#92400e}
+  .ci-q{font-weight:600;font-size:.9rem;color:var(--navy);margin-bottom:8px;line-height:1.45}
+  .ans-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+  .pill{padding:3px 12px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.74rem;font-weight:600}
+  .pill-ok{background:var(--correct-bg);color:var(--correct)}
+  .pill-ko{background:var(--wrong-bg);color:var(--wrong);text-decoration:line-through}
+  .pill-right{background:#dbeafe;color:#1d4ed8}
+  .expl{background:var(--cream);border-left:3px solid var(--gold);padding:11px 15px;border-radius:0 6px 6px 0;font-size:.85rem;line-height:1.68}
+  .voc{margin-top:9px;padding:7px 11px;background:#f0f4ff;border-radius:6px;font-size:.8rem;line-height:1.6}
+  .voc span{font-family:'JetBrains Mono',monospace;color:var(--navy3);font-weight:500}
+
+  /* TIMEOUT */
+  #to-ov{display:none;position:fixed;inset:0;background:rgba(13,27,42,.92);z-index:999;align-items:center;justify-content:center}
+  #to-ov.show{display:flex}
+  #to-box{background:var(--cream);border-radius:12px;padding:36px 44px;text-align:center;max-width:380px}
+  #to-box h2{font-family:'Playfair Display',serif;color:var(--navy);font-size:1.5rem;margin-bottom:10px}
+  #to-box p{color:var(--muted);margin-bottom:18px}
+  #to-btn{background:var(--navy);color:var(--gold-l);border:none;padding:11px 30px;border-radius:8px;font-family:'Playfair Display',serif;font-size:.95rem;cursor:pointer}
+
+  @media(max-width:780px){
+    .pb-body,.pb-body.wide,.pb-body.narrow{grid-template-columns:1fr}
+    .pass-pane{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--border)}
+    #hdr{flex-wrap:wrap;gap:8px}
+    #main{padding:16px 12px 60px}
+  }
+</style>
+</head>
+<body>
+<div id="to-ov"><div id="to-box"><h2>⏰ Temps écoulé</h2><p>Les 48 minutes sont terminées. Le test est soumis automatiquement.</p><button id="to-btn" onclick="forceSubmit()">Voir la correction</button></div></div>
+<div id="hdr">
+  <div><h1>TOEIC — Part 7 · Test 6</h1><p>MARC VASSEUR | POLYTECH LILLE</p></div>
+  <div style="text-align:center"><div id="timer">48:00</div><div id="timer-lbl">Temps restant</div></div>
+  <div style="text-align:right"><div id="prog-txt">0 / 54 réponses</div><div id="prog-wrap"><div id="prog-bar"></div></div></div>
+</div>
+<div id="main">
+  <div class="dir-box"><strong>PART 7 — Directions</strong> In this part you will read a selection of texts, such as magazine and newspaper articles, e-mails, and instant messages. Each text or set of texts is followed by several questions. Select the best answer for each question and mark the letter (A), (B), (C), or (D). Detailed corrections in French will be shown after submission.</div>
+
+<div class="pb">
+  <div class="pb-hdr">Questions 147–148 — Equipment Loan Register</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><h3>Greystone Engineering — Equipment Loan Register</h3>
+<p class="meta">Week of 17–21 February | Facilities Department</p>
+<table>
+  <tr><th>Item</th><th>Borrower</th><th>Dept</th><th>Out</th><th>Due back</th><th>Status</th></tr>
+  <tr><td>Digital Torque Wrench</td><td>C. Moss</td><td>Maintenance</td><td>Mon 17</td><td>Tue 18</td><td>Returned</td></tr>
+  <tr><td>Portable Oscilloscope</td><td>R. Fenn</td><td>R&amp;D</td><td>Mon 17</td><td>Fri 21</td><td>On loan</td></tr>
+  <tr><td>Thermal Imaging Camera</td><td>A. Bassi</td><td>Quality</td><td>Wed 19</td><td>Wed 19</td><td>Returned</td></tr>
+  <tr><td>Laptop (spare)</td><td>D. Osei</td><td>IT</td><td>Thu 20</td><td>Fri 21</td><td>On loan</td></tr>
+  <tr><td>Pressure Calibrator</td><td>C. Moss</td><td>Maintenance</td><td>Thu 20</td><td>Mon 24</td><td>On loan</td></tr>
+</table></div>
+    <div class="q-pane"><div class="qi" id="qi-147">
+  <div class="qnum">Question 147</div>
+  <div class="qtxt">Which employee has borrowed equipment on two separate occasions this week?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q147" value="A"><span class="opt-l">A</span>R. Fenn</label>
+    <label class="opt"><input type="radio" name="q147" value="B"><span class="opt-l">B</span>A. Bassi</label>
+    <label class="opt"><input type="radio" name="q147" value="C"><span class="opt-l">C</span>D. Osei</label>
+    <label class="opt"><input type="radio" name="q147" value="D"><span class="opt-l">D</span>C. Moss</label>
+  </div>
+</div><div class="qi" id="qi-148">
+  <div class="qnum">Question 148</div>
+  <div class="qtxt">Which items are still on loan as of Friday 21 February?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q148" value="A"><span class="opt-l">A</span>The torque wrench and the oscilloscope</label>
+    <label class="opt"><input type="radio" name="q148" value="B"><span class="opt-l">B</span>The oscilloscope and the laptop</label>
+    <label class="opt"><input type="radio" name="q148" value="C"><span class="opt-l">C</span>The laptop and the pressure calibrator</label>
+    <label class="opt"><input type="radio" name="q148" value="D"><span class="opt-l">D</span>The oscilloscope, the laptop, and the pressure calibrator</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 149–150 — Text-Message Chain</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><div class="msg-chain">
+  <div class="msg ml"><div class="mn">Cora Lindqvist</div>Hi Bea. The catering firm just called — they can no longer do the Thursday team lunch. They have a double-booking. Can we find someone else at short notice?<div class="mt">Mon 10:04 A.M.</div></div>
+  <div class="msg mr"><div class="mn">Bea Hartley</div>That is really poor form. How many people are we expecting?<div class="mt">Mon 10:07 A.M.</div></div>
+  <div class="msg ml"><div class="mn">Cora Lindqvist</div>Eighteen. I need something that can do a set lunch for that number by 1pm on Thursday with some vegetarian options.<div class="mt">Mon 10:09 A.M.</div></div>
+  <div class="msg mr"><div class="mn">Bea Hartley</div>Leave it with me. I know a good spot — The Gable Rooms. They do corporate lunches at short notice. I'll call them now and confirm.<div class="mt">Mon 10:11 A.M.</div></div>
+  <div class="msg ml"><div class="mn">Cora Lindqvist</div>That would be a lifesaver. Thank you.<div class="mt">Mon 10:12 A.M.</div></div>
+</div></div>
+    <div class="q-pane"><div class="qi" id="qi-149">
+  <div class="qnum">Question 149</div>
+  <div class="qtxt">Why is an alternative catering arrangement needed?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q149" value="A"><span class="opt-l">A</span>The original booking was too expensive</label>
+    <label class="opt"><input type="radio" name="q149" value="B"><span class="opt-l">B</span>The original caterer cancelled due to a scheduling conflict</label>
+    <label class="opt"><input type="radio" name="q149" value="C"><span class="opt-l">C</span>The number of attendees has increased</label>
+    <label class="opt"><input type="radio" name="q149" value="D"><span class="opt-l">D</span>The lunch has been moved to a different day</label>
+  </div>
+</div><div class="qi" id="qi-150">
+  <div class="qnum">Question 150</div>
+  <div class="qtxt">What will Bea Hartley do next?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q150" value="A"><span class="opt-l">A</span>Contact the original catering firm to complain</label>
+    <label class="opt"><input type="radio" name="q150" value="B"><span class="opt-l">B</span>Ask Cora to find an alternative venue</label>
+    <label class="opt"><input type="radio" name="q150" value="C"><span class="opt-l">C</span>Call The Gable Rooms to arrange the lunch</label>
+    <label class="opt"><input type="radio" name="q150" value="D"><span class="opt-l">D</span>Send a menu to the team for approval</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 151–152 — Notice</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><h3>NOTICE — ARDEN HEIGHTS RESIDENTS' ASSOCIATION</h3>
+<h3>Annual General Meeting</h3>
+<p>The Annual General Meeting of the Arden Heights Residents' Association will be held on <strong>Wednesday 12 March at 7:00 P.M.</strong> in the Arden Heights Community Room, Ground Floor, Block C.</p>
+<p>The agenda will include a review of the building maintenance fund, an update on the proposed external redecoration works, an election of new committee members, and any other matters raised by residents.</p>
+<p>All residents are welcome and encouraged to attend. Residents who are unable to attend in person may submit questions or agenda items in writing to the association secretary at secretary@ardenheights.org.uk by <strong>5 March</strong>. Proxy votes may also be submitted in writing by the same deadline.</p>
+<p>Refreshments will be provided. Please bring your resident ID card.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-151">
+  <div class="qnum">Question 151</div>
+  <div class="qtxt">What is one item on the AGM agenda?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q151" value="A"><span class="opt-l">A</span>Approval of new tenancy agreements</label>
+    <label class="opt"><input type="radio" name="q151" value="B"><span class="opt-l">B</span>An update on planned renovation works</label>
+    <label class="opt"><input type="radio" name="q151" value="C"><span class="opt-l">C</span>A presentation by the building's architect</label>
+    <label class="opt"><input type="radio" name="q151" value="D"><span class="opt-l">D</span>A vote on new parking regulations</label>
+  </div>
+</div><div class="qi" id="qi-152">
+  <div class="qnum">Question 152</div>
+  <div class="qtxt">What must residents who cannot attend do by 5 March?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q152" value="A"><span class="opt-l">A</span>Pay their outstanding service charges</label>
+    <label class="opt"><input type="radio" name="q152" value="B"><span class="opt-l">B</span>Submit questions or votes in writing</label>
+    <label class="opt"><input type="radio" name="q152" value="C"><span class="opt-l">C</span>Register their attendance online</label>
+    <label class="opt"><input type="radio" name="q152" value="D"><span class="opt-l">D</span>Confirm their proxy representative in person</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 153–154 — Online Review</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><p class="meta">www.businesssoftware.co.uk — Product Reviews</p>
+<h3>Clockwise HR — Review by Sandra F., HR Manager</h3>
+<p>We rolled out Clockwise HR to our 140-person company six months ago and the transition was largely painless. The onboarding process was well-supported by the vendor's implementation team, and the interface is genuinely intuitive for both HR staff and line managers.</p>
+<p>The absence and leave management module is exceptional — it has eliminated most of the manual tracking we used to do in spreadsheets. Payroll integration worked first time, which is not always a given with these systems.</p>
+<p>My one concern is the reporting function. While the standard reports cover most bases, creating custom reports requires either technical knowledge or a paid consultant from the vendor. For a system at this price point, I would expect a more self-serve reporting toolkit. I have raised this with the account manager and was told it is on the roadmap for the next major release.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-153">
+  <div class="qnum">Question 153</div>
+  <div class="qtxt">What does Sandra F. identify as a strength of Clockwise HR?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q153" value="A"><span class="opt-l">A</span>The reporting function</label>
+    <label class="opt"><input type="radio" name="q153" value="B"><span class="opt-l">B</span>The pricing structure</label>
+    <label class="opt"><input type="radio" name="q153" value="C"><span class="opt-l">C</span>The absence and leave management module</label>
+    <label class="opt"><input type="radio" name="q153" value="D"><span class="opt-l">D</span>The speed of the implementation</label>
+  </div>
+</div><div class="qi" id="qi-154">
+  <div class="qnum">Question 154</div>
+  <div class="qtxt">What limitation does the reviewer highlight?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q154" value="A"><span class="opt-l">A</span>Custom reports require technical expertise or paid help</label>
+    <label class="opt"><input type="radio" name="q154" value="B"><span class="opt-l">B</span>Payroll integration is not available</label>
+    <label class="opt"><input type="radio" name="q154" value="C"><span class="opt-l">C</span>The system is difficult for line managers to use</label>
+    <label class="opt"><input type="radio" name="q154" value="D"><span class="opt-l">D</span>The vendor's support team is slow to respond</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 155–158 — E-mail</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><p><strong>To:</strong> Marketing Department<br>
+<strong>From:</strong> Yusra Khalid &lt;y.khalid@palmettomedia.com&gt;<br>
+<strong>Subject:</strong> Q3 Campaign Planning — Key Dates and Responsibilities<br>
+<strong>Date:</strong> 2 June</p>
+<p>Dear Team,</p>
+<p>As we move into Q3 planning, I want to set out the key dates and responsibilities for the Autumn product campaign. Please save these in your diaries and flag any conflicts as soon as possible.</p>
+<p><strong>Campaign brief finalised:</strong> 14 June — Yusra Khalid (lead)<br>
+<strong>Creative concepts presented:</strong> 28 June — Design team (lead: Marcus Webb)<br>
+<strong>Client approval of concepts:</strong> 5 July — Account team (lead: Diane Ferris)<br>
+<strong>Final assets delivered to media:</strong> 18 July — Production team<br>
+<strong>Campaign goes live:</strong> 28 July</p>
+<p>A few important points to note. First, the client has specifically requested that all social media assets adhere to their updated brand guidelines, which were issued last week. Marcus, please ensure your team has reviewed these before the 28 June presentation. Second, Diane — the client contact for approvals is now <strong>James Okoro</strong>, not Elena Vargas, who has moved to a different role. Please update your records accordingly.</p>
+<p>I will circulate the full campaign brief on 14 June. In the meantime, feel free to contact me if you have any questions.</p>
+<p>Best,<br>Yusra Khalid<br>Campaign Director</p></div>
+    <div class="q-pane"><div class="qi" id="qi-155">
+  <div class="qnum">Question 155</div>
+  <div class="qtxt">What is the purpose of the e-mail?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q155" value="A"><span class="opt-l">A</span>To announce that the campaign has been cancelled</label>
+    <label class="opt"><input type="radio" name="q155" value="B"><span class="opt-l">B</span>To share key dates and responsibilities for an upcoming campaign</label>
+    <label class="opt"><input type="radio" name="q155" value="C"><span class="opt-l">C</span>To request client approval of creative concepts</label>
+    <label class="opt"><input type="radio" name="q155" value="D"><span class="opt-l">D</span>To confirm that the campaign has gone live</label>
+  </div>
+</div><div class="qi" id="qi-156">
+  <div class="qnum">Question 156</div>
+  <div class="qtxt">Who is responsible for presenting creative concepts?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q156" value="A"><span class="opt-l">A</span>Yusra Khalid</label>
+    <label class="opt"><input type="radio" name="q156" value="B"><span class="opt-l">B</span>Diane Ferris</label>
+    <label class="opt"><input type="radio" name="q156" value="C"><span class="opt-l">C</span>The production team</label>
+    <label class="opt"><input type="radio" name="q156" value="D"><span class="opt-l">D</span>The design team</label>
+  </div>
+</div><div class="qi" id="qi-157">
+  <div class="qnum">Question 157</div>
+  <div class="qtxt">What change does the e-mail communicate regarding the client contact?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q157" value="A"><span class="opt-l">A</span>Elena Vargas has been promoted</label>
+    <label class="opt"><input type="radio" name="q157" value="B"><span class="opt-l">B</span>A new agency has taken over the account</label>
+    <label class="opt"><input type="radio" name="q157" value="C"><span class="opt-l">C</span>James Okoro has replaced Elena Vargas as the approval contact</label>
+    <label class="opt"><input type="radio" name="q157" value="D"><span class="opt-l">D</span>The approval process has been moved online</label>
+  </div>
+</div><div class="qi" id="qi-158">
+  <div class="qnum">Question 158</div>
+  <div class="qtxt">By what date must the design team have reviewed the client's brand guidelines?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q158" value="A"><span class="opt-l">A</span>14 June</label>
+    <label class="opt"><input type="radio" name="q158" value="B"><span class="opt-l">B</span>18 July</label>
+    <label class="opt"><input type="radio" name="q158" value="C"><span class="opt-l">C</span>28 June</label>
+    <label class="opt"><input type="radio" name="q158" value="D"><span class="opt-l">D</span>5 July</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 159–161 — Article</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Why More Graduates Are Choosing Apprenticeships Over University</h3>
+<p class="meta">Education & Careers Quarterly — Spring Edition</p>
+<p>For decades, the conventional path for academically high-achieving school leavers was straightforward: university first, career second. That consensus is weakening. A growing number of students who achieve the grades to attend Russell Group universities are instead choosing higher and degree apprenticeships offered by leading employers — and the data suggests their reasoning is sound.</p>
+<p>The financial case is increasingly compelling. A student completing a three-year degree in 2025 will graduate with average debt exceeding £45,000. A degree apprentice on the same three-year pathway earns a salary throughout, pays no tuition fees, and leaves with the same qualification. Employers including PwC, Rolls-Royce, and KPMG have reported a marked increase in the quality of applicants to their apprenticeship programmes.</p>
+<p>Beyond the finances, employers report that degree apprentices tend to develop professional skills more rapidly than graduate hires who joined after three years away from the workplace. "The ability to immediately translate learning into practice gives them a head start that persists for several years," said one senior HR director at a FTSE 100 company.</p>
+<p>Critics argue that the university experience has an intrinsic social and intellectual value that cannot be replicated — and that not all disciplines are served equally well by an apprenticeship pathway. Humanities, law, and medicine are cited as areas where the traditional route remains preferable.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-159">
+  <div class="qnum">Question 159</div>
+  <div class="qtxt">What is the main point the article makes about degree apprenticeships?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q159" value="A"><span class="opt-l">A</span>They are only suitable for students who cannot afford university</label>
+    <label class="opt"><input type="radio" name="q159" value="B"><span class="opt-l">B</span>They are becoming a genuinely competitive alternative to university for high-achieving students</label>
+    <label class="opt"><input type="radio" name="q159" value="C"><span class="opt-l">C</span>They have replaced university as the most popular route to professional employment</label>
+    <label class="opt"><input type="radio" name="q159" value="D"><span class="opt-l">D</span>They are mainly used by large corporations to reduce training costs</label>
+  </div>
+</div><div class="qi" id="qi-160">
+  <div class="qnum">Question 160</div>
+  <div class="qtxt">What financial advantage do degree apprentices have over traditional university students?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q160" value="A"><span class="opt-l">A</span>They receive a government bursary</label>
+    <label class="opt"><input type="radio" name="q160" value="B"><span class="opt-l">B</span>They pay reduced tuition fees</label>
+    <label class="opt"><input type="radio" name="q160" value="C"><span class="opt-l">C</span>They earn a salary and pay no tuition fees</label>
+    <label class="opt"><input type="radio" name="q160" value="D"><span class="opt-l">D</span>They are guaranteed employment after qualifying</label>
+  </div>
+</div><div class="qi" id="qi-161">
+  <div class="qnum">Question 161</div>
+  <div class="qtxt">What advantage do employers say degree apprentices have over graduate hires?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q161" value="A"><span class="opt-l">A</span>They are more academically qualified</label>
+    <label class="opt"><input type="radio" name="q161" value="B"><span class="opt-l">B</span>They have stronger international experience</label>
+    <label class="opt"><input type="radio" name="q161" value="C"><span class="opt-l">C</span>They develop professional skills more quickly</label>
+    <label class="opt"><input type="radio" name="q161" value="D"><span class="opt-l">D</span>They cost less to train</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 162–164 — E-mail Chain</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><p><strong>E-mail 1</strong></p>
+<p><strong>To:</strong> Procurement &lt;procurement@trellisgroup.co.uk&gt;<br>
+<strong>From:</strong> Naomi Shore &lt;n.shore@trellisgroup.co.uk&gt;<br>
+<strong>Subject:</strong> Stationery supplier review<br>
+<strong>Date:</strong> 18 March</p>
+<p>Hi team,</p>
+<p>Following the budget review, we have been asked to identify potential savings on our stationery and office supply spend. Our current supplier, Castleton Office Supplies, charges us £2,340 per quarter. I have obtained quotes from two alternative suppliers — details below:</p>
+<p><strong>Whitfield &amp; Co:</strong> £1,980/quarter — standard 5-day delivery, no minimum order<br>
+<strong>DeskDirect:</strong> £2,100/quarter — next-day delivery available, minimum order £150</p>
+<p>Both alternatives offer comparable product ranges. Could you review and advise whether we should proceed with switching?</p>
+<p>Naomi</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<p><strong>E-mail 2</strong></p>
+<p><strong>To:</strong> Naomi Shore<br>
+<strong>From:</strong> Procurement &lt;procurement@trellisgroup.co.uk&gt;<br>
+<strong>Subject:</strong> Re: Stationery supplier review<br>
+<strong>Date:</strong> 19 March</p>
+<p>Hi Naomi,</p>
+<p>Thank you for the research. On balance, we recommend switching to Whitfield & Co. The annual saving over Castleton would be £1,440 and their delivery terms are adequate for our standard ordering patterns. We do not typically place emergency orders, so next-day delivery is not a priority.</p>
+<p>Before we proceed, please check whether Castleton have a contract termination clause that would affect the timing of any switch. If there is no penalty, we could transition from next quarter.</p>
+<p>Procurement</p></div>
+    <div class="q-pane"><div class="qi" id="qi-162">
+  <div class="qnum">Question 162</div>
+  <div class="qtxt">Why is Naomi Shore comparing stationery suppliers?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q162" value="A"><span class="opt-l">A</span>The current supplier has raised its prices</label>
+    <label class="opt"><input type="radio" name="q162" value="B"><span class="opt-l">B</span>The company has been asked to identify cost savings</label>
+    <label class="opt"><input type="radio" name="q162" value="C"><span class="opt-l">C</span>The current supplier can no longer fulfil orders</label>
+    <label class="opt"><input type="radio" name="q162" value="D"><span class="opt-l">D</span>A colleague recommended switching suppliers</label>
+  </div>
+</div><div class="qi" id="qi-163">
+  <div class="qnum">Question 163</div>
+  <div class="qtxt">Why does procurement recommend Whitfield & Co over DeskDirect?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q163" value="A"><span class="opt-l">A</span>DeskDirect has a shorter product range</label>
+    <label class="opt"><input type="radio" name="q163" value="B"><span class="opt-l">B</span>Whitfield & Co offers faster delivery</label>
+    <label class="opt"><input type="radio" name="q163" value="C"><span class="opt-l">C</span>Whitfield & Co is cheaper and next-day delivery is not needed</label>
+    <label class="opt"><input type="radio" name="q163" value="D"><span class="opt-l">D</span>DeskDirect requires a deposit before ordering</label>
+  </div>
+</div><div class="qi" id="qi-164">
+  <div class="qnum">Question 164</div>
+  <div class="qtxt">What does procurement ask Naomi to check before switching?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q164" value="A"><span class="opt-l">A</span>Whether Whitfield & Co can handle the order volume</label>
+    <label class="opt"><input type="radio" name="q164" value="B"><span class="opt-l">B</span>Whether the current supplier offers a loyalty discount</label>
+    <label class="opt"><input type="radio" name="q164" value="C"><span class="opt-l">C</span>Whether there is a penalty clause in the current contract</label>
+    <label class="opt"><input type="radio" name="q164" value="D"><span class="opt-l">D</span>Whether DeskDirect would lower its price</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 165–167 — Advertisement</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>MERIDIAN TRANSLATION BUREAU — SPECIALIST LEGAL TRANSLATION</h3>
+<p class="meta">Promotional brochure — Spring 2025</p>
+<p>Meridian Translation Bureau provides certified legal translation services to law firms, corporate legal departments, and government bodies across the United Kingdom. Our team of 120 specialist translators covers 45 languages and holds qualifications in legal terminology from the Chartered Institute of Linguists.</p>
+<p><strong>Core services:</strong></p>
+<ul class="blist">
+  <li>Contract and agreement translation (all jurisdictions)</li>
+  <li>Court document and judgment translation</li>
+  <li>Patent and intellectual property translation</li>
+  <li>Certified translation for immigration and visa purposes</li>
+  <li>Apostille and notarisation support</li>
+</ul>
+<p>Standard turnaround is <strong>three business days</strong>. Urgent 24-hour service is available at a 50% premium. All translations carry a certificate of accuracy and are accepted by UK courts and government bodies.</p>
+<p><strong>New client offer:</strong> 10% discount on the first instruction valued over £500.</p>
+<p>Contact: hello@meridiantranslation.co.uk | 020 7946 0044 | meridiantranslation.co.uk</p></div>
+    <div class="q-pane"><div class="qi" id="qi-165">
+  <div class="qnum">Question 165</div>
+  <div class="qtxt">What type of translation services does Meridian specialise in?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q165" value="A"><span class="opt-l">A</span>Medical and pharmaceutical translation</label>
+    <label class="opt"><input type="radio" name="q165" value="B"><span class="opt-l">B</span>Legal translation</label>
+    <label class="opt"><input type="radio" name="q165" value="C"><span class="opt-l">C</span>Financial and accounting translation</label>
+    <label class="opt"><input type="radio" name="q165" value="D"><span class="opt-l">D</span>Technical and engineering translation</label>
+  </div>
+</div><div class="qi" id="qi-166">
+  <div class="qnum">Question 166</div>
+  <div class="qtxt">What is the additional cost for a 24-hour turnaround?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q166" value="A"><span class="opt-l">A</span>A flat fee of £500</label>
+    <label class="opt"><input type="radio" name="q166" value="B"><span class="opt-l">B</span>Double the standard rate</label>
+    <label class="opt"><input type="radio" name="q166" value="C"><span class="opt-l">C</span>A 50% premium on the standard price</label>
+    <label class="opt"><input type="radio" name="q166" value="D"><span class="opt-l">D</span>No extra charge for urgent work</label>
+  </div>
+</div><div class="qi" id="qi-167">
+  <div class="qnum">Question 167</div>
+  <div class="qtxt">What offer is available to new clients?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q167" value="A"><span class="opt-l">A</span>Free translation of the first document</label>
+    <label class="opt"><input type="radio" name="q167" value="B"><span class="opt-l">B</span>A 10% discount on instructions over £500</label>
+    <label class="opt"><input type="radio" name="q167" value="C"><span class="opt-l">C</span>A dedicated account manager at no cost</label>
+    <label class="opt"><input type="radio" name="q167" value="D"><span class="opt-l">D</span>Free apostille support on the first instruction</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 168–171 — Magazine Article</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>The Office Chair Market Is Quietly Booming</h3>
+<p class="meta">Interior & Workplace Design Review — April Edition</p>
+<p>Few product categories have benefited more from the hybrid working revolution than the humble office chair. What was once an afterthought — a standard item ordered by facilities managers in bulk and rarely replaced — has become a considered consumer purchase, driven by workers equipping home offices to a standard once reserved for corporate headquarters.</p>
+<p>Market research firm Vantage Insight reports that UK sales of ergonomic office seating grew by 38% between 2020 and 2024, with the premium segment — chairs priced above £400 — growing fastest at 54%. The shift reflects a broader consumer willingness to invest in workspace quality, particularly among knowledge workers who spend eight or more hours a day at a desk.</p>
+<p>Manufacturers have responded by accelerating product development cycles. Swedish firm Nordseat AB released three new models in 2024 alone, each developed in collaboration with occupational health specialists. Its Meridian Pro model, priced at £649, sold out within six weeks of launch. "The buyer is now informed, often having researched online for weeks before purchasing," said Nordseat's UK sales director, Charlotte Wyatt.</p>
+<p>Retailers report that customers now ask detailed questions about lumbar support, seat depth adjustment, and breathability — questions that would have been unheard of a decade ago. Whether the boom will outlast the hybrid working era remains to be seen, but for now the market shows no signs of slowing.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-168">
+  <div class="qnum">Question 168</div>
+  <div class="qtxt">What has driven the growth in the office chair market?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q168" value="A"><span class="opt-l">A</span>New regulations on workplace ergonomics</label>
+    <label class="opt"><input type="radio" name="q168" value="B"><span class="opt-l">B</span>Workers equipping home offices to a high standard</label>
+    <label class="opt"><input type="radio" name="q168" value="C"><span class="opt-l">C</span>An increase in commercial office construction</label>
+    <label class="opt"><input type="radio" name="q168" value="D"><span class="opt-l">D</span>Government subsidies for ergonomic furniture</label>
+  </div>
+</div><div class="qi" id="qi-169">
+  <div class="qnum">Question 169</div>
+  <div class="qtxt">Which segment of the office chair market has grown fastest since 2020?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q169" value="A"><span class="opt-l">A</span>Budget chairs under £200</label>
+    <label class="opt"><input type="radio" name="q169" value="B"><span class="opt-l">B</span>Mid-range chairs between £200 and £400</label>
+    <label class="opt"><input type="radio" name="q169" value="C"><span class="opt-l">C</span>Premium chairs priced above £400</label>
+    <label class="opt"><input type="radio" name="q169" value="D"><span class="opt-l">D</span>Contract chairs for commercial use</label>
+  </div>
+</div><div class="qi" id="qi-170">
+  <div class="qnum">Question 170</div>
+  <div class="qtxt">What does Charlotte Wyatt say about today's office chair buyer?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q170" value="A"><span class="opt-l">A</span>They are mainly purchasing for commercial offices</label>
+    <label class="opt"><input type="radio" name="q170" value="B"><span class="opt-l">B</span>They are price-sensitive above all other considerations</label>
+    <label class="opt"><input type="radio" name="q170" value="C"><span class="opt-l">C</span>They are well-informed, having researched before buying</label>
+    <label class="opt"><input type="radio" name="q170" value="D"><span class="opt-l">D</span>They prefer to buy in-store rather than online</label>
+  </div>
+</div><div class="qi" id="qi-171">
+  <div class="qnum">Question 171</div>
+  <div class="qtxt">What does the article suggest about the future of the market?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q171" value="A"><span class="opt-l">A</span>It is certain to continue growing indefinitely</label>
+    <label class="opt"><input type="radio" name="q171" value="B"><span class="opt-l">B</span>It will collapse once hybrid working ends</label>
+    <label class="opt"><input type="radio" name="q171" value="C"><span class="opt-l">C</span>It is currently growing but its long-term trajectory is uncertain</label>
+    <label class="opt"><input type="radio" name="q171" value="D"><span class="opt-l">D</span>It is already beginning to slow down</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 172–175 — Text-Message Chain</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><div class="msg-chain">
+  <div class="msg ml"><div class="mn">Remi Okafor</div>Hey Liz. Are the conference badges ready? The delegates start arriving at 8am tomorrow and I realised I haven't seen them yet.<div class="mt">Wed 4:17 P.M.</div></div>
+  <div class="msg mr"><div class="mn">Liz Thornton</div>They were printed this morning. But I've just noticed the registration desk hasn't been set up yet — the trestle tables are still in the store room.<div class="mt">Wed 4:19 P.M.</div></div>
+  <div class="msg ml"><div class="mn">Remi Okafor</div>Good catch. Can you ask the venue team to set those up tonight? Also, do we have the lanyards?<div class="mt">Wed 4:21 P.M.</div></div>
+  <div class="msg mr"><div class="mn">Liz Thornton</div>Lanyards — yes. I'll speak to the venue team now about the tables. One more thing: I don't have a printed delegate list. I only have the spreadsheet on my laptop. Should I print one?<div class="mt">Wed 4:22 P.M.</div></div>
+  <div class="msg ml"><div class="mn">Remi Okafor</div>Yes please — print two copies. One for the desk and one as a backup. Bring them tomorrow morning.<div class="mt">Wed 4:24 P.M.</div></div>
+</div></div>
+    <div class="q-pane"><div class="qi" id="qi-172">
+  <div class="qnum">Question 172</div>
+  <div class="qtxt">What prompts Remi Okafor to check in with Liz Thornton?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q172" value="A"><span class="opt-l">A</span>The conference has been rescheduled</label>
+    <label class="opt"><input type="radio" name="q172" value="B"><span class="opt-l">B</span>He has not seen the badges yet</label>
+    <label class="opt"><input type="radio" name="q172" value="C"><span class="opt-l">C</span>A delegate has complained about registration</label>
+    <label class="opt"><input type="radio" name="q172" value="D"><span class="opt-l">D</span>The venue has changed</label>
+  </div>
+</div><div class="qi" id="qi-173">
+  <div class="qnum">Question 173</div>
+  <div class="qtxt">What task does Liz Thornton identify that still needs doing?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q173" value="A"><span class="opt-l">A</span>Printing the badges</label>
+    <label class="opt"><input type="radio" name="q173" value="B"><span class="opt-l">B</span>Ordering the lanyards</label>
+    <label class="opt"><input type="radio" name="q173" value="C"><span class="opt-l">C</span>Setting up the registration desk</label>
+    <label class="opt"><input type="radio" name="q173" value="D"><span class="opt-l">D</span>Confirming the delegate count</label>
+  </div>
+</div><div class="qi" id="qi-174">
+  <div class="qnum">Question 174</div>
+  <div class="qtxt">What does Liz Thornton confirm is already available?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q174" value="A"><span class="opt-l">A</span>The printed delegate list</label>
+    <label class="opt"><input type="radio" name="q174" value="B"><span class="opt-l">B</span>The trestle tables</label>
+    <label class="opt"><input type="radio" name="q174" value="C"><span class="opt-l">C</span>The lanyards</label>
+    <label class="opt"><input type="radio" name="q174" value="D"><span class="opt-l">D</span>The name badges</label>
+  </div>
+</div><div class="qi" id="qi-175">
+  <div class="qnum">Question 175</div>
+  <div class="qtxt">How many copies of the delegate list does Remi Okafor ask Liz to print?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q175" value="A"><span class="opt-l">A</span>One</label>
+    <label class="opt"><input type="radio" name="q175" value="B"><span class="opt-l">B</span>Two</label>
+    <label class="opt"><input type="radio" name="q175" value="C"><span class="opt-l">C</span>Three</label>
+    <label class="opt"><input type="radio" name="q175" value="D"><span class="opt-l">D</span>Four</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 176–180 — Internal Report</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>RETAIL PERFORMANCE REVIEW — NOVEMBER</h3>
+<p class="meta">Prepared by: Commercial Analytics | Distribution: Regional Directors | Date: 5 December</p>
+<p><strong>Summary:</strong> November total revenue reached £8.4 million across all 24 branches, an 11% increase year-on-year and the best November performance in five years. The increase was driven primarily by the Early Winter promotional event (1–15 November), which generated £2.1 million — 32% above the promotional target.</p>
+<p><strong>Top-performing branches:</strong> The Bristol West branch recorded the highest individual revenue (£620,000), followed by Leeds Central (£587,000) and Manchester Deansgate (£541,000). All three exceeded their individual targets by more than 15%.</p>
+<p><strong>Underperforming branches:</strong> Four branches fell more than 10% below target: Exeter, Truro, Shrewsbury, and Carlisle. Each cited reduced footfall linked to roadworks affecting nearby access routes.</p>
+<p><strong>Stock management:</strong> Three branches — Derby, Norwich, and Swansea — reported stock shortages on two best-selling lines during the promotional period, resulting in an estimated £95,000 of lost sales. The supply chain team has been asked to review allocation procedures ahead of the Christmas trading period.</p>
+<p><strong>Outlook:</strong> The December forecast has been revised upward to £11.2 million, reflecting strong pre-order volumes and an expanded promotional calendar. All branch managers are asked to confirm staffing levels by 10 December.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-176">
+  <div class="qnum">Question 176</div>
+  <div class="qtxt">How did November's total revenue compare to the same period last year?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q176" value="A"><span class="opt-l">A</span>It was 11% lower</label>
+    <label class="opt"><input type="radio" name="q176" value="B"><span class="opt-l">B</span>It was the same</label>
+    <label class="opt"><input type="radio" name="q176" value="C"><span class="opt-l">C</span>It was 11% higher</label>
+    <label class="opt"><input type="radio" name="q176" value="D"><span class="opt-l">D</span>It was 32% higher</label>
+  </div>
+</div><div class="qi" id="qi-177">
+  <div class="qnum">Question 177</div>
+  <div class="qtxt">What was the main driver of November's revenue growth?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q177" value="A"><span class="opt-l">A</span>The opening of three new branches</label>
+    <label class="opt"><input type="radio" name="q177" value="B"><span class="opt-l">B</span>The Early Winter promotional event</label>
+    <label class="opt"><input type="radio" name="q177" value="C"><span class="opt-l">C</span>An increase in average transaction value</label>
+    <label class="opt"><input type="radio" name="q177" value="D"><span class="opt-l">D</span>A reduction in competitor activity</label>
+  </div>
+</div><div class="qi" id="qi-178">
+  <div class="qnum">Question 178</div>
+  <div class="qtxt">Why did four branches underperform in November?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q178" value="A"><span class="opt-l">A</span>They were understaffed during the promotional period</label>
+    <label class="opt"><input type="radio" name="q178" value="B"><span class="opt-l">B</span>Poor stock management reduced sales</label>
+    <label class="opt"><input type="radio" name="q178" value="C"><span class="opt-l">C</span>Roadworks limited customer access</label>
+    <label class="opt"><input type="radio" name="q178" value="D"><span class="opt-l">D</span>They did not participate in the promotional event</label>
+  </div>
+</div><div class="qi" id="qi-179">
+  <div class="qnum">Question 179</div>
+  <div class="qtxt">What problem did Derby, Norwich, and Swansea experience?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q179" value="A"><span class="opt-l">A</span>They exceeded their storage capacity</label>
+    <label class="opt"><input type="radio" name="q179" value="B"><span class="opt-l">B</span>They ran out of stock on two popular product lines</label>
+    <label class="opt"><input type="radio" name="q179" value="C"><span class="opt-l">C</span>Their point-of-sale systems failed during the promotion</label>
+    <label class="opt"><input type="radio" name="q179" value="D"><span class="opt-l">D</span>They received deliveries after the promotional period ended</label>
+  </div>
+</div><div class="qi" id="qi-180">
+  <div class="qnum">Question 180</div>
+  <div class="qtxt">What are branch managers asked to do by 10 December?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q180" value="A"><span class="opt-l">A</span>Submit their December sales forecasts</label>
+    <label class="opt"><input type="radio" name="q180" value="B"><span class="opt-l">B</span>Place their stock orders for Christmas</label>
+    <label class="opt"><input type="radio" name="q180" value="C"><span class="opt-l">C</span>Confirm staffing levels</label>
+    <label class="opt"><input type="radio" name="q180" value="D"><span class="opt-l">D</span>Attend a regional directors' meeting</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 181–185 — Memo + Survey Results</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — Memo</h3>
+<p><strong>TO:</strong> All Department Heads | <strong>FROM:</strong> Facilities Director | <strong>DATE:</strong> 8 May | <strong>SUBJECT:</strong> Results of Workplace Environment Survey</p>
+<p>Thank you to all staff who participated in the annual workplace environment survey. We received 287 responses, representing an 81% response rate. A summary of the key findings is attached. I want to highlight three areas where action has already been approved by senior management.</p>
+<p>First, the temperature control complaints will be addressed by servicing all HVAC units in June. Second, the request for more quiet working zones has been approved — two dedicated silent study rooms will be created on floors 3 and 5 before the end of the quarter. Third, the canteen opening hours will be extended from 7:30 A.M. to 6:00 P.M. from 1 June, in response to the volume of requests from staff working flexible hours.</p>
+<p>The Facilities team will communicate the timeline for each improvement to relevant staff as plans are finalised.</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 2 — Survey Results Summary</h3>
+<p class="meta">Workplace Environment Survey — Key Findings</p>
+<table>
+  <tr><th>Issue</th><th>% raising concern</th><th>Priority rating</th></tr>
+  <tr><td>Temperature / air quality</td><td>67%</td><td>High</td></tr>
+  <tr><td>Noise levels in open-plan areas</td><td>54%</td><td>High</td></tr>
+  <tr><td>Canteen hours / food variety</td><td>48%</td><td>Medium</td></tr>
+  <tr><td>Desk availability / hot-desking</td><td>39%</td><td>Medium</td></tr>
+  <tr><td>Lighting quality</td><td>22%</td><td>Low</td></tr>
+  <tr><td>Meeting room availability</td><td>19%</td><td>Low</td></tr>
+</table></div>
+    <div class="q-pane"><div class="qi" id="qi-181">
+  <div class="qnum">Question 181</div>
+  <div class="qtxt">What was the response rate for the workplace environment survey?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q181" value="A"><span class="opt-l">A</span>54%</label>
+    <label class="opt"><input type="radio" name="q181" value="B"><span class="opt-l">B</span>67%</label>
+    <label class="opt"><input type="radio" name="q181" value="C"><span class="opt-l">C</span>81%</label>
+    <label class="opt"><input type="radio" name="q181" value="D"><span class="opt-l">D</span>100%</label>
+  </div>
+</div><div class="qi" id="qi-182">
+  <div class="qnum">Question 182</div>
+  <div class="qtxt">What is the most commonly raised concern according to the survey results?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q182" value="A"><span class="opt-l">A</span>Noise levels in open-plan areas</label>
+    <label class="opt"><input type="radio" name="q182" value="B"><span class="opt-l">B</span>Desk availability</label>
+    <label class="opt"><input type="radio" name="q182" value="C"><span class="opt-l">C</span>Temperature and air quality</label>
+    <label class="opt"><input type="radio" name="q182" value="D"><span class="opt-l">D</span>Meeting room availability</label>
+  </div>
+</div><div class="qi" id="qi-183">
+  <div class="qnum">Question 183</div>
+  <div class="qtxt">What action has been approved in response to noise concerns?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q183" value="A"><span class="opt-l">A</span>HVAC units will be serviced</label>
+    <label class="opt"><input type="radio" name="q183" value="B"><span class="opt-l">B</span>Silent rooms will be created on two floors</label>
+    <label class="opt"><input type="radio" name="q183" value="C"><span class="opt-l">C</span>Open-plan desks will be reduced</label>
+    <label class="opt"><input type="radio" name="q183" value="D"><span class="opt-l">D</span>Noise-cancelling headphones will be provided</label>
+  </div>
+</div><div class="qi" id="qi-184">
+  <div class="qnum">Question 184</div>
+  <div class="qtxt">When will the canteen's extended hours begin?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q184" value="A"><span class="opt-l">A</span>Immediately</label>
+    <label class="opt"><input type="radio" name="q184" value="B"><span class="opt-l">B</span>8 May</label>
+    <label class="opt"><input type="radio" name="q184" value="C"><span class="opt-l">C</span>1 June</label>
+    <label class="opt"><input type="radio" name="q184" value="D"><span class="opt-l">D</span>End of quarter</label>
+  </div>
+</div><div class="qi" id="qi-185">
+  <div class="qnum">Question 185</div>
+  <div class="qtxt">Which issue raised by staff has NOT yet had an approved action communicated in the memo?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q185" value="A"><span class="opt-l">A</span>Temperature control</label>
+    <label class="opt"><input type="radio" name="q185" value="B"><span class="opt-l">B</span>Canteen hours</label>
+    <label class="opt"><input type="radio" name="q185" value="C"><span class="opt-l">C</span>Quiet working zones</label>
+    <label class="opt"><input type="radio" name="q185" value="D"><span class="opt-l">D</span>Desk availability and hot-desking</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 186–190 — Conference Programme</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>DIGITAL HEALTH INNOVATION SUMMIT 2025 — Day 2 Programme</h3>
+<p class="meta">Thursday 24 April | Ashford Conference Centre, London</p>
+<table>
+  <tr><th>Time</th><th>Session</th><th>Speaker / Host</th><th>Room</th></tr>
+  <tr><td>09:00–09:30</td><td>Opening Remarks</td><td>Summit Chair: Prof. Karen Ellard</td><td>Main Hall</td></tr>
+  <tr><td>09:30–10:30</td><td>Keynote: AI Diagnostics — Clinical Reality or Hype?</td><td>Dr. James Ng, Oxford Health AI</td><td>Main Hall</td></tr>
+  <tr><td>10:45–11:45</td><td>Workshop: Implementing Wearables in Patient Monitoring</td><td>MedTrack Solutions</td><td>Room 3A</td></tr>
+  <tr><td>10:45–11:45</td><td>Panel: Regulatory Pathways for Digital Therapeutics</td><td>Industry &amp; MHRA representatives</td><td>Room 2B</td></tr>
+  <tr><td>12:00–13:30</td><td>Lunch &amp; Poster Presentations</td><td>—</td><td>Exhibition Foyer</td></tr>
+  <tr><td>13:30–14:30</td><td>Presentation: NHS Data Infrastructure — Progress Report</td><td>NHS Digital representative</td><td>Main Hall</td></tr>
+  <tr><td>14:45–15:45</td><td>Workshop: Cybersecurity in Connected Medical Devices</td><td>Hartwell Cyber</td><td>Room 3A</td></tr>
+  <tr><td>16:00–17:30</td><td>Closing Panel: The Patient Experience of Digital Health</td><td>Patient advocates &amp; clinicians</td><td>Main Hall</td></tr>
+</table>
+<p style="margin-top:10px;font-size:.82rem;color:var(--muted)"><em>Note: Poster presentations during lunch are open to all delegates. Presenters must set up their posters before 11:30 A.M.</em></p></div>
+    <div class="q-pane"><div class="qi" id="qi-186">
+  <div class="qnum">Question 186</div>
+  <div class="qtxt">Who chairs Day 2 of the summit?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q186" value="A"><span class="opt-l">A</span>Dr. James Ng</label>
+    <label class="opt"><input type="radio" name="q186" value="B"><span class="opt-l">B</span>An NHS Digital representative</label>
+    <label class="opt"><input type="radio" name="q186" value="C"><span class="opt-l">C</span>Prof. Karen Ellard</label>
+    <label class="opt"><input type="radio" name="q186" value="D"><span class="opt-l">D</span>A patient advocate</label>
+  </div>
+</div><div class="qi" id="qi-187">
+  <div class="qnum">Question 187</div>
+  <div class="qtxt">Which two sessions run at the same time on the morning of Day 2?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q187" value="A"><span class="opt-l">A</span>The keynote and the workshop on wearables</label>
+    <label class="opt"><input type="radio" name="q187" value="B"><span class="opt-l">B</span>The workshop on wearables and the regulatory panel</label>
+    <label class="opt"><input type="radio" name="q187" value="C"><span class="opt-l">C</span>The NHS data presentation and the cybersecurity workshop</label>
+    <label class="opt"><input type="radio" name="q187" value="D"><span class="opt-l">D</span>The closing panel and the lunch</label>
+  </div>
+</div><div class="qi" id="qi-188">
+  <div class="qnum">Question 188</div>
+  <div class="qtxt">By what time must poster presenters set up their displays?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q188" value="A"><span class="opt-l">A</span>09:00</label>
+    <label class="opt"><input type="radio" name="q188" value="B"><span class="opt-l">B</span>11:30 A.M.</label>
+    <label class="opt"><input type="radio" name="q188" value="C"><span class="opt-l">C</span>12:00</label>
+    <label class="opt"><input type="radio" name="q188" value="D"><span class="opt-l">D</span>13:30</label>
+  </div>
+</div><div class="qi" id="qi-189">
+  <div class="qnum">Question 189</div>
+  <div class="qtxt">Which organisation leads the cybersecurity workshop?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q189" value="A"><span class="opt-l">A</span>MedTrack Solutions</label>
+    <label class="opt"><input type="radio" name="q189" value="B"><span class="opt-l">B</span>Oxford Health AI</label>
+    <label class="opt"><input type="radio" name="q189" value="C"><span class="opt-l">C</span>NHS Digital</label>
+    <label class="opt"><input type="radio" name="q189" value="D"><span class="opt-l">D</span>Hartwell Cyber</label>
+  </div>
+</div><div class="qi" id="qi-190">
+  <div class="qnum">Question 190</div>
+  <div class="qtxt">Where does the lunch take place?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q190" value="A"><span class="opt-l">A</span>Main Hall</label>
+    <label class="opt"><input type="radio" name="q190" value="B"><span class="opt-l">B</span>Room 3A</label>
+    <label class="opt"><input type="radio" name="q190" value="C"><span class="opt-l">C</span>Room 2B</label>
+    <label class="opt"><input type="radio" name="q190" value="D"><span class="opt-l">D</span>Exhibition Foyer</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 191–195 — E-mail + Price List + Online Review</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — E-mail</h3>
+<p><strong>To:</strong> Purchasing &lt;purchasing@bridgewoodco.com&gt;<br>
+<strong>From:</strong> Facilities &lt;facilities@bridgewoodco.com&gt;<br>
+<strong>Subject:</strong> Ergonomic chair order — staff welfare initiative<br>
+<strong>Date:</strong> 5 February</p>
+<p>Hi,</p>
+<p>Following the occupational health assessment, we have been recommended to replace the chairs in the main open-plan office (48 desks) with ergonomic models. We are looking at two options from Vertex Ergonomics: the Apex Chair (standard ergonomic) and the ProForm Chair (advanced lumbar and posture support).</p>
+<p>Both models have been positively reviewed by staff who tested them last week. The ProForm received slightly higher satisfaction scores, but some staff noted it takes time to adjust to the setup. Given the scale of the order, I would appreciate a quote for both models including any applicable volume discount before we make a final decision.</p>
+<p>Could purchasing advise on lead time as well? We want to complete the rollout before the end of February.</p>
+<p>Thanks,<br>Facilities</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 2 — Vertex Ergonomics Price List</h3>
+<p class="meta">Business pricing — effective January 2025</p>
+<table>
+  <tr><th>Model</th><th>Unit price</th><th>Volume (10–24 units)</th><th>Volume (25+ units)</th></tr>
+  <tr><td>Apex Chair</td><td>£395</td><td>−10%</td><td>−18%</td></tr>
+  <tr><td>ProForm Chair</td><td>£545</td><td>−10%</td><td>−18%</td></tr>
+  <tr><td>DualView Monitor Arm</td><td>£149</td><td>−10%</td><td>−15%</td></tr>
+</table>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 3 — Online Staff Review</h3>
+<p class="meta">Vertex Ergonomics — Verified workplace review | Submitted 29 January</p>
+<p><strong>★★★★☆ — Anonymous, open-plan office, 52 staff</strong></p>
+<p>Our company trialled both the Apex and ProForm chairs before placing a larger order. The Apex is solid, comfortable, and requires almost no adjustment time — ideal for a mixed workforce with varying body types. The ProForm is excellent once configured properly, but we found that several staff initially struggled with the lumbar adjustment mechanism and needed a brief how-to session before they were comfortable.</p>
+<p>We ultimately chose the Apex for its ease of use across a diverse team. The build quality on both models is very high. Delivery was prompt and the installation team professional.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-191">
+  <div class="qnum">Question 191</div>
+  <div class="qtxt">Why does the facilities team want to replace the current office chairs?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q191" value="A"><span class="opt-l">A</span>The current chairs are past their warranty period</label>
+    <label class="opt"><input type="radio" name="q191" value="B"><span class="opt-l">B</span>An occupational health assessment recommended ergonomic replacements</label>
+    <label class="opt"><input type="radio" name="q191" value="C"><span class="opt-l">C</span>The staff survey identified chair comfort as the top concern</label>
+    <label class="opt"><input type="radio" name="q191" value="D"><span class="opt-l">D</span>The current supplier has stopped producing the existing model</label>
+  </div>
+</div><div class="qi" id="qi-192">
+  <div class="qnum">Question 192</div>
+  <div class="qtxt">How many chairs does the facilities team need to order?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q192" value="A"><span class="opt-l">A</span>24</label>
+    <label class="opt"><input type="radio" name="q192" value="B"><span class="opt-l">B</span>36</label>
+    <label class="opt"><input type="radio" name="q192" value="C"><span class="opt-l">C</span>48</label>
+    <label class="opt"><input type="radio" name="q192" value="D"><span class="opt-l">D</span>52</label>
+  </div>
+</div><div class="qi" id="qi-193">
+  <div class="qnum">Question 193</div>
+  <div class="qtxt">What volume discount applies to an order of 48 Apex Chairs?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q193" value="A"><span class="opt-l">A</span>No discount</label>
+    <label class="opt"><input type="radio" name="q193" value="B"><span class="opt-l">B</span>10%</label>
+    <label class="opt"><input type="radio" name="q193" value="C"><span class="opt-l">C</span>15%</label>
+    <label class="opt"><input type="radio" name="q193" value="D"><span class="opt-l">D</span>18%</label>
+  </div>
+</div><div class="qi" id="qi-194">
+  <div class="qnum">Question 194</div>
+  <div class="qtxt">What concern does the facilities team note about the ProForm Chair?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q194" value="A"><span class="opt-l">A</span>It is significantly more expensive</label>
+    <label class="opt"><input type="radio" name="q194" value="B"><span class="opt-l">B</span>It requires time to adjust to</label>
+    <label class="opt"><input type="radio" name="q194" value="C"><span class="opt-l">C</span>It has received poor reviews from staff</label>
+    <label class="opt"><input type="radio" name="q194" value="D"><span class="opt-l">D</span>It is not available in sufficient quantity</label>
+  </div>
+</div><div class="qi" id="qi-195">
+  <div class="qnum">Question 195</div>
+  <div class="qtxt">What did the reviewer's company ultimately decide, and why?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q195" value="A"><span class="opt-l">A</span>They chose the ProForm because of its superior lumbar support</label>
+    <label class="opt"><input type="radio" name="q195" value="B"><span class="opt-l">B</span>They chose the Apex because it is easier for a diverse workforce to use</label>
+    <label class="opt"><input type="radio" name="q195" value="C"><span class="opt-l">C</span>They chose the Apex because it is cheaper</label>
+    <label class="opt"><input type="radio" name="q195" value="D"><span class="opt-l">D</span>They chose the ProForm after running a staff training session</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 196–200 — Job Posting + Candidate Summary + E-mail</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — Job Posting</h3>
+<p class="meta">Waverly Consulting — Internal vacancy | Posted 10 March</p>
+<p><strong>SENIOR ANALYST — ENVIRONMENTAL PRACTICE</strong></p>
+<p><strong>Location:</strong> Edinburgh (hybrid, 3 days in office)<br>
+<strong>Salary:</strong> £52,000–£58,000<br>
+<strong>Reporting to:</strong> Practice Director, Environmental</p>
+<p>We are seeking an experienced Senior Analyst to join our growing Environmental Practice. The successful candidate will lead client-facing project delivery, manage a small team of junior analysts, and contribute to business development activity including proposal writing.</p>
+<p><strong>Requirements:</strong> At least 5 years' experience in environmental consultancy or a related field; postgraduate qualification in environmental science, sustainability, or equivalent; proven project management experience; excellent written communication skills. French or German language skills are advantageous but not required.</p>
+<p><strong>Closing date:</strong> 4 April</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 2 — Shortlist Summary</h3>
+<p class="meta">Prepared by HR | Date: 8 April</p>
+<table>
+  <tr><th>Candidate</th><th>Experience</th><th>Postgrad qualification</th><th>Languages</th><th>Note</th></tr>
+  <tr><td>Ingrid Solvang</td><td>7 years</td><td>MSc Environmental Science</td><td>Norwegian, English</td><td>Applied 3 April</td></tr>
+  <tr><td>Marcus Delille</td><td>5 years</td><td>MSc Sustainability</td><td>French, English</td><td>Applied 2 April</td></tr>
+  <tr><td>Priya Anand</td><td>6 years</td><td>MSc Environmental Policy</td><td>English only</td><td>Applied 4 April</td></tr>
+  <tr><td>Tom Whitaker</td><td>4 years</td><td>BSc Geography</td><td>English, German</td><td>Applied 1 April</td></tr>
+</table>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 3 — E-mail</h3>
+<p><strong>To:</strong> HR Director &lt;hr@waverlyconsulting.com&gt;<br>
+<strong>From:</strong> Practice Director, Environmental &lt;envpractice@waverlyconsulting.com&gt;<br>
+<strong>Subject:</strong> Senior Analyst shortlist — my observations<br>
+<strong>Date:</strong> 9 April</p>
+<p>Hi,</p>
+<p>Having reviewed the shortlist, I would like to flag two points. First, I notice that one candidate does not meet the minimum experience requirement — could you confirm whether they were included in error or if there is a specific reason they were shortlisted? Second, Marcus Delille stands out as particularly strong: his French language skills are highly relevant given our growing Paris client base, and his project management portfolio is impressive. I would suggest prioritising his interview slot.</p>
+<p>Could we arrange interview dates for the week of 21 April?</p>
+<p>Regards,<br>Environmental Practice Director</p></div>
+    <div class="q-pane"><div class="qi" id="qi-196">
+  <div class="qnum">Question 196</div>
+  <div class="qtxt">What is the minimum years of experience required for the Senior Analyst role?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q196" value="A"><span class="opt-l">A</span>3 years</label>
+    <label class="opt"><input type="radio" name="q196" value="B"><span class="opt-l">B</span>4 years</label>
+    <label class="opt"><input type="radio" name="q196" value="C"><span class="opt-l">C</span>5 years</label>
+    <label class="opt"><input type="radio" name="q196" value="D"><span class="opt-l">D</span>7 years</label>
+  </div>
+</div><div class="qi" id="qi-197">
+  <div class="qnum">Question 197</div>
+  <div class="qtxt">Which candidate does NOT meet the minimum experience requirement?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q197" value="A"><span class="opt-l">A</span>Ingrid Solvang</label>
+    <label class="opt"><input type="radio" name="q197" value="B"><span class="opt-l">B</span>Marcus Delille</label>
+    <label class="opt"><input type="radio" name="q197" value="C"><span class="opt-l">C</span>Priya Anand</label>
+    <label class="opt"><input type="radio" name="q197" value="D"><span class="opt-l">D</span>Tom Whitaker</label>
+  </div>
+</div><div class="qi" id="qi-198">
+  <div class="qnum">Question 198</div>
+  <div class="qtxt">Why does the Practice Director single out Marcus Delille as a strong candidate?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q198" value="A"><span class="opt-l">A</span>He has the most years of experience</label>
+    <label class="opt"><input type="radio" name="q198" value="B"><span class="opt-l">B</span>He holds a doctorate</label>
+    <label class="opt"><input type="radio" name="q198" value="C"><span class="opt-l">C</span>His French skills are relevant and his project management record is strong</label>
+    <label class="opt"><input type="radio" name="q198" value="D"><span class="opt-l">D</span>He applied earliest</label>
+  </div>
+</div><div class="qi" id="qi-199">
+  <div class="qnum">Question 199</div>
+  <div class="qtxt">Which candidate applied on the closing date?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q199" value="A"><span class="opt-l">A</span>Ingrid Solvang</label>
+    <label class="opt"><input type="radio" name="q199" value="B"><span class="opt-l">B</span>Marcus Delille</label>
+    <label class="opt"><input type="radio" name="q199" value="C"><span class="opt-l">C</span>Priya Anand</label>
+    <label class="opt"><input type="radio" name="q199" value="D"><span class="opt-l">D</span>Tom Whitaker</label>
+  </div>
+</div><div class="qi" id="qi-200">
+  <div class="qnum">Question 200</div>
+  <div class="qtxt">What does the Practice Director ask HR to arrange?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q200" value="A"><span class="opt-l">A</span>Shortlist review meeting</label>
+    <label class="opt"><input type="radio" name="q200" value="B"><span class="opt-l">B</span>Reference checks for two candidates</label>
+    <label class="opt"><input type="radio" name="q200" value="C"><span class="opt-l">C</span>Interview dates for the week of 21 April</label>
+    <label class="opt"><input type="radio" name="q200" value="D"><span class="opt-l">D</span>An extension to the application deadline</label>
+  </div>
+</div></div>
+  </div>
+</div>
+  <div id="sub-sec">
+    <span id="unans">54 questions sans réponse</span>
+    <p>Répondez à toutes les questions pour activer la soumission.</p>
+    <button id="sub-btn" disabled onclick="submitTest()">Terminer &amp; voir la correction</button>
+  </div>
+  <div id="corr-sec">
+    <div class="score-banner"><h2>Résultats — Marc VASSEUR — Polytech Lille</h2><div class="big-score" id="sc-disp">--/54</div><div class="score-sub" id="sc-pct"></div><div class="toeic-est" id="sc-est"></div></div>
+    <div id="corr-content"></div>
+  </div>
+</div>
+<script>
+const KEYS={"q147": "D", "q148": "D", "q149": "B", "q150": "C", "q151": "B", "q152": "B", "q153": "C", "q154": "A", "q155": "B", "q156": "D", "q157": "C", "q158": "C", "q159": "B", "q160": "C", "q161": "C", "q162": "B", "q163": "C", "q164": "C", "q165": "B", "q166": "C", "q167": "B", "q168": "B", "q169": "C", "q170": "C", "q171": "C", "q172": "B", "q173": "C", "q174": "C", "q175": "B", "q176": "C", "q177": "B", "q178": "C", "q179": "B", "q180": "C", "q181": "C", "q182": "C", "q183": "B", "q184": "C", "q185": "D", "q186": "C", "q187": "B", "q188": "B", "q189": "D", "q190": "D", "q191": "B", "q192": "C", "q193": "D", "q194": "B", "q195": "B", "q196": "C", "q197": "D", "q198": "C", "q199": "C", "q200": "C"};
+const EXPL={
+  "q147":{q:"Which employee has borrowed equipment on two separate occasions this week?",correct:"D",optLabels:{"A": "R. Fenn", "B": "A. Bassi", "C": "D. Osei", "D": "C. Moss"},fr:"Le tableau montre C. Moss emprunter le Digital Torque Wrench le lundi 17 et le Pressure Calibrator le jeudi 20 → deux emprunts distincts (D). Les autres employés n'apparaissent qu'une seule fois.",vocab:"<span>loan register</span> = registre de prêt | <span>on loan</span> = en prêt, non retourné | <span>returned</span> = rendu, restitué"},
+  "q148":{q:"Which items are still on loan as of Friday 21 February?",correct:"D",optLabels:{"A": "The torque wrench and the oscilloscope", "B": "The oscilloscope and the laptop", "C": "The laptop and the pressure calibrator", "D": "The oscilloscope, the laptop, and the pressure calibrator"},fr:"Le tableau indique : Portable Oscilloscope (R. Fenn, retour vendredi 21 = encore en prêt vendredi), Laptop (D. Osei, retour vendredi 21 = encore en prêt vendredi), Pressure Calibrator (C. Moss, retour lundi 24 = encore en prêt vendredi). Les deux premiers ont été <em>Returned</em>. → Les trois (D).",vocab:"<span>as of</span> = à la date du | <span>on loan</span> = en prêt | <span>due back</span> = à retourner le"},
+  "q149":{q:"Why is an alternative catering arrangement needed?",correct:"B",optLabels:{"A": "The original booking was too expensive", "B": "The original caterer cancelled due to a scheduling conflict", "C": "The number of attendees has increased", "D": "The lunch has been moved to a different day"},fr:"<em>The catering firm just called — they can no longer do the Thursday team lunch. They have a double-booking</em> → annulation par le prestataire en raison d'un double booking (B). Le prix, le nombre de participants et la date ne sont pas la cause.",vocab:"<span>double-booking</span> = double réservation, conflit de planning | <span>short notice</span> = préavis court | <span>caterer</span> = traiteur"},
+  "q150":{q:"What will Bea Hartley do next?",correct:"C",optLabels:{"A": "Contact the original catering firm to complain", "B": "Ask Cora to find an alternative venue", "C": "Call The Gable Rooms to arrange the lunch", "D": "Send a menu to the team for approval"},fr:"<em>I know a good spot — The Gable Rooms... I'll call them now and confirm</em> → Bea va appeler The Gable Rooms (C). Elle ne se plaint pas au prestataire d'origine et ne demande pas à Cora de chercher.",vocab:"<span>corporate lunches</span> = déjeuners d'entreprise | <span>short notice</span> = à court préavis | <span>confirm</span> = confirmer"},
+  "q151":{q:"What is one item on the AGM agenda?",correct:"B",optLabels:{"A": "Approval of new tenancy agreements", "B": "An update on planned renovation works", "C": "A presentation by the building's architect", "D": "A vote on new parking regulations"},fr:"<em>an update on the proposed external redecoration works</em> est explicitement à l'ordre du jour (B). Les nouveaux baux, une présentation d'architecte et les règlements de stationnement ne figurent pas dans l'ordre du jour.",vocab:"<span>AGM</span> = Assemblée Générale Annuelle | <span>redecoration works</span> = travaux de rénovation extérieure | <span>maintenance fund</span> = fonds de maintenance"},
+  "q152":{q:"What must residents who cannot attend do by 5 March?",correct:"B",optLabels:{"A": "Pay their outstanding service charges", "B": "Submit questions or votes in writing", "C": "Register their attendance online", "D": "Confirm their proxy representative in person"},fr:"<em>Residents who are unable to attend in person may submit questions or agenda items in writing... by 5 March. Proxy votes may also be submitted in writing by the same deadline</em> → soumettre questions ou votes par écrit (B). Aucun paiement, inscription en ligne ni confirmation en personne n'est demandé.",vocab:"<span>proxy vote</span> = vote par procuration | <span>in writing</span> = par écrit | <span>agenda items</span> = points à l'ordre du jour"},
+  "q153":{q:"What does Sandra F. identify as a strength of Clockwise HR?",correct:"C",optLabels:{"A": "The reporting function", "B": "The pricing structure", "C": "The absence and leave management module", "D": "The speed of the implementation"},fr:"<em>The absence and leave management module is exceptional — it has eliminated most of the manual tracking</em> → le module de gestion des congés et absences (C). La fonction reporting est précisément le point faible. Le prix et la vitesse d'implémentation ne sont pas commentés comme points forts particuliers.",vocab:"<span>absence and leave management</span> = gestion des congés et absences | <span>manual tracking</span> = suivi manuel | <span>payroll integration</span> = intégration avec la paie"},
+  "q154":{q:"What limitation does the reviewer highlight?",correct:"A",optLabels:{"A": "Custom reports require technical expertise or paid help", "B": "Payroll integration is not available", "C": "The system is difficult for line managers to use", "D": "The vendor's support team is slow to respond"},fr:"<em>creating custom reports requires either technical knowledge or a paid consultant from the vendor</em> → les rapports personnalisés nécessitent une expertise technique ou un consultant payant (A). L'intégration paie fonctionne bien. L'interface est qualifiée d'intuitive. Le support n'est pas critiqué pour sa lenteur.",vocab:"<span>custom reports</span> = rapports personnalisés | <span>self-serve</span> = en autonomie, sans assistance | <span>roadmap</span> = feuille de route produit"},
+  "q155":{q:"What is the purpose of the e-mail?",correct:"B",optLabels:{"A": "To announce that the campaign has been cancelled", "B": "To share key dates and responsibilities for an upcoming campaign", "C": "To request client approval of creative concepts", "D": "To confirm that the campaign has gone live"},fr:"<em>I want to set out the key dates and responsibilities for the Autumn product campaign</em> → partager le calendrier et les responsabilités (B). La campagne n'est pas encore lancée. Aucune approbation client n'est demandée dans cet e-mail.",vocab:"<span>key dates</span> = dates clés | <span>responsibilities</span> = responsabilités | <span>flag any conflicts</span> = signaler tout conflit d'agenda"},
+  "q156":{q:"Who is responsible for presenting creative concepts?",correct:"D",optLabels:{"A": "Yusra Khalid", "B": "Diane Ferris", "C": "The production team", "D": "The design team"},fr:"<em>Creative concepts presented: 28 June — Design team (lead: Marcus Webb)</em> → l'équipe créative / design (D). Yusra Khalid finalise le brief. Diane Ferris gère l'approbation client. L'équipe production livre les assets.",vocab:"<span>creative concepts</span> = concepts créatifs | <span>lead</span> = responsable, pilote | <span>assets</span> = supports de communication"},
+  "q157":{q:"What change does the e-mail communicate regarding the client contact?",correct:"C",optLabels:{"A": "Elena Vargas has been promoted", "B": "A new agency has taken over the account", "C": "James Okoro has replaced Elena Vargas as the approval contact", "D": "The approval process has been moved online"},fr:"<em>the client contact for approvals is now James Okoro, not Elena Vargas, who has moved to a different role</em> → James Okoro remplace Elena Vargas (C). Elena n'a pas été promue mais a changé de poste. Aucune nouvelle agence ni nouveau processus d'approbation.",vocab:"<span>client contact</span> = interlocuteur client | <span>approvals</span> = validations | <span>moved to a different role</span> = a changé de poste"},
+  "q158":{q:"By what date must the design team have reviewed the client's brand guidelines?",correct:"C",optLabels:{"A": "14 June", "B": "18 July", "C": "28 June", "D": "5 July"},fr:"<em>Marcus, please ensure your team has reviewed these before the 28 June presentation</em> → avant le 28 juin (C). Le 14 juin = finalisation du brief. Le 5 juillet = approbation client. Le 18 juillet = livraison des assets.",vocab:"<span>brand guidelines</span> = charte graphique | <span>ensure</span> = s'assurer | <span>ahead of</span> = avant, en amont de"},
+  "q159":{q:"What is the main point the article makes about degree apprenticeships?",correct:"B",optLabels:{"A": "They are only suitable for students who cannot afford university", "B": "They are becoming a genuinely competitive alternative to university for high-achieving students", "C": "They have replaced university as the most popular route to professional employment", "D": "They are mainly used by large corporations to reduce training costs"},fr:"<em>A growing number of students who achieve the grades to attend Russell Group universities are instead choosing higher and degree apprenticeships</em> → alternative réellement compétitive pour les bons élèves (B). Les apprentissages ne sont pas décrits comme réservés aux étudiants sans moyens ni comme ayant remplacé l'université.",vocab:"<span>degree apprenticeship</span> = apprentissage en alternance conduisant à un diplôme | <span>Russell Group</span> = groupe des universités britanniques les plus réputées | <span>school leavers</span> = jeunes diplômés du secondaire"},
+  "q160":{q:"What financial advantage do degree apprentices have over traditional university students?",correct:"C",optLabels:{"A": "They receive a government bursary", "B": "They pay reduced tuition fees", "C": "They earn a salary and pay no tuition fees", "D": "They are guaranteed employment after qualifying"},fr:"<em>A degree apprentice on the same three-year pathway earns a salary throughout, pays no tuition fees, and leaves with the same qualification</em> → salaire tout au long + pas de frais de scolarité (C). Aucune bourse gouvernementale, réduction de frais, ni garantie d'emploi n'est mentionnée.",vocab:"<span>tuition fees</span> = frais de scolarité | <span>pathway</span> = voie, parcours | <span>graduate debt</span> = dette d'études"},
+  "q161":{q:"What advantage do employers say degree apprentices have over graduate hires?",correct:"C",optLabels:{"A": "They are more academically qualified", "B": "They have stronger international experience", "C": "They develop professional skills more quickly", "D": "They cost less to train"},fr:"<em>degree apprentices tend to develop professional skills more rapidly than graduate hires who joined after three years away from the workplace</em> → développement des compétences professionnelles plus rapide (C). Aucune supériorité académique, expérience internationale ni coût de formation n'est mentionné.",vocab:"<span>translate learning into practice</span> = appliquer ses apprentissages en pratique | <span>head start</span> = avance, longueur d'avance | <span>persists</span> = persiste, dure"},
+  "q162":{q:"Why is Naomi Shore comparing stationery suppliers?",correct:"B",optLabels:{"A": "The current supplier has raised its prices", "B": "The company has been asked to identify cost savings", "C": "The current supplier can no longer fulfil orders", "D": "A colleague recommended switching suppliers"},fr:"<em>Following the budget review, we have been asked to identify potential savings on our stationery and office supply spend</em> → identifier des économies suite à une révision budgétaire (B). Le prix actuel n'est pas mentionné comme ayant augmenté. Le fournisseur actuel continue à livrer.",vocab:"<span>budget review</span> = révision budgétaire | <span>identify savings</span> = identifier des économies | <span>quotes</span> = devis"},
+  "q163":{q:"Why does procurement recommend Whitfield & Co over DeskDirect?",correct:"C",optLabels:{"A": "DeskDirect has a shorter product range", "B": "Whitfield & Co offers faster delivery", "C": "Whitfield & Co is cheaper and next-day delivery is not needed", "D": "DeskDirect requires a deposit before ordering"},fr:"<em>The annual saving over Castleton would be £1,440... We do not typically place emergency orders, so next-day delivery is not a priority</em> → Whitfield & Co est moins cher et la livraison express n'est pas nécessaire (C). DeskDirect livre plus vite mais coûte plus cher. Aucun problème de gamme ni de dépôt n'est mentionné.",vocab:"<span>annual saving</span> = économie annuelle | <span>delivery terms</span> = conditions de livraison | <span>emergency orders</span> = commandes urgentes"},
+  "q164":{q:"What does procurement ask Naomi to check before switching?",correct:"C",optLabels:{"A": "Whether Whitfield & Co can handle the order volume", "B": "Whether the current supplier offers a loyalty discount", "C": "Whether there is a penalty clause in the current contract", "D": "Whether DeskDirect would lower its price"},fr:"<em>please check whether Castleton have a contract termination clause that would affect the timing of any switch. If there is no penalty, we could transition from next quarter</em> → vérifier s'il existe une clause pénale de résiliation (C).",vocab:"<span>termination clause</span> = clause de résiliation | <span>penalty</span> = pénalité, clause pénale | <span>transition</span> = transition, passage"},
+  "q165":{q:"What type of translation services does Meridian specialise in?",correct:"B",optLabels:{"A": "Medical and pharmaceutical translation", "B": "Legal translation", "C": "Financial and accounting translation", "D": "Technical and engineering translation"},fr:"<em>Meridian Translation Bureau provides certified legal translation services</em> → traduction juridique (B). Les services listés (contrats, jugements, brevets, immigration) confirment le domaine.",vocab:"<span>certified translation</span> = traduction certifiée | <span>Chartered Institute of Linguists</span> = ordre professionnel des linguistes au Royaume-Uni | <span>apostille</span> = apostille (légalisation internationale de documents)"},
+  "q166":{q:"What is the additional cost for a 24-hour turnaround?",correct:"C",optLabels:{"A": "A flat fee of £500", "B": "Double the standard rate", "C": "A 50% premium on the standard price", "D": "No extra charge for urgent work"},fr:"<em>Urgent 24-hour service is available at a 50% premium</em> → 50% de supplément sur le tarif standard (C). Ce n'est pas un tarif double (100%) ni un forfait fixe.",vocab:"<span>turnaround</span> = délai de traitement | <span>premium</span> = supplément, majoration | <span>urgent service</span> = service express"},
+  "q167":{q:"What offer is available to new clients?",correct:"B",optLabels:{"A": "Free translation of the first document", "B": "A 10% discount on instructions over £500", "C": "A dedicated account manager at no cost", "D": "Free apostille support on the first instruction"},fr:"<em>New client offer: 10% discount on the first instruction valued over £500</em> → 10% de réduction sur la première mission de plus de £500 (B). Aucune traduction gratuite, gestionnaire de compte ni apostille offerte n'est mentionné.",vocab:"<span>instruction</span> = mission, mandat (terme juridique) | <span>new client offer</span> = offre de bienvenue | <span>valued over</span> = d'une valeur supérieure à"},
+  "q168":{q:"What has driven the growth in the office chair market?",correct:"B",optLabels:{"A": "New regulations on workplace ergonomics", "B": "Workers equipping home offices to a high standard", "C": "An increase in commercial office construction", "D": "Government subsidies for ergonomic furniture"},fr:"<em>driven by workers equipping home offices to a standard once reserved for corporate headquarters</em> → travailleurs équipant leurs bureaux à domicile à un niveau élevé (B). Aucune réglementation, construction de bureaux ni subvention gouvernementale n'est citée.",vocab:"<span>hybrid working revolution</span> = révolution du travail hybride | <span>afterthought</span> = considération secondaire | <span>premium segment</span> = segment haut de gamme"},
+  "q169":{q:"Which segment of the office chair market has grown fastest since 2020?",correct:"C",optLabels:{"A": "Budget chairs under £200", "B": "Mid-range chairs between £200 and £400", "C": "Premium chairs priced above £400", "D": "Contract chairs for commercial use"},fr:"<em>the premium segment — chairs priced above £400 — growing fastest at 54%</em> → le segment premium au-dessus de £400 (C). La croissance globale du marché est de 38% ; le segment premium dépasse ce taux.",vocab:"<span>premium segment</span> = segment haut de gamme | <span>growing fastest</span> = en croissance la plus rapide | <span>knowledge workers</span> = travailleurs du savoir"},
+  "q170":{q:"What does Charlotte Wyatt say about today's office chair buyer?",correct:"C",optLabels:{"A": "They are mainly purchasing for commercial offices", "B": "They are price-sensitive above all other considerations", "C": "They are well-informed, having researched before buying", "D": "They prefer to buy in-store rather than online"},fr:"<em>The buyer is now informed, often having researched online for weeks before purchasing</em> → acheteur informé qui a recherché en amont (C). Rien sur les achats commerciaux, la sensibilité au prix ni les préférences de canal.",vocab:"<span>informed buyer</span> = acheteur informé | <span>purchasing</span> = acte d'achat | <span>lumbar support</span> = soutien lombaire"},
+  "q171":{q:"What does the article suggest about the future of the market?",correct:"C",optLabels:{"A": "It is certain to continue growing indefinitely", "B": "It will collapse once hybrid working ends", "C": "It is currently growing but its long-term trajectory is uncertain", "D": "It is already beginning to slow down"},fr:"<em>Whether the boom will outlast the hybrid working era remains to be seen, but for now the market shows no signs of slowing</em> → en croissance actuellement, mais l'avenir est incertain (C). L'article ne prédit ni une croissance certaine, ni un effondrement, ni un ralentissement actuel.",vocab:"<span>outlast</span> = survivre à, durer plus longtemps que | <span>boom</span> = essor, boom | <span>remains to be seen</span> = reste à voir, incertain"},
+  "q172":{q:"What prompts Remi Okafor to check in with Liz Thornton?",correct:"B",optLabels:{"A": "The conference has been rescheduled", "B": "He has not seen the badges yet", "C": "A delegate has complained about registration", "D": "The venue has changed"},fr:"<em>The delegates start arriving at 8am tomorrow and I realised I haven't seen them yet</em> → il n'a pas encore vu les badges (B). Aucun report de conférence, plainte de délégué ni changement de lieu n'est mentionné.",vocab:"<span>conference badges</span> = badges de conférence | <span>delegates</span> = participants, délégués | <span>check in</span> = vérifier, faire le point"},
+  "q173":{q:"What task does Liz Thornton identify that still needs doing?",correct:"C",optLabels:{"A": "Printing the badges", "B": "Ordering the lanyards", "C": "Setting up the registration desk", "D": "Confirming the delegate count"},fr:"<em>I've just noticed the registration desk hasn't been set up yet — the trestle tables are still in the store room</em> → installer le bureau d'accueil (C). Les badges sont déjà imprimés. Les lanyards sont disponibles.",vocab:"<span>registration desk</span> = bureau d'accueil/inscription | <span>trestle tables</span> = tables tréteaux | <span>store room</span> = réserve, local de stockage"},
+  "q174":{q:"What does Liz Thornton confirm is already available?",correct:"C",optLabels:{"A": "The printed delegate list", "B": "The trestle tables", "C": "The lanyards", "D": "The name badges"},fr:"<em>Lanyards — yes</em> → les cordons de badge sont disponibles (C). Les tables sont encore dans la réserve. La liste de délégués n'est pas encore imprimée (uniquement en tableur). Les badges ont été imprimés mais Liz les avait, pas Remi qui ne les avait pas vus.",vocab:"<span>lanyards</span> = cordons de badge | <span>confirmed</span> = confirmé, disponible | <span>spreadsheet</span> = tableur"},
+  "q175":{q:"How many copies of the delegate list does Remi Okafor ask Liz to print?",correct:"B",optLabels:{"A": "One", "B": "Two", "C": "Three", "D": "Four"},fr:"<em>print two copies. One for the desk and one as a backup</em> → deux exemplaires (B).",vocab:"<span>backup</span> = copie de secours, exemplaire de réserve | <span>delegate list</span> = liste des participants | <span>print</span> = imprimer"},
+  "q176":{q:"How did November's total revenue compare to the same period last year?",correct:"C",optLabels:{"A": "It was 11% lower", "B": "It was the same", "C": "It was 11% higher", "D": "It was 32% higher"},fr:"<em>an 11% increase year-on-year</em> → hausse de 11% par rapport à l'année précédente (C). La hausse de 32% concerne l'événement promotionnel par rapport à son objectif, pas la comparaison annuelle globale.",vocab:"<span>year-on-year</span> = d'une année sur l'autre | <span>revenue</span> = chiffre d'affaires | <span>promotional target</span> = objectif promotionnel"},
+  "q177":{q:"What was the main driver of November's revenue growth?",correct:"B",optLabels:{"A": "The opening of three new branches", "B": "The Early Winter promotional event", "C": "An increase in average transaction value", "D": "A reduction in competitor activity"},fr:"<em>driven primarily by the Early Winter promotional event (1–15 November), which generated £2.1 million — 32% above the promotional target</em> → l'événement promotionnel Début d'hiver (B). Aucune nouvelle ouverture de magasin, hausse de panier moyen ni repli de la concurrence n'est mentionné.",vocab:"<span>promotional event</span> = événement promotionnel | <span>driven primarily by</span> = principalement porté par | <span>above target</span> = au-dessus de l'objectif"},
+  "q178":{q:"Why did four branches underperform in November?",correct:"C",optLabels:{"A": "They were understaffed during the promotional period", "B": "Poor stock management reduced sales", "C": "Roadworks limited customer access", "D": "They did not participate in the promotional event"},fr:"<em>Each cited reduced footfall linked to roadworks affecting nearby access routes</em> → des travaux routiers ont réduit la fréquentation (C). Les problèmes de stock concernent trois autres magasins. Tous les magasins ont participé à la promotion.",vocab:"<span>underperform</span> = sous-performer | <span>reduced footfall</span> = baisse de fréquentation | <span>roadworks</span> = travaux routiers"},
+  "q179":{q:"What problem did Derby, Norwich, and Swansea experience?",correct:"B",optLabels:{"A": "They exceeded their storage capacity", "B": "They ran out of stock on two popular product lines", "C": "Their point-of-sale systems failed during the promotion", "D": "They received deliveries after the promotional period ended"},fr:"<em>Three branches — Derby, Norwich, and Swansea — reported stock shortages on two best-selling lines during the promotional period</em> → rupture de stock sur deux lignes phares (B).",vocab:"<span>stock shortages</span> = ruptures de stock | <span>best-selling lines</span> = lignes les plus vendues | <span>lost sales</span> = ventes manquées"},
+  "q180":{q:"What are branch managers asked to do by 10 December?",correct:"C",optLabels:{"A": "Submit their December sales forecasts", "B": "Place their stock orders for Christmas", "C": "Confirm staffing levels", "D": "Attend a regional directors' meeting"},fr:"<em>All branch managers are asked to confirm staffing levels by 10 December</em> → confirmer les effectifs (C). Les prévisions de ventes sont déjà dans le rapport. Les commandes de stock et la réunion de directeurs ne sont pas mentionnées.",vocab:"<span>staffing levels</span> = niveaux d'effectifs | <span>confirm</span> = confirmer | <span>branch managers</span> = directeurs de magasin"},
+  "q181":{q:"What was the response rate for the workplace environment survey?",correct:"C",optLabels:{"A": "54%", "B": "67%", "C": "81%", "D": "100%"},fr:"<em>We received 287 responses, representing an 81% response rate</em> → 81% (C). 54% = proportion de répondants citant les niveaux de bruit. 67% = proportion citant la température/qualité de l'air.",vocab:"<span>response rate</span> = taux de réponse | <span>workplace environment survey</span> = enquête sur l'environnement de travail | <span>annual</span> = annuel"},
+  "q182":{q:"What is the most commonly raised concern according to the survey results?",correct:"C",optLabels:{"A": "Noise levels in open-plan areas", "B": "Desk availability", "C": "Temperature and air quality", "D": "Meeting room availability"},fr:"Le tableau indique que <em>Temperature / air quality</em> a été soulevé par 67% des répondants — le pourcentage le plus élevé (C). Le bruit = 54%. La disponibilité des bureaux = 39%. Les salles de réunion = 19%.",vocab:"<span>most commonly raised</span> = le plus fréquemment mentionné | <span>concern</span> = préoccupation | <span>air quality</span> = qualité de l'air"},
+  "q183":{q:"What action has been approved in response to noise concerns?",correct:"B",optLabels:{"A": "HVAC units will be serviced", "B": "Silent rooms will be created on two floors", "C": "Open-plan desks will be reduced", "D": "Noise-cancelling headphones will be provided"},fr:"<em>the request for more quiet working zones has been approved — two dedicated silent study rooms will be created on floors 3 and 5</em> → création de salles silencieuses (B). L'entretien HVAC répond à la température. Aucune réduction de bureaux ni casques antibruit n'est mentionné.",vocab:"<span>quiet working zones</span> = espaces de travail calmes | <span>dedicated</span> = dédié | <span>silent study rooms</span> = salles de travail en silence"},
+  "q184":{q:"When will the canteen's extended hours begin?",correct:"C",optLabels:{"A": "Immediately", "B": "8 May", "C": "1 June", "D": "End of quarter"},fr:"<em>the canteen opening hours will be extended... from 1 June</em> → à partir du 1er juin (C). Le 8 mai est la date du mémo. La fin du trimestre est mentionnée pour les salles silencieuses, pas pour la cantine.",vocab:"<span>extended hours</span> = horaires prolongés | <span>flexible hours</span> = horaires flexibles | <span>from</span> = à partir de"},
+  "q185":{q:"Which issue raised by staff has NOT yet had an approved action communicated in the memo?",correct:"D",optLabels:{"A": "Temperature control", "B": "Canteen hours", "C": "Quiet working zones", "D": "Desk availability and hot-desking"},fr:"Le mémo mentionne trois actions approuvées : HVAC (température), salles silencieuses (bruit/zones calmes), et horaires étendus (cantine). La disponibilité des bureaux et le hot-desking (39% des répondants, priorité Moyenne) n'ont aucune action annoncée (D).",vocab:"<span>hot-desking</span> = bureaux partagés sans attribution fixe | <span>desk availability</span> = disponibilité des postes de travail | <span>approved action</span> = mesure approuvée"},
+  "q186":{q:"Who chairs Day 2 of the summit?",correct:"C",optLabels:{"A": "Dr. James Ng", "B": "An NHS Digital representative", "C": "Prof. Karen Ellard", "D": "A patient advocate"},fr:"<em>Opening Remarks — Summit Chair: Prof. Karen Ellard</em> → (C). Dr. James Ng donne le keynote. Le représentant NHS Digital présente les données. Les patients advocates participent au panel de clôture.",vocab:"<span>summit chair</span> = président du sommet | <span>opening remarks</span> = discours d'ouverture | <span>clinician</span> = clinicien, professionnel de santé"},
+  "q187":{q:"Which two sessions run at the same time on the morning of Day 2?",correct:"B",optLabels:{"A": "The keynote and the workshop on wearables", "B": "The workshop on wearables and the regulatory panel", "C": "The NHS data presentation and the cybersecurity workshop", "D": "The closing panel and the lunch"},fr:"10:45–11:45 comprend deux sessions simultanées : <em>Workshop: Implementing Wearables in Patient Monitoring</em> (Room 3A) ET <em>Panel: Regulatory Pathways for Digital Therapeutics</em> (Room 2B) → (B). Le keynote est seul à 09:30. Les autres paires ne sont pas simultanées.",vocab:"<span>wearables</span> = dispositifs portables connectés | <span>digital therapeutics</span> = thérapies numériques | <span>regulatory pathways</span> = voies réglementaires"},
+  "q188":{q:"By what time must poster presenters set up their displays?",correct:"B",optLabels:{"A": "09:00", "B": "11:30 A.M.", "C": "12:00", "D": "13:30"},fr:"<em>Presenters must set up their posters before 11:30 A.M.</em> → avant 11h30 (B). Le déjeuner commence à 12h00 mais la note précise la limite à 11h30.",vocab:"<span>poster presentations</span> = présentations par affiche | <span>set up</span> = installer, mettre en place | <span>before</span> = avant"},
+  "q189":{q:"Which organisation leads the cybersecurity workshop?",correct:"D",optLabels:{"A": "MedTrack Solutions", "B": "Oxford Health AI", "C": "NHS Digital", "D": "Hartwell Cyber"},fr:"<em>Workshop: Cybersecurity in Connected Medical Devices — Hartwell Cyber</em> → (D). MedTrack Solutions anime l'atelier sur les wearables. Oxford Health AI donne le keynote. NHS Digital présente les données.",vocab:"<span>cybersecurity</span> = cybersécurité | <span>connected medical devices</span> = dispositifs médicaux connectés | <span>workshop</span> = atelier pratique"},
+  "q190":{q:"Where does the lunch take place?",correct:"D",optLabels:{"A": "Main Hall", "B": "Room 3A", "C": "Room 2B", "D": "Exhibition Foyer"},fr:"<em>Lunch & Poster Presentations — Exhibition Foyer</em> → (D). Main Hall = keynote, NHS data, closing panel. Room 3A = ateliers. Room 2B = panel réglementaire.",vocab:"<span>exhibition foyer</span> = hall d'exposition | <span>poster presentations</span> = présentations par affiche | <span>delegates</span> = participants"},
+  "q191":{q:"Why does the facilities team want to replace the current office chairs?",correct:"B",optLabels:{"A": "The current chairs are past their warranty period", "B": "An occupational health assessment recommended ergonomic replacements", "C": "The staff survey identified chair comfort as the top concern", "D": "The current supplier has stopped producing the existing model"},fr:"<em>Following the occupational health assessment, we have been recommended to replace the chairs... with ergonomic models</em> → recommandation suite à une évaluation santé au travail (B). Aucune garantie expirée, enquête personnel ni arrêt de production n'est mentionné.",vocab:"<span>occupational health assessment</span> = évaluation de santé au travail | <span>ergonomic</span> = ergonomique | <span>rollout</span> = déploiement"},
+  "q192":{q:"How many chairs does the facilities team need to order?",correct:"C",optLabels:{"A": "24", "B": "36", "C": "48", "D": "52"},fr:"<em>replace the chairs in the main open-plan office (48 desks)</em> → 48 chaises (C). 52 = nombre de personnel dans l'avis client du Doc 3 (une entreprise différente). 24 = seuil volume discount intermédiaire.",vocab:"<span>open-plan office</span> = open space | <span>desks</span> = postes de travail | <span>volume discount</span> = remise sur volume"},
+  "q193":{q:"What volume discount applies to an order of 48 Apex Chairs?",correct:"D",optLabels:{"A": "No discount", "B": "10%", "C": "15%", "D": "18%"},fr:"Le tableau de prix indique : volume 25+ unités = −18% pour l'Apex Chair. 48 > 25 → remise de 18% (D). La remise 10% s'applique pour 10–24 unités. 15% s'applique au DualView Monitor Arm pour 25+.",vocab:"<span>volume discount</span> = remise sur volume | <span>applicable</span> = applicable | <span>unit price</span> = prix unitaire"},
+  "q194":{q:"What concern does the facilities team note about the ProForm Chair?",correct:"B",optLabels:{"A": "It is significantly more expensive", "B": "It requires time to adjust to", "C": "It has received poor reviews from staff", "D": "It is not available in sufficient quantity"},fr:"<em>some staff noted it takes time to adjust to the setup</em> → temps d'adaptation nécessaire (B). La ProForm a reçu des scores de satisfaction légèrement plus élevés — non de mauvaises évaluations. Le prix est plus élevé mais la question porte sur la préoccupation exprimée dans le mail, pas sur le prix en lui-même.",vocab:"<span>adjust to</span> = s'adapter à | <span>setup</span> = configuration, réglage | <span>satisfaction scores</span> = scores de satisfaction"},
+  "q195":{q:"What did the reviewer's company ultimately decide, and why?",correct:"B",optLabels:{"A": "They chose the ProForm because of its superior lumbar support", "B": "They chose the Apex because it is easier for a diverse workforce to use", "C": "They chose the Apex because it is cheaper", "D": "They chose the ProForm after running a staff training session"},fr:"<em>We ultimately chose the Apex for its ease of use across a diverse team</em> → choix de l'Apex pour sa facilité d'utilisation avec des profils variés (B). La raison n'est pas le prix mais la praticité. La ProForm a fait l'objet d'une session de formation dans cet avis mais ce n'est pas la raison du choix.",vocab:"<span>ease of use</span> = facilité d'utilisation | <span>diverse team</span> = équipe aux profils variés | <span>ultimately</span> = finalement, au bout du compte"},
+  "q196":{q:"What is the minimum years of experience required for the Senior Analyst role?",correct:"C",optLabels:{"A": "3 years", "B": "4 years", "C": "5 years", "D": "7 years"},fr:"<em>At least 5 years' experience in environmental consultancy or a related field</em> → 5 ans minimum (C). 7 ans = expérience d'Ingrid Solvang. 4 ans = expérience de Tom Whitaker (inférieur au minimum).",vocab:"<span>minimum experience requirement</span> = exigence minimale d'expérience | <span>at least</span> = au moins | <span>related field</span> = domaine connexe"},
+  "q197":{q:"Which candidate does NOT meet the minimum experience requirement?",correct:"D",optLabels:{"A": "Ingrid Solvang", "B": "Marcus Delille", "C": "Priya Anand", "D": "Tom Whitaker"},fr:"Croisement Doc 1 + Doc 2 : l'offre exige au moins 5 ans. Tom Whitaker = 4 ans → il ne remplit pas le critère (D). Ingrid Solvang = 7 ans ✔. Marcus Delille = 5 ans ✔. Priya Anand = 6 ans ✔. C'est le candidat auquel le Practice Director fait allusion dans son e-mail (Doc 3).",vocab:"<span>does not meet</span> = ne remplit pas | <span>minimum requirement</span> = exigence minimale | <span>shortlisted</span> = sélectionné pour la liste restreinte"},
+  "q198":{q:"Why does the Practice Director single out Marcus Delille as a strong candidate?",correct:"C",optLabels:{"A": "He has the most years of experience", "B": "He holds a doctorate", "C": "His French skills are relevant and his project management record is strong", "D": "He applied earliest"},fr:"<em>Marcus Delille stands out as particularly strong: his French language skills are highly relevant given our growing Paris client base, and his project management portfolio is impressive</em> → compétences en français pertinentes + solide portfolio de gestion de projets (C). Ingrid Solvang a plus d'expérience. Personne n'a de doctorat. Marcus a appliqué le 2 avril, pas le premier.",vocab:"<span>stands out</span> = se distingue | <span>highly relevant</span> = très pertinent | <span>client base</span> = portefeuille clients"},
+  "q199":{q:"Which candidate applied on the closing date?",correct:"C",optLabels:{"A": "Ingrid Solvang", "B": "Marcus Delille", "C": "Priya Anand", "D": "Tom Whitaker"},fr:"Croisement Doc 1 + Doc 2 : date limite = 4 avril. Tableau des candidats : Priya Anand a appliqué le 4 avril → (C). Ingrid = 3 avril. Marcus = 2 avril. Tom = 1 avril.",vocab:"<span>closing date</span> = date limite de candidature | <span>applied</span> = a postulé | <span>shortlist</span> = liste restreinte"},
+  "q200":{q:"What does the Practice Director ask HR to arrange?",correct:"C",optLabels:{"A": "Shortlist review meeting", "B": "Reference checks for two candidates", "C": "Interview dates for the week of 21 April", "D": "An extension to the application deadline"},fr:"<em>Could we arrange interview dates for the week of 21 April?</em> → planifier des dates d'entretien pour la semaine du 21 avril (C). Aucune réunion de révision, vérification de références ni extension de délai n'est demandée.",vocab:"<span>arrange</span> = organiser, planifier | <span>interview dates</span> = dates d'entretien | <span>week of</span> = semaine du"}
+};
+const GROUPS=[{label:"Q 147–148 — Equipment Loan Register (Greystone Engineering)",qs:[147,148]},{label:"Q 149–150 — Text-Message Chain (Cora & Bea — Catering Cancellation)",qs:[149,150]},{label:"Q 151–152 — Arden Heights Residents' Association AGM Notice",qs:[151,152]},{label:"Q 153–154 — Clockwise HR Software Review",qs:[153,154]},{label:"Q 155–158 — E-mail (Q3 Campaign Planning, Palmetto Media)",qs:[155,156,157,158]},{label:"Q 159–161 — Article (Degree Apprenticeships vs University)",qs:[159,160,161]},{label:"Q 162–164 — E-mail Chain (Stationery Supplier Review)",qs:[162,163,164]},{label:"Q 165–167 — Meridian Translation Bureau Advertisement",qs:[165,166,167]},{label:"Q 168–171 — Article (Office Chair Market Growth)",qs:[168,169,170,171]},{label:"Q 172–175 — Text-Message Chain (Remi & Liz — Conference Prep)",qs:[172,173,174,175]},{label:"Q 176–180 — Retail Performance Review (November)",qs:[176,177,178,179,180]},{label:"Q 181–185 — Memo + Survey Results (Workplace Environment)",qs:[181,182,183,184,185]},{label:"Q 186–190 — Digital Health Innovation Summit Programme",qs:[186,187,188,189,190]},{label:"Q 191–195 — E-mail + Price List + Review (Vertex Ergonomics Chairs)",qs:[191,192,193,194,195]},{label:"Q 196–200 — Job Posting + Shortlist + E-mail (Waverly Consulting)",qs:[196,197,198,199,200]}];
+const QNUMS=[147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200];
+const TOTAL=54;
+let secs=2880;
+const answered={};
+const timerEl=document.getElementById('timer');
+function pad(n){return String(n).padStart(2,'0');}
+const iv=setInterval(()=>{secs--;timerEl.textContent=pad(Math.floor(secs/60))+':'+pad(secs%60);timerEl.className='';if(secs<=300)timerEl.classList.add('warn');if(secs<=60)timerEl.classList.add('danger');if(secs<=0){clearInterval(iv);timerEl.textContent='00:00';document.getElementById('to-ov').classList.add('show');}},1000);
+function updateProg(){const c=Object.keys(answered).length;document.getElementById('prog-txt').textContent=c+' / '+TOTAL+' réponses';document.getElementById('prog-bar').style.width=(c/TOTAL*100)+'%';const left=TOTAL-c;document.getElementById('unans').textContent=left===0?'✓ Toutes les questions répondues !':left+' question'+(left>1?'s':'')+' sans réponse';document.getElementById('sub-btn').disabled=c<TOTAL;}
+document.querySelectorAll('input[type="radio"]').forEach(r=>{r.addEventListener('change',function(){answered[this.name]=this.value;const qid=this.name.replace('q','qi-');const el=document.getElementById(qid);if(el)el.classList.add('answered');updateProg();});});
+function forceSubmit(){document.getElementById('to-ov').classList.remove('show');submitTest();}
+function submitTest(){clearInterval(iv);document.getElementById('sub-sec').style.display='none';document.querySelectorAll('input[type="radio"]').forEach(r=>r.disabled=true);let correct=0;QNUMS.forEach(n=>{const k='q'+n;if(answered[k]&&answered[k]===KEYS[k])correct++;});const pct=Math.round(correct/TOTAL*100);const est=Math.round(5+(correct/TOTAL)*490);document.getElementById('sc-disp').textContent=correct+'/'+TOTAL;document.getElementById('sc-pct').textContent=pct+'% de bonnes réponses';document.getElementById('sc-est').textContent='Estimation score Reading TOEIC : ~'+est+'/495';const container=document.getElementById('corr-content');container.innerHTML='';GROUPS.forEach(g=>{const block=document.createElement('div');block.className='corr-pg';const hdr=document.createElement('div');hdr.className='corr-pg-hdr';hdr.textContent=g.label;block.appendChild(hdr);g.qs.forEach(n=>{const k='q'+n;const ua=answered[k]||null;const ca=KEYS[k];const ok=ua===ca;const ex=EXPL[k];const item=document.createElement('div');item.className='ci '+(ua===null?'na':(ok?'ok':'ko'));const ut=ua?ex.optLabels[ua]:null;item.innerHTML=`<div class="ci-top"><span class="ci-icon">${ua===null?'—':(ok?'✔':'✗')}</span><span class="ci-badge">Q ${n}</span></div><div class="ci-q">${ex.q}</div><div class="ans-row">${ua&&!ok?`<span class="pill pill-ko">Votre réponse : (${ua}) ${ut}</span>`:''}${ok?`<span class="pill pill-ok">✔ (${ca}) ${ex.optLabels[ca]}</span>`:`<span class="pill pill-right">Bonne réponse : (${ca}) ${ex.optLabels[ca]}</span>`}${!ua?`<span class="pill" style="background:#fef3c7;color:#92400e">Non répondue</span>`:''}</div><div class="expl">${ex.fr}${ex.vocab?`<div class="voc">📚 <strong>Vocabulaire :</strong> ${ex.vocab}</div>`:''}</div>`;block.appendChild(item);});container.appendChild(block);});document.getElementById('corr-sec').classList.add('vis');document.getElementById('corr-sec').scrollIntoView({behavior:'smooth'});}
+updateProg();
+
+</script>
+</body>
+</html>

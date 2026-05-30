@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Part 7 — Test 7 — Marc VASSEUR — Polytech Lille</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a;--navy2:#162840;--navy3:#1e3a5f;
+    --gold:#c8993a;--gold-l:#e8b84b;
+    --cream:#f8f4ed;--cream2:#f0ead8;
+    --text:#1a1a2e;--muted:#6b7280;--border:#d4c5a9;
+    --correct:#1a7a4a;--wrong:#9b1c1c;
+    --correct-bg:#d1fae5;--wrong-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Source Serif 4',Georgia,serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+  /* HEADER */
+  #hdr{background:var(--navy);color:white;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+  #hdr h1{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold-l);letter-spacing:.03em}
+  #hdr p{font-size:.68rem;color:#94a3b8;margin-top:2px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em}
+  #timer{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:500;color:var(--gold-l);letter-spacing:.1em;transition:color .3s}
+  #timer.warn{color:#f97316}#timer.danger{color:#ef4444;animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  #timer-lbl{font-size:.6rem;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center}
+  #prog-txt{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#cbd5e1}
+  #prog-wrap{width:150px;height:5px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:4px}
+  #prog-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:99px;transition:width .4s;width:0%}
+
+  /* MAIN */
+  #main{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+
+  /* DIRECTIONS */
+  .dir-box{background:var(--navy2);color:#e2d9c8;border-left:4px solid var(--gold);padding:16px 22px;border-radius:6px;margin-bottom:32px;font-size:.88rem;line-height:1.7}
+  .dir-box strong{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--gold-l);display:block;margin-bottom:6px}
+
+  /* SPLIT BLOCK */
+  .pb{border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:36px}
+  .pb-hdr{background:var(--navy3);color:var(--gold-l);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+  .pb-body{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+  .pb-body.wide{grid-template-columns:1.1fr .9fr}
+  /* For 2-question passages, single column is cleaner */
+  .pb-body.narrow{grid-template-columns:1fr 1fr}
+
+  /* PASSAGE PANE */
+  .pass-pane{background:white;padding:18px 22px;font-size:.88rem;line-height:1.75;border-right:1px solid var(--border);position:sticky;top:56px;max-height:calc(100vh - 76px);overflow-y:auto}
+  .pass-pane h3{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--cream2);padding-bottom:5px}
+  .pass-pane .meta{font-size:.74rem;color:var(--muted);font-style:italic;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+  .pass-pane p{margin-bottom:.6em}
+  .pass-pane table{width:100%;border-collapse:collapse;font-size:.83rem;margin:8px 0}
+  .pass-pane th{background:var(--navy);color:var(--gold-l);padding:6px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.74rem}
+  .pass-pane td{border:1px solid var(--border);padding:6px 10px}
+  .pass-pane tr:nth-child(even) td{background:var(--cream)}
+  .msg-chain{display:flex;flex-direction:column;gap:7px}
+  .msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:.86rem}
+  .ml{background:#f1f5f9;border-bottom-left-radius:3px;align-self:flex-start}
+  .mr{background:#dbeafe;border-bottom-right-radius:3px;align-self:flex-end}
+  .mn{font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:2px}
+  .mt{font-size:.64rem;color:var(--muted);text-align:right;margin-top:2px}
+  .blist{margin:6px 0 6px 18px}
+  .blist li{margin-bottom:4px}
+
+  /* QUESTIONS PANE */
+  .q-pane{background:var(--cream);padding:18px 20px}
+  .qi{margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)}
+  .qi:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .qnum{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+  .qtxt{font-weight:600;font-size:.9rem;margin-bottom:10px;line-height:1.45;color:var(--navy)}
+  .opts{display:flex;flex-direction:column;gap:5px}
+  .opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:.86rem;transition:all .18s;background:white;line-height:1.4}
+  .opt:hover{border-color:var(--navy3);background:#f0f4ff}
+  .opt input{accent-color:var(--navy);margin-top:2px;flex-shrink:0}
+  .opt-l{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.82rem;color:var(--navy3);min-width:16px;flex-shrink:0}
+
+  /* SUBMIT */
+  #sub-sec{text-align:center;margin-top:36px;padding:28px;background:var(--navy);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+  #sub-sec p{color:#94a3b8;font-size:.86rem;margin-bottom:14px}
+  #unans{color:var(--gold-l);font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;display:block;margin-bottom:8px}
+  #sub-btn{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--navy);border:none;padding:13px 44px;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(200,153,58,.4)}
+  #sub-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,153,58,.5)}
+  #sub-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+  /* CORRECTION */
+  #corr-sec{display:none;margin-top:40px}
+  #corr-sec.vis{display:block}
+  .score-banner{background:var(--navy);color:white;text-align:center;padding:36px 24px;border-radius:12px;margin-bottom:36px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+  .score-banner h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold-l);margin-bottom:8px}
+  .big-score{font-family:'JetBrains Mono',monospace;font-size:3.8rem;font-weight:600;color:white;line-height:1}
+  .score-sub{color:#94a3b8;font-size:.88rem;margin-top:8px}
+  .toeic-est{margin-top:16px;padding:12px 22px;background:rgba(200,153,58,.15);border:1px solid var(--gold);border-radius:8px;display:inline-block;font-size:.9rem;color:var(--gold-l)}
+  .corr-pg{margin-bottom:36px;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .corr-pg-hdr{background:var(--navy3);color:var(--gold-l);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+  .ci{padding:18px 22px;border-bottom:1px solid var(--cream2);background:white}
+  .ci:last-child{border-bottom:none}
+  .ci.ok{border-left:4px solid var(--correct)}.ci.ko{border-left:4px solid var(--wrong)}.ci.na{border-left:4px solid #f59e0b}
+  .ci-top{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .ci-icon{font-size:1.1rem}
+  .ci-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:2px 8px;border-radius:99px;font-weight:600}
+  .ok .ci-badge{background:var(--correct-bg);color:var(--correct)}.ko .ci-badge{background:var(--wrong-bg);color:var(--wrong)}.na .ci-badge{background:#fef3c7;color:#92400e}
+  .ci-q{font-weight:600;font-size:.9rem;color:var(--navy);margin-bottom:8px;line-height:1.45}
+  .ans-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+  .pill{padding:3px 12px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.74rem;font-weight:600}
+  .pill-ok{background:var(--correct-bg);color:var(--correct)}
+  .pill-ko{background:var(--wrong-bg);color:var(--wrong);text-decoration:line-through}
+  .pill-right{background:#dbeafe;color:#1d4ed8}
+  .expl{background:var(--cream);border-left:3px solid var(--gold);padding:11px 15px;border-radius:0 6px 6px 0;font-size:.85rem;line-height:1.68}
+  .voc{margin-top:9px;padding:7px 11px;background:#f0f4ff;border-radius:6px;font-size:.8rem;line-height:1.6}
+  .voc span{font-family:'JetBrains Mono',monospace;color:var(--navy3);font-weight:500}
+
+  /* TIMEOUT */
+  #to-ov{display:none;position:fixed;inset:0;background:rgba(13,27,42,.92);z-index:999;align-items:center;justify-content:center}
+  #to-ov.show{display:flex}
+  #to-box{background:var(--cream);border-radius:12px;padding:36px 44px;text-align:center;max-width:380px}
+  #to-box h2{font-family:'Playfair Display',serif;color:var(--navy);font-size:1.5rem;margin-bottom:10px}
+  #to-box p{color:var(--muted);margin-bottom:18px}
+  #to-btn{background:var(--navy);color:var(--gold-l);border:none;padding:11px 30px;border-radius:8px;font-family:'Playfair Display',serif;font-size:.95rem;cursor:pointer}
+
+  @media(max-width:780px){
+    .pb-body,.pb-body.wide,.pb-body.narrow{grid-template-columns:1fr}
+    .pass-pane{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--border)}
+    #hdr{flex-wrap:wrap;gap:8px}
+    #main{padding:16px 12px 60px}
+  }
+</style>
+</head>
+<body>
+<div id="to-ov"><div id="to-box"><h2>⏰ Temps écoulé</h2><p>Les 48 minutes sont terminées. Le test est soumis automatiquement.</p><button id="to-btn" onclick="forceSubmit()">Voir la correction</button></div></div>
+<div id="hdr">
+  <div><h1>TOEIC — Part 7 · Test 7</h1><p>MARC VASSEUR | POLYTECH LILLE</p></div>
+  <div style="text-align:center"><div id="timer">48:00</div><div id="timer-lbl">Temps restant</div></div>
+  <div style="text-align:right"><div id="prog-txt">0 / 54 réponses</div><div id="prog-wrap"><div id="prog-bar"></div></div></div>
+</div>
+<div id="main">
+  <div class="dir-box"><strong>PART 7 — Directions</strong> In this part you will read a selection of texts, such as magazine and newspaper articles, e-mails, and instant messages. Each text or set of texts is followed by several questions. Select the best answer for each question and mark the letter (A), (B), (C), or (D). Detailed corrections in French will be shown after submission.</div>
+
+<div class="pb">
+  <div class="pb-hdr">Questions 147–148 — Workshop Sign-Up Sheet</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><h3>Thornfield Academy — CPD Workshop Sign-Up Sheet</h3>
+<p class="meta">Spring Term | Professional Development Day — Friday 28 March</p>
+<table>
+  <tr><th>Workshop</th><th>Facilitator</th><th>Capacity</th><th>Registered</th><th>Status</th></tr>
+  <tr><td>Differentiated Instruction</td><td>D. Pearce</td><td>20</td><td>20</td><td>Full</td></tr>
+  <tr><td>Data-Driven Feedback</td><td>R. Owusu</td><td>20</td><td>14</td><td>Open</td></tr>
+  <tr><td>Behaviour Management Strategies</td><td>L. Marsh</td><td>25</td><td>25</td><td>Full</td></tr>
+  <tr><td>Using AI in the Classroom</td><td>D. Pearce</td><td>20</td><td>18</td><td>Open</td></tr>
+  <tr><td>Wellbeing &amp; Staff Resilience</td><td>External provider</td><td>30</td><td>22</td><td>Open</td></tr>
+</table></div>
+    <div class="q-pane"><div class="qi" id="qi-147">
+  <div class="qnum">Question 147</div>
+  <div class="qtxt">Which facilitator is running more than one workshop?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q147" value="A"><span class="opt-l">A</span>R. Owusu</label>
+    <label class="opt"><input type="radio" name="q147" value="B"><span class="opt-l">B</span>L. Marsh</label>
+    <label class="opt"><input type="radio" name="q147" value="C"><span class="opt-l">C</span>D. Pearce</label>
+    <label class="opt"><input type="radio" name="q147" value="D"><span class="opt-l">D</span>External provider</label>
+  </div>
+</div><div class="qi" id="qi-148">
+  <div class="qnum">Question 148</div>
+  <div class="qtxt">Which workshops still have places available?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q148" value="A"><span class="opt-l">A</span>Data-Driven Feedback and Using AI in the Classroom</label>
+    <label class="opt"><input type="radio" name="q148" value="B"><span class="opt-l">B</span>Differentiated Instruction and Behaviour Management Strategies</label>
+    <label class="opt"><input type="radio" name="q148" value="C"><span class="opt-l">C</span>Data-Driven Feedback, Using AI in the Classroom, and Wellbeing & Staff Resilience</label>
+    <label class="opt"><input type="radio" name="q148" value="D"><span class="opt-l">D</span>All five workshops</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 149–150 — Text-Message Chain</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><div class="msg-chain">
+  <div class="msg ml"><div class="mn">Tessa Bloom</div>Hi Ray. I've just had a call from the client — they want to move next Tuesday's product demo to the week after. Something came up on their end.<div class="mt">Thu 2:44 P.M.</div></div>
+  <div class="msg mr"><div class="mn">Ray Sato</div>OK. Do we have a specific date from them yet?<div class="mt">Thu 2:46 P.M.</div></div>
+  <div class="msg ml"><div class="mn">Tessa Bloom</div>They suggested either Tuesday 18th or Wednesday 19th. They said Wednesday is slightly preferable but either works.<div class="mt">Thu 2:47 P.M.</div></div>
+  <div class="msg mr"><div class="mn">Ray Sato</div>Wednesday works for me. Can you also check if the demo room is free that day? Last time there was a clash with the board meeting.<div class="mt">Thu 2:49 P.M.</div></div>
+  <div class="msg ml"><div class="mn">Tessa Bloom</div>Will do. I'll confirm with the client once I've checked the room.<div class="mt">Thu 2:51 P.M.</div></div>
+</div></div>
+    <div class="q-pane"><div class="qi" id="qi-149">
+  <div class="qnum">Question 149</div>
+  <div class="qtxt">Why is the product demo being rescheduled?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q149" value="A"><span class="opt-l">A</span>Ray Sato is unavailable on Tuesday</label>
+    <label class="opt"><input type="radio" name="q149" value="B"><span class="opt-l">B</span>The demo room is already booked</label>
+    <label class="opt"><input type="radio" name="q149" value="C"><span class="opt-l">C</span>The client has a conflict on the original date</label>
+    <label class="opt"><input type="radio" name="q149" value="D"><span class="opt-l">D</span>The product is not yet ready for demonstration</label>
+  </div>
+</div><div class="qi" id="qi-150">
+  <div class="qnum">Question 150</div>
+  <div class="qtxt">What will Tessa Bloom do before confirming the new date with the client?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q150" value="A"><span class="opt-l">A</span>Check Ray's availability for Wednesday</label>
+    <label class="opt"><input type="radio" name="q150" value="B"><span class="opt-l">B</span>Book the client's preferred venue</label>
+    <label class="opt"><input type="radio" name="q150" value="C"><span class="opt-l">C</span>Verify whether the demo room is available on Wednesday</label>
+    <label class="opt"><input type="radio" name="q150" value="D"><span class="opt-l">D</span>Contact the facilities team about the board meeting</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 151–152 — Notice</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><h3>MARDALE BUSINESS PARK — NOTICE TO ALL TENANTS</h3>
+<h3>Planned Power Outage — Essential Maintenance</h3>
+<p>The building management team wishes to inform all tenants that a planned power outage will affect <strong>Units 1–12</strong> on <strong>Saturday 8 March between 7:00 A.M. and 1:00 P.M.</strong> This work is necessary to allow contractors to upgrade the main distribution board serving the south wing of the building.</p>
+<p>During this period, mains electricity will be unavailable. Emergency lighting will remain operational throughout. Tenants requiring continuous power for critical equipment are advised to make appropriate arrangements in advance, such as arranging off-site operations or using backup power solutions.</p>
+<p>The building management team will provide a £50 service charge credit to each affected tenancy in recognition of the disruption. This credit will be applied automatically to your next quarterly invoice.</p>
+<p>Enquiries: facilities@mardalepark.co.uk | ext. 201</p></div>
+    <div class="q-pane"><div class="qi" id="qi-151">
+  <div class="qnum">Question 151</div>
+  <div class="qtxt">Why will the power be cut on 8 March?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q151" value="A"><span class="opt-l">A</span>A fault has been detected in the emergency lighting system</label>
+    <label class="opt"><input type="radio" name="q151" value="B"><span class="opt-l">B</span>Upgrades are being made to the main electrical distribution board</label>
+    <label class="opt"><input type="radio" name="q151" value="C"><span class="opt-l">C</span>An external power line is being replaced</label>
+    <label class="opt"><input type="radio" name="q151" value="D"><span class="opt-l">D</span>The building is being connected to a new energy provider</label>
+  </div>
+</div><div class="qi" id="qi-152">
+  <div class="qnum">Question 152</div>
+  <div class="qtxt">What will tenants affected by the outage receive?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q152" value="A"><span class="opt-l">A</span>A full refund of one month's rent</label>
+    <label class="opt"><input type="radio" name="q152" value="B"><span class="opt-l">B</span>A £50 credit applied to their next service charge invoice</label>
+    <label class="opt"><input type="radio" name="q152" value="C"><span class="opt-l">C</span>Priority access to the building's backup generator</label>
+    <label class="opt"><input type="radio" name="q152" value="D"><span class="opt-l">D</span>Free use of a temporary office space</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 153–154 — Online Review</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><p class="meta">www.conferencecentrereviews.co.uk</p>
+<h3>Beaumont Conference Centre — Review by Oliver K., Events Manager</h3>
+<p>We held our annual client conference at Beaumont for the second year running and once again came away impressed. The main auditorium accommodates 300 comfortably, and the AV setup — particularly the live-streaming capability — is among the best I have encountered at this price point. The technical team on the day were responsive and proactive, which is rare and genuinely valued.</p>
+<p>Catering was again a strong point. The lunch buffet featured an excellent variety and the service was efficient even at peak time. We had guests with complex dietary needs and all were handled without issue or fuss.</p>
+<p>My one reservation is the car park. For an event of 250 delegates, the 80-space car park is clearly insufficient, and the nearby public car park is a 12-minute walk. It would be worth considering a parking arrangement with the adjacent retail park for large events. I have mentioned this to the venue coordinator, who acknowledged it as a known limitation.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-153">
+  <div class="qnum">Question 153</div>
+  <div class="qtxt">What does Oliver K. say is a strength of Beaumont Conference Centre?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q153" value="A"><span class="opt-l">A</span>The size of the car park</label>
+    <label class="opt"><input type="radio" name="q153" value="B"><span class="opt-l">B</span>The auditorium and AV setup</label>
+    <label class="opt"><input type="radio" name="q153" value="C"><span class="opt-l">C</span>The proximity to public transport</label>
+    <label class="opt"><input type="radio" name="q153" value="D"><span class="opt-l">D</span>The range of breakout rooms available</label>
+  </div>
+</div><div class="qi" id="qi-154">
+  <div class="qnum">Question 154</div>
+  <div class="qtxt">What improvement does the reviewer suggest?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q154" value="A"><span class="opt-l">A</span>Upgrading the catering service</label>
+    <label class="opt"><input type="radio" name="q154" value="B"><span class="opt-l">B</span>Reducing the room hire price</label>
+    <label class="opt"><input type="radio" name="q154" value="C"><span class="opt-l">C</span>Arranging additional parking for large events</label>
+    <label class="opt"><input type="radio" name="q154" value="D"><span class="opt-l">D</span>Expanding the main auditorium</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 155–158 — E-mail</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><p><strong>To:</strong> All Engineering Staff<br>
+<strong>From:</strong> Dr. Priya Mehra &lt;p.mehra@axonbridge.com&gt;<br>
+<strong>Subject:</strong> Launch of Internal Innovation Challenge — 2025<br>
+<strong>Date:</strong> 14 January</p>
+<p>Dear Colleagues,</p>
+<p>I am delighted to announce the launch of the <strong>Axonbridge Innovation Challenge 2025</strong>, an internal programme designed to surface new ideas from within our engineering teams and develop them into viable product or process improvements.</p>
+<p>Any engineering staff member or team of up to four people may submit a proposal. Proposals must describe a specific problem or opportunity, propose a solution, and include an outline of estimated resource requirements. Submissions should be no longer than <strong>four pages</strong> and must be submitted via the Innovation Hub on the company intranet by <strong>28 February</strong>.</p>
+<p>A shortlist of up to ten proposals will be selected by the Innovation Review Panel and presented to the leadership team in March. The top three proposals will receive development funding of <strong>£10,000 each</strong>, with the winning team also invited to present at the Axonbridge Annual Engineering Summit in June.</p>
+<p>To help teams develop strong proposals, a one-hour workshop — <em>How to write a winning innovation proposal</em> — will be held on <strong>Wednesday 29 January at 2:00 P.M.</strong> in Room 14B. Attendance is optional but strongly encouraged.</p>
+<p>I look forward to seeing the breadth of ideas from across our teams.</p>
+<p>Best regards,<br>Dr. Priya Mehra<br>Chief Technology Officer</p></div>
+    <div class="q-pane"><div class="qi" id="qi-155">
+  <div class="qnum">Question 155</div>
+  <div class="qtxt">What is the Innovation Challenge designed to do?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q155" value="A"><span class="opt-l">A</span>Replace the existing product development process</label>
+    <label class="opt"><input type="radio" name="q155" value="B"><span class="opt-l">B</span>Surface and develop new ideas from engineering staff</label>
+    <label class="opt"><input type="radio" name="q155" value="C"><span class="opt-l">C</span>Identify staff members for promotion</label>
+    <label class="opt"><input type="radio" name="q155" value="D"><span class="opt-l">D</span>Reduce the company's operating costs</label>
+  </div>
+</div><div class="qi" id="qi-156">
+  <div class="qnum">Question 156</div>
+  <div class="qtxt">What is the maximum length allowed for a proposal submission?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q156" value="A"><span class="opt-l">A</span>Two pages</label>
+    <label class="opt"><input type="radio" name="q156" value="B"><span class="opt-l">B</span>Three pages</label>
+    <label class="opt"><input type="radio" name="q156" value="C"><span class="opt-l">C</span>Four pages</label>
+    <label class="opt"><input type="radio" name="q156" value="D"><span class="opt-l">D</span>Six pages</label>
+  </div>
+</div><div class="qi" id="qi-157">
+  <div class="qnum">Question 157</div>
+  <div class="qtxt">What will the top three proposals receive?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q157" value="A"><span class="opt-l">A</span>A trophy and a certificate</label>
+    <label class="opt"><input type="radio" name="q157" value="B"><span class="opt-l">B</span>£10,000 of development funding each</label>
+    <label class="opt"><input type="radio" name="q157" value="C"><span class="opt-l">C</span>An invitation to present at an international conference</label>
+    <label class="opt"><input type="radio" name="q157" value="D"><span class="opt-l">D</span>Automatic promotion for the team members</label>
+  </div>
+</div><div class="qi" id="qi-158">
+  <div class="qnum">Question 158</div>
+  <div class="qtxt">What is described as optional but encouraged?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q158" value="A"><span class="opt-l">A</span>Submitting a proposal</label>
+    <label class="opt"><input type="radio" name="q158" value="B"><span class="opt-l">B</span>Attending the proposal-writing workshop</label>
+    <label class="opt"><input type="radio" name="q158" value="C"><span class="opt-l">C</span>Joining a team of up to four people</label>
+    <label class="opt"><input type="radio" name="q158" value="D"><span class="opt-l">D</span>Presenting at the June summit</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 159–161 — Article</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Slowdown in Global Shipping Lifts Pressure on Supply Chains</h3>
+<p class="meta">International Trade Review — March Issue</p>
+<p>After two years of unprecedented congestion and capacity shortfalls, the global container shipping industry is entering a period of relative normalisation. Freight rates, which surged to historic highs during the pandemic-related disruption of 2021 and 2022, have returned to levels closer to their long-run averages, offering relief to importers and exporters across sectors.</p>
+<p>The easing has been driven by a combination of factors: a significant increase in vessel capacity as a wave of new container ships — ordered during the boom — entered service; a moderation in consumer demand for manufactured goods; and gradual improvements in port throughput efficiency following infrastructure investments made in response to the earlier crisis.</p>
+<p>For businesses that rely on imported components or raw materials, the lower freight costs represent a meaningful improvement in margins, particularly for small and medium-sized enterprises that lacked the negotiating power to secure favourable rates during the crunch period. "We are now paying roughly a third of what we were paying in early 2022 for the same routes," said one operations director at a UK electronics manufacturer.</p>
+<p>Analysts caution, however, that the current stability is not guaranteed. Ongoing geopolitical tensions in key shipping corridors, combined with the potential for renewed demand surges, mean that supply chain teams are advised to maintain diversified sourcing strategies rather than returning to single-supplier dependency.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-159">
+  <div class="qnum">Question 159</div>
+  <div class="qtxt">What change in the global container shipping industry does the article describe?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q159" value="A"><span class="opt-l">A</span>Freight rates have risen to new records</label>
+    <label class="opt"><input type="radio" name="q159" value="B"><span class="opt-l">B</span>Shipping capacity has decreased significantly</label>
+    <label class="opt"><input type="radio" name="q159" value="C"><span class="opt-l">C</span>Conditions have normalised after a period of disruption</label>
+    <label class="opt"><input type="radio" name="q159" value="D"><span class="opt-l">D</span>New regulations have reduced the number of container ships</label>
+  </div>
+</div><div class="qi" id="qi-160">
+  <div class="qnum">Question 160</div>
+  <div class="qtxt">What has contributed to lower freight rates, according to the article?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q160" value="A"><span class="opt-l">A</span>Reduced demand from Asian manufacturers</label>
+    <label class="opt"><input type="radio" name="q160" value="B"><span class="opt-l">B</span>New vessel capacity entering service and improved port efficiency</label>
+    <label class="opt"><input type="radio" name="q160" value="C"><span class="opt-l">C</span>A government subsidy scheme for shipping companies</label>
+    <label class="opt"><input type="radio" name="q160" value="D"><span class="opt-l">D</span>A reduction in the price of marine fuel</label>
+  </div>
+</div><div class="qi" id="qi-161">
+  <div class="qnum">Question 161</div>
+  <div class="qtxt">What do analysts recommend businesses do despite the current stability?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q161" value="A"><span class="opt-l">A</span>Return to single-supplier dependency to reduce costs</label>
+    <label class="opt"><input type="radio" name="q161" value="B"><span class="opt-l">B</span>Reduce their shipping volumes</label>
+    <label class="opt"><input type="radio" name="q161" value="C"><span class="opt-l">C</span>Maintain diversified sourcing strategies</label>
+    <label class="opt"><input type="radio" name="q161" value="D"><span class="opt-l">D</span>Invest in their own logistics infrastructure</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 162–164 — E-mail Chain</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><p><strong>E-mail 1</strong></p>
+<p><strong>To:</strong> Hannah Yip &lt;h.yip@cadencecreative.co.uk&gt;<br>
+<strong>From:</strong> Oliver Nash &lt;o.nash@cadencecreative.co.uk&gt;<br>
+<strong>Subject:</strong> Bluebell Organics website — final sign-off<br>
+<strong>Date:</strong> Monday 3 March</p>
+<p>Hi Hannah,</p>
+<p>I have reviewed the final design files for the Bluebell Organics website and everything looks great. The only outstanding item is the product photography — we are still waiting on eight images from the client. The rest of the content is complete and the development team is ready to begin build.</p>
+<p>Could you chase Bluebell Organics today? We need the images by Wednesday at the latest to avoid pushing the launch date. The client is aware that we are targeting a 14 March launch.</p>
+<p>Oliver</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<p><strong>E-mail 2</strong></p>
+<p><strong>To:</strong> Oliver Nash<br>
+<strong>From:</strong> Hannah Yip<br>
+<strong>Subject:</strong> Re: Bluebell Organics website — final sign-off<br>
+<strong>Date:</strong> Monday 3 March</p>
+<p>Hi Oliver,</p>
+<p>I have just spoken to Bluebell's marketing manager, Sarah Keene. She says the photographer was originally scheduled for last Friday but had to reschedule due to illness. The reshoots are now booked for this Wednesday morning, so she expects to send us the images by end of day Wednesday.</p>
+<p>That should be just in time. I have asked Sarah to flag any further delay immediately rather than waiting. Should we communicate the situation to the development team so they can plan around it?</p>
+<p>Hannah</p></div>
+    <div class="q-pane"><div class="qi" id="qi-162">
+  <div class="qnum">Question 162</div>
+  <div class="qtxt">What is the last outstanding item preventing the website build from starting?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q162" value="A"><span class="opt-l">A</span>Client approval of the design files</label>
+    <label class="opt"><input type="radio" name="q162" value="B"><span class="opt-l">B</span>Product photography from the client</label>
+    <label class="opt"><input type="radio" name="q162" value="C"><span class="opt-l">C</span>Payment for the development phase</label>
+    <label class="opt"><input type="radio" name="q162" value="D"><span class="opt-l">D</span>A revision to the website content</label>
+  </div>
+</div><div class="qi" id="qi-163">
+  <div class="qnum">Question 163</div>
+  <div class="qtxt">Why were the product photos not delivered on the original schedule?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q163" value="A"><span class="opt-l">A</span>The client changed the brief</label>
+    <label class="opt"><input type="radio" name="q163" value="B"><span class="opt-l">B</span>The photographer became ill</label>
+    <label class="opt"><input type="radio" name="q163" value="C"><span class="opt-l">C</span>The images were lost in transit</label>
+    <label class="opt"><input type="radio" name="q163" value="D"><span class="opt-l">D</span>The client's marketing team was on leave</label>
+  </div>
+</div><div class="qi" id="qi-164">
+  <div class="qnum">Question 164</div>
+  <div class="qtxt">What does Hannah suggest at the end of her e-mail?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q164" value="A"><span class="opt-l">A</span>Postponing the launch date to allow more time</label>
+    <label class="opt"><input type="radio" name="q164" value="B"><span class="opt-l">B</span>Hiring an alternative photographer</label>
+    <label class="opt"><input type="radio" name="q164" value="C"><span class="opt-l">C</span>Informing the development team of the situation</label>
+    <label class="opt"><input type="radio" name="q164" value="D"><span class="opt-l">D</span>Requesting a penalty payment from the client</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 165–167 — Advertisement</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>SKYBRIDGE EXECUTIVE SEARCH — BOARD-LEVEL RECRUITMENT SPECIALISTS</h3>
+<p class="meta">Capabilities Overview — 2025</p>
+<p>Skybridge Executive Search partners with listed companies, private equity-backed businesses, and public sector organisations to identify and place exceptional leaders at board and C-suite level. Since our founding in 2005, we have completed over 1,400 executive placements across 28 countries.</p>
+<p><strong>Our services include:</strong></p>
+<ul class="blist">
+  <li>Chief Executive and Managing Director search</li>
+  <li>Non-Executive Director and Chair appointments</li>
+  <li>Chief Financial Officer and General Counsel search</li>
+  <li>Succession planning and talent mapping</li>
+  <li>Board effectiveness reviews</li>
+</ul>
+<p>We operate on an <strong>exclusive retained basis</strong>, ensuring dedicated resource and full accountability at every stage. Our average time-to-shortlist is <strong>six weeks</strong>, and we offer a <strong>12-month replacement guarantee</strong> on all permanent placements.</p>
+<p>Introductory briefings available by appointment. Contact: enquiries@skybridgesearch.com | +44 20 7946 0188</p></div>
+    <div class="q-pane"><div class="qi" id="qi-165">
+  <div class="qnum">Question 165</div>
+  <div class="qtxt">What type of organisations does Skybridge Executive Search work with?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q165" value="A"><span class="opt-l">A</span>Only publicly listed companies</label>
+    <label class="opt"><input type="radio" name="q165" value="B"><span class="opt-l">B</span>Listed companies, private equity-backed businesses, and public sector organisations</label>
+    <label class="opt"><input type="radio" name="q165" value="C"><span class="opt-l">C</span>Exclusively start-up and early-stage businesses</label>
+    <label class="opt"><input type="radio" name="q165" value="D"><span class="opt-l">D</span>Only financial services firms</label>
+  </div>
+</div><div class="qi" id="qi-166">
+  <div class="qnum">Question 166</div>
+  <div class="qtxt">What guarantee does Skybridge offer on permanent placements?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q166" value="A"><span class="opt-l">A</span>A six-week delivery guarantee</label>
+    <label class="opt"><input type="radio" name="q166" value="B"><span class="opt-l">B</span>A fee refund if the candidate leaves within one year</label>
+    <label class="opt"><input type="radio" name="q166" value="C"><span class="opt-l">C</span>A 12-month replacement guarantee</label>
+    <label class="opt"><input type="radio" name="q166" value="D"><span class="opt-l">D</span>A two-year performance review</label>
+  </div>
+</div><div class="qi" id="qi-167">
+  <div class="qnum">Question 167</div>
+  <div class="qtxt">What does working on an exclusive retained basis mean for clients?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q167" value="A"><span class="opt-l">A</span>The client pays a success fee only if a hire is made</label>
+    <label class="opt"><input type="radio" name="q167" value="B"><span class="opt-l">B</span>Skybridge works on the assignment without competition from other agencies</label>
+    <label class="opt"><input type="radio" name="q167" value="C"><span class="opt-l">C</span>The client must use Skybridge for all future hires</label>
+    <label class="opt"><input type="radio" name="q167" value="D"><span class="opt-l">D</span>The search is limited to candidates already in the Skybridge database</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 168–171 — Magazine Article</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>The Rise of the Chief Sustainability Officer</h3>
+<p class="meta">Corporate Governance Quarterly — Spring Edition</p>
+<p>A decade ago, sustainability was largely the preserve of communications departments — a function focused on producing glossy reports and managing reputational risk. Today, it is rapidly becoming a strategic boardroom priority, and with it has come the emergence of a new executive role: the Chief Sustainability Officer.</p>
+<p>According to data published by the Governance Institute, the proportion of FTSE 250 companies with a dedicated CSO or equivalent role increased from 11% in 2018 to 43% in 2024. The growth has been driven by a convergence of regulatory pressure — particularly from the UK's mandatory TCFD climate reporting requirements — investor expectations, and the growing recognition that sustainability risks are financial risks.</p>
+<p>The profile of the role has also evolved. Early CSOs were often recruited from environmental consultancy or public affairs backgrounds. Increasingly, however, companies are appointing candidates with operational or financial backgrounds who can integrate sustainability targets directly into business planning and capital allocation decisions. "We need someone who can sit in a room with the CFO and speak the same language," one FTSE 100 chairman told this publication.</p>
+<p>Critics argue that in many organisations, the CSO role remains largely cosmetic — a high-profile appointment that lacks the operational authority to drive real change. Independent audits of CSO mandates suggest that in roughly a third of cases, the CSO has no direct budget control or right of veto over investment decisions.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-168">
+  <div class="qnum">Question 168</div>
+  <div class="qtxt">How has the Chief Sustainability Officer role changed from its origins?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q168" value="A"><span class="opt-l">A</span>It is now mainly focused on public communications</label>
+    <label class="opt"><input type="radio" name="q168" value="B"><span class="opt-l">B</span>It is increasingly held by people with operational or financial backgrounds</label>
+    <label class="opt"><input type="radio" name="q168" value="C"><span class="opt-l">C</span>It has been replaced by a committee rather than a single executive</label>
+    <label class="opt"><input type="radio" name="q168" value="D"><span class="opt-l">D</span>It is only found in companies with more than 500 employees</label>
+  </div>
+</div><div class="qi" id="qi-169">
+  <div class="qnum">Question 169</div>
+  <div class="qtxt">What has driven growth in the number of CSO appointments?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q169" value="A"><span class="opt-l">A</span>Voluntary corporate initiatives</label>
+    <label class="opt"><input type="radio" name="q169" value="B"><span class="opt-l">B</span>Regulatory requirements, investor pressure, and recognition of sustainability as financial risk</label>
+    <label class="opt"><input type="radio" name="q169" value="C"><span class="opt-l">C</span>Pressure from trade unions</label>
+    <label class="opt"><input type="radio" name="q169" value="D"><span class="opt-l">D</span>A reduction in the cost of sustainability reporting</label>
+  </div>
+</div><div class="qi" id="qi-170">
+  <div class="qnum">Question 170</div>
+  <div class="qtxt">What criticism does the article raise about the CSO role?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q170" value="A"><span class="opt-l">A</span>CSOs are generally paid more than other C-suite executives</label>
+    <label class="opt"><input type="radio" name="q170" value="B"><span class="opt-l">B</span>Many CSOs lack operational authority to drive real change</label>
+    <label class="opt"><input type="radio" name="q170" value="C"><span class="opt-l">C</span>The role is only relevant for companies in polluting industries</label>
+    <label class="opt"><input type="radio" name="q170" value="D"><span class="opt-l">D</span>CSOs focus too much on financial metrics</label>
+  </div>
+</div><div class="qi" id="qi-171">
+  <div class="qnum">Question 171</div>
+  <div class="qtxt">What proportion of CSOs reportedly lack budget control or investment veto rights?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q171" value="A"><span class="opt-l">A</span>11%</label>
+    <label class="opt"><input type="radio" name="q171" value="B"><span class="opt-l">B</span>43%</label>
+    <label class="opt"><input type="radio" name="q171" value="C"><span class="opt-l">C</span>Roughly one third</label>
+    <label class="opt"><input type="radio" name="q171" value="D"><span class="opt-l">D</span>More than half</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 172–175 — Text-Message Chain</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><div class="msg-chain">
+  <div class="msg ml"><div class="mn">Anton Reyes</div>Hi Stella. Quick update — the workshop materials are printed and ready. But I've just realised the handouts still have last year's logo. Should I reprint or will it be OK?<div class="mt">Fri 8:52 A.M.</div></div>
+  <div class="msg mr"><div class="mn">Stella Park</div>Oh no. How many copies are we talking?<div class="mt">Fri 8:54 A.M.</div></div>
+  <div class="msg ml"><div class="mn">Anton Reyes</div>40 sets — 6 pages each. So 240 pages.<div class="mt">Fri 8:55 A.M.</div></div>
+  <div class="msg mr"><div class="mn">Stella Park</div>I think we have to reprint. The new brand guidelines were very clear — the old logo cannot appear on any client-facing materials after 1 January. The workshop is for external delegates, isn't it?<div class="mt">Fri 8:57 A.M.</div></div>
+  <div class="msg ml"><div class="mn">Anton Reyes</div>Yes, it is. OK, I'll reprint now. It should take about an hour. Workshop is not until 2pm so we have time.<div class="mt">Fri 8:58 A.M.</div></div>
+  <div class="msg mr"><div class="mn">Stella Park</div>Good call. Let me know if you need help collating.<div class="mt">Fri 9:00 A.M.</div></div>
+</div></div>
+    <div class="q-pane"><div class="qi" id="qi-172">
+  <div class="qnum">Question 172</div>
+  <div class="qtxt">What problem has Anton Reyes discovered?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q172" value="A"><span class="opt-l">A</span>The workshop has been double-booked</label>
+    <label class="opt"><input type="radio" name="q172" value="B"><span class="opt-l">B</span>The handouts contain the wrong logo</label>
+    <label class="opt"><input type="radio" name="q172" value="C"><span class="opt-l">C</span>There are not enough copies of the materials</label>
+    <label class="opt"><input type="radio" name="q172" value="D"><span class="opt-l">D</span>The workshop venue has changed</label>
+  </div>
+</div><div class="qi" id="qi-173">
+  <div class="qnum">Question 173</div>
+  <div class="qtxt">Why does Stella Park say the materials must be reprinted?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q173" value="A"><span class="opt-l">A</span>The content has changed since last year</label>
+    <label class="opt"><input type="radio" name="q173" value="B"><span class="opt-l">B</span>The number of delegates has increased</label>
+    <label class="opt"><input type="radio" name="q173" value="C"><span class="opt-l">C</span>The old logo cannot be used on client-facing materials after 1 January</label>
+    <label class="opt"><input type="radio" name="q173" value="D"><span class="opt-l">D</span>The print quality is not good enough</label>
+  </div>
+</div><div class="qi" id="qi-174">
+  <div class="qnum">Question 174</div>
+  <div class="qtxt">How many pages in total need to be reprinted?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q174" value="A"><span class="opt-l">A</span>40</label>
+    <label class="opt"><input type="radio" name="q174" value="B"><span class="opt-l">B</span>80</label>
+    <label class="opt"><input type="radio" name="q174" value="C"><span class="opt-l">C</span>200</label>
+    <label class="opt"><input type="radio" name="q174" value="D"><span class="opt-l">D</span>240</label>
+  </div>
+</div><div class="qi" id="qi-175">
+  <div class="qnum">Question 175</div>
+  <div class="qtxt">What does Stella Park offer to help with?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q175" value="A"><span class="opt-l">A</span>Updating the workshop materials template</label>
+    <label class="opt"><input type="radio" name="q175" value="B"><span class="opt-l">B</span>Contacting the delegates</label>
+    <label class="opt"><input type="radio" name="q175" value="C"><span class="opt-l">C</span>Collating the reprinted handouts</label>
+    <label class="opt"><input type="radio" name="q175" value="D"><span class="opt-l">D</span>Booking the print room</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 176–180 — Internal Report</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>CUSTOMER ONBOARDING PROCESS REVIEW</h3>
+<p class="meta">Prepared by: Customer Experience Team | Date: 14 March | Distribution: Senior Management</p>
+<p><strong>Purpose:</strong> This report reviews the current customer onboarding process following a 12-week audit. The audit was prompted by an increase in churn during the first 90 days, which rose from 8% to 14% over the past financial year.</p>
+<p><strong>Key findings:</strong></p>
+<p><strong>1. Time to activation:</strong> The average time from contract sign to account activation is currently 11 days. Industry benchmark is 5 days. Delays are primarily caused by manual data entry requirements in the legacy system, which requires three separate logins and manual re-entry of data across platforms.</p>
+<p><strong>2. Welcome communications:</strong> 61% of new customers reported receiving no personalised welcome communication within the first week. Customers who did receive a welcome contact in week one showed a 34% lower churn rate in the first 90 days.</p>
+<p><strong>3. Support availability:</strong> Onboarding support is currently available Monday to Friday, 9:00 A.M. to 5:00 P.M. only. 42% of new customers attempted to access support outside these hours and received no response.</p>
+<p><strong>Recommendations:</strong> (1) Migrate the onboarding process to the new CRM platform, targeting activation in 3 days. (2) Implement an automated personalised welcome sequence triggered at contract sign. (3) Extend support availability to include weekday evenings and Saturday mornings.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-176">
+  <div class="qnum">Question 176</div>
+  <div class="qtxt">What prompted this review?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q176" value="A"><span class="opt-l">A</span>A drop in new customer sign-ups</label>
+    <label class="opt"><input type="radio" name="q176" value="B"><span class="opt-l">B</span>A rise in early customer churn</label>
+    <label class="opt"><input type="radio" name="q176" value="C"><span class="opt-l">C</span>A complaint from a major client</label>
+    <label class="opt"><input type="radio" name="q176" value="D"><span class="opt-l">D</span>A regulatory inspection of the company</label>
+  </div>
+</div><div class="qi" id="qi-177">
+  <div class="qnum">Question 177</div>
+  <div class="qtxt">How does the current time to activation compare to the industry benchmark?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q177" value="A"><span class="opt-l">A</span>It is the same as the benchmark</label>
+    <label class="opt"><input type="radio" name="q177" value="B"><span class="opt-l">B</span>It is 6 days slower than the benchmark</label>
+    <label class="opt"><input type="radio" name="q177" value="C"><span class="opt-l">C</span>It is 3 days faster than the benchmark</label>
+    <label class="opt"><input type="radio" name="q177" value="D"><span class="opt-l">D</span>It is 11 days slower than the benchmark</label>
+  </div>
+</div><div class="qi" id="qi-178">
+  <div class="qnum">Question 178</div>
+  <div class="qtxt">What effect did a welcome contact in week one have on customer churn?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q178" value="A"><span class="opt-l">A</span>It had no measurable effect</label>
+    <label class="opt"><input type="radio" name="q178" value="B"><span class="opt-l">B</span>It increased churn by 34%</label>
+    <label class="opt"><input type="radio" name="q178" value="C"><span class="opt-l">C</span>It reduced churn by 34%</label>
+    <label class="opt"><input type="radio" name="q178" value="D"><span class="opt-l">D</span>It reduced churn by 61%</label>
+  </div>
+</div><div class="qi" id="qi-179">
+  <div class="qnum">Question 179</div>
+  <div class="qtxt">What proportion of new customers tried to access support outside business hours?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q179" value="A"><span class="opt-l">A</span>14%</label>
+    <label class="opt"><input type="radio" name="q179" value="B"><span class="opt-l">B</span>34%</label>
+    <label class="opt"><input type="radio" name="q179" value="C"><span class="opt-l">C</span>42%</label>
+    <label class="opt"><input type="radio" name="q179" value="D"><span class="opt-l">D</span>61%</label>
+  </div>
+</div><div class="qi" id="qi-180">
+  <div class="qnum">Question 180</div>
+  <div class="qtxt">What does the report recommend regarding support availability?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q180" value="A"><span class="opt-l">A</span>Reducing support costs by moving to a chatbot only</label>
+    <label class="opt"><input type="radio" name="q180" value="B"><span class="opt-l">B</span>Outsourcing support to a third-party call centre</label>
+    <label class="opt"><input type="radio" name="q180" value="C"><span class="opt-l">C</span>Extending availability to evenings and Saturday mornings</label>
+    <label class="opt"><input type="radio" name="q180" value="D"><span class="opt-l">D</span>Closing support on Fridays to allow for staff training</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 181–185 — Newsletter Article + Letter</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — Company Newsletter Article</h3>
+<p class="meta">Bridgeton Holdings — Staff Newsletter | February Issue</p>
+<p><strong>New Community Partnership Initiative Launches</strong></p>
+<p>Bridgeton Holdings is pleased to announce the launch of its Community Partnership Initiative, through which the company will donate 1% of annual pre-tax profits to locally operating charities and social enterprises. This year, the initiative has a total fund of £240,000.</p>
+<p>Organisations wishing to apply must be registered charities or Community Interest Companies based within 30 miles of a Bridgeton Holdings office. Applications can be for between £5,000 and £50,000. The deadline for the current funding round is 31 March. An independent panel of community representatives will assess applications and make recommendations to the board.</p>
+<p>Staff members are encouraged to nominate local organisations they believe could benefit. Nomination forms are available from the Corporate Affairs team.</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 2 — Application Letter</h3>
+<p><strong>To:</strong> Community Partnership Initiative<br>
+<strong>From:</strong> Rowan Vale Food Bank, 14 Station Road, Rowan Vale<br>
+<strong>Date:</strong> 22 March</p>
+<p>Dear Panel,</p>
+<p>We are writing to apply for a grant of £35,000 from the Bridgeton Holdings Community Partnership Initiative to fund the expansion of our mobile food distribution service.</p>
+<p>Rowan Vale Food Bank was established in 2016 and is a registered charity (No. 1184723). We currently distribute approximately 1,400 food parcels per month to households experiencing food insecurity across the Rowan Vale district. The nearest Bridgeton Holdings office is 8 miles from our base.</p>
+<p>The requested funding would allow us to purchase a second refrigerated vehicle and extend our delivery coverage to three additional rural communities currently beyond our reach. We have attached our most recent annual accounts and a detailed project plan.</p>
+<p>Yours sincerely,<br>Miriam Church, Director</p></div>
+    <div class="q-pane"><div class="qi" id="qi-181">
+  <div class="qnum">Question 181</div>
+  <div class="qtxt">What percentage of annual profits does Bridgeton Holdings donate through the initiative?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q181" value="A"><span class="opt-l">A</span>0.5%</label>
+    <label class="opt"><input type="radio" name="q181" value="B"><span class="opt-l">B</span>1%</label>
+    <label class="opt"><input type="radio" name="q181" value="C"><span class="opt-l">C</span>2%</label>
+    <label class="opt"><input type="radio" name="q181" value="D"><span class="opt-l">D</span>5%</label>
+  </div>
+</div><div class="qi" id="qi-182">
+  <div class="qnum">Question 182</div>
+  <div class="qtxt">What is the maximum grant that a single organisation can apply for?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q182" value="A"><span class="opt-l">A</span>£5,000</label>
+    <label class="opt"><input type="radio" name="q182" value="B"><span class="opt-l">B</span>£35,000</label>
+    <label class="opt"><input type="radio" name="q182" value="C"><span class="opt-l">C</span>£50,000</label>
+    <label class="opt"><input type="radio" name="q182" value="D"><span class="opt-l">D</span>£240,000</label>
+  </div>
+</div><div class="qi" id="qi-183">
+  <div class="qnum">Question 183</div>
+  <div class="qtxt">Does Rowan Vale Food Bank meet the geographic eligibility requirement?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q183" value="A"><span class="opt-l">A</span>No — it is more than 30 miles from a Bridgeton Holdings office</label>
+    <label class="opt"><input type="radio" name="q183" value="B"><span class="opt-l">B</span>Yes — it is 8 miles from the nearest office</label>
+    <label class="opt"><input type="radio" name="q183" value="C"><span class="opt-l">C</span>No — it is not a registered charity</label>
+    <label class="opt"><input type="radio" name="q183" value="D"><span class="opt-l">D</span>Yes — but only because it has a Bridgeton Holdings employee on its board</label>
+  </div>
+</div><div class="qi" id="qi-184">
+  <div class="qnum">Question 184</div>
+  <div class="qtxt">What will the grant be used for, according to the application letter?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q184" value="A"><span class="opt-l">A</span>Building a permanent food bank premises</label>
+    <label class="opt"><input type="radio" name="q184" value="B"><span class="opt-l">B</span>Funding staff salaries for one year</label>
+    <label class="opt"><input type="radio" name="q184" value="C"><span class="opt-l">C</span>Purchasing a second vehicle and extending delivery coverage</label>
+    <label class="opt"><input type="radio" name="q184" value="D"><span class="opt-l">D</span>Installing refrigeration equipment in the existing premises</label>
+  </div>
+</div><div class="qi" id="qi-185">
+  <div class="qnum">Question 185</div>
+  <div class="qtxt">Who will decide which organisations receive funding?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q185" value="A"><span class="opt-l">A</span>The Bridgeton Holdings board directly</label>
+    <label class="opt"><input type="radio" name="q185" value="B"><span class="opt-l">B</span>An independent panel of community representatives</label>
+    <label class="opt"><input type="radio" name="q185" value="C"><span class="opt-l">C</span>A committee of Bridgeton Holdings staff volunteers</label>
+    <label class="opt"><input type="radio" name="q185" value="D"><span class="opt-l">D</span>The Corporate Affairs team</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 186–190 — Training Programme</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>CARRINGTON BANK — NEW GRADUATE PROGRAMME: INDUCTION WEEK SCHEDULE</h3>
+<p class="meta">Week commencing Monday 2 September</p>
+<table>
+  <tr><th>Day</th><th>Time</th><th>Session</th><th>Location</th><th>Led by</th></tr>
+  <tr><td>Mon</td><td>09:00–10:30</td><td>Welcome &amp; Programme Overview</td><td>Executive Boardroom</td><td>CEO</td></tr>
+  <tr><td>Mon</td><td>11:00–12:30</td><td>Regulatory &amp; Compliance Briefing</td><td>Training Suite A</td><td>Chief Compliance Officer</td></tr>
+  <tr><td>Mon</td><td>14:00–16:00</td><td>IT Systems Orientation</td><td>Computer Lab</td><td>IT Department</td></tr>
+  <tr><td>Tue</td><td>09:00–17:00</td><td>Divisional Rotations (Finance, Risk, Ops)</td><td>Various</td><td>Division Heads</td></tr>
+  <tr><td>Wed</td><td>09:00–12:00</td><td>Financial Markets Fundamentals</td><td>Training Suite B</td><td>Chief Economist</td></tr>
+  <tr><td>Wed</td><td>13:30–17:00</td><td>Client Engagement Standards</td><td>Training Suite A</td><td>Head of Client Relations</td></tr>
+  <tr><td>Thu</td><td>09:00–11:00</td><td>Risk Management Principles</td><td>Training Suite B</td><td>Chief Risk Officer</td></tr>
+  <tr><td>Thu</td><td>14:00–17:00</td><td>Presentation Skills Workshop</td><td>Training Suite A</td><td>External coach</td></tr>
+  <tr><td>Fri</td><td>09:30–11:00</td><td>Graduates Q&amp;A with Senior Leadership</td><td>Executive Boardroom</td><td>Senior Leadership Team</td></tr>
+  <tr><td>Fri</td><td>13:00–15:00</td><td>Team-Building Activity</td><td>Off-site</td><td>External provider</td></tr>
+</table></div>
+    <div class="q-pane"><div class="qi" id="qi-186">
+  <div class="qnum">Question 186</div>
+  <div class="qtxt">Who leads the welcome session on Monday morning?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q186" value="A"><span class="opt-l">A</span>The Chief Compliance Officer</label>
+    <label class="opt"><input type="radio" name="q186" value="B"><span class="opt-l">B</span>The Head of Client Relations</label>
+    <label class="opt"><input type="radio" name="q186" value="C"><span class="opt-l">C</span>The CEO</label>
+    <label class="opt"><input type="radio" name="q186" value="D"><span class="opt-l">D</span>The Chief Economist</label>
+  </div>
+</div><div class="qi" id="qi-187">
+  <div class="qnum">Question 187</div>
+  <div class="qtxt">Which session takes place over an entire working day?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q187" value="A"><span class="opt-l">A</span>Financial Markets Fundamentals</label>
+    <label class="opt"><input type="radio" name="q187" value="B"><span class="opt-l">B</span>Divisional Rotations</label>
+    <label class="opt"><input type="radio" name="q187" value="C"><span class="opt-l">C</span>Risk Management Principles</label>
+    <label class="opt"><input type="radio" name="q187" value="D"><span class="opt-l">D</span>Client Engagement Standards</label>
+  </div>
+</div><div class="qi" id="qi-188">
+  <div class="qnum">Question 188</div>
+  <div class="qtxt">Who leads the Presentation Skills Workshop?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q188" value="A"><span class="opt-l">A</span>The Chief Risk Officer</label>
+    <label class="opt"><input type="radio" name="q188" value="B"><span class="opt-l">B</span>The Head of Client Relations</label>
+    <label class="opt"><input type="radio" name="q188" value="C"><span class="opt-l">C</span>An internal HR trainer</label>
+    <label class="opt"><input type="radio" name="q188" value="D"><span class="opt-l">D</span>An external coach</label>
+  </div>
+</div><div class="qi" id="qi-189">
+  <div class="qnum">Question 189</div>
+  <div class="qtxt">Where does the team-building activity take place?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q189" value="A"><span class="opt-l">A</span>Training Suite A</label>
+    <label class="opt"><input type="radio" name="q189" value="B"><span class="opt-l">B</span>The Executive Boardroom</label>
+    <label class="opt"><input type="radio" name="q189" value="C"><span class="opt-l">C</span>Off-site</label>
+    <label class="opt"><input type="radio" name="q189" value="D"><span class="opt-l">D</span>The Computer Lab</label>
+  </div>
+</div><div class="qi" id="qi-190">
+  <div class="qnum">Question 190</div>
+  <div class="qtxt">Which two sessions are held in the Executive Boardroom during the week?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q190" value="A"><span class="opt-l">A</span>Welcome and Financial Markets Fundamentals</label>
+    <label class="opt"><input type="radio" name="q190" value="B"><span class="opt-l">B</span>Welcome and Graduates Q&A with Senior Leadership</label>
+    <label class="opt"><input type="radio" name="q190" value="C"><span class="opt-l">C</span>Regulatory Briefing and Risk Management Principles</label>
+    <label class="opt"><input type="radio" name="q190" value="D"><span class="opt-l">D</span>IT Orientation and Client Engagement Standards</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 191–195 — Article + Rate Card + E-mail</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — Industry Article</h3>
+<p class="meta">Freelance Creative Network — Monthly Digest, April</p>
+<p><strong>Day Rates Climb as Demand for Independent Consultants Rises</strong></p>
+<p>The market for independent creative consultants — including copywriters, brand strategists, and UX designers — continues to tighten, with day rates rising by an average of 12% over the past 12 months according to the latest Freelance Benchmark Survey. The increase reflects both strong post-pandemic demand from businesses that reduced in-house capacity and a shrinking pool of highly experienced independents willing to take on project work.</p>
+<p>Senior copywriters with more than eight years' experience are now commanding day rates between £550 and £750 in London, with strategists and UX specialists at similar or higher levels. Mid-level practitioners typically fall in the £350–£500 range. Rate premiums of 20–30% apply for work requiring specialist sector knowledge, such as financial services, pharmaceutical, or legal copywriting.</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 2 — Freelance Rate Card</h3>
+<p class="meta">Maya Reeves — Creative Consultant | Rates effective April 2025</p>
+<table>
+  <tr><th>Service</th><th>Day rate</th><th>Half-day rate</th><th>Notes</th></tr>
+  <tr><td>Copywriting (general)</td><td>£620</td><td>£340</td><td>Includes up to 2 revisions</td></tr>
+  <tr><td>Brand strategy</td><td>£680</td><td>£375</td><td>Min. 2-day engagement</td></tr>
+  <tr><td>Content strategy</td><td>£650</td><td>£360</td><td>—</td></tr>
+  <tr><td>Financial copywriting</td><td>£750</td><td>£415</td><td>Sector premium applied</td></tr>
+  <tr><td>Workshop facilitation</td><td>£580</td><td>£320</td><td>Travel expenses extra</td></tr>
+</table>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 3 — E-mail</h3>
+<p><strong>To:</strong> Maya Reeves &lt;maya@mayareevescreative.com&gt;<br>
+<strong>From:</strong> James Holloway &lt;j.holloway@archfieldgroup.com&gt;<br>
+<strong>Subject:</strong> Project enquiry — annual report copy<br>
+<strong>Date:</strong> 7 April</p>
+<p>Hi Maya,</p>
+<p>I came across your portfolio via the Freelance Creative Network and I think your background is a strong match for a project we have coming up. We are an investment management firm and need an experienced copywriter to draft the narrative sections of our annual report — CEO statement, investment review, and outlook sections — approximately 4,000 words in total.</p>
+<p>The timeline is tight: we need a first draft by 25 April and final copy by 2 May. Would you be available for approximately three days' work? Please also let me know your day rate for this type of project.</p>
+<p>Best regards,<br>James Holloway, Head of Communications</p></div>
+    <div class="q-pane"><div class="qi" id="qi-191">
+  <div class="qnum">Question 191</div>
+  <div class="qtxt">According to the article, what has driven the rise in day rates for independent consultants?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q191" value="A"><span class="opt-l">A</span>A government scheme supporting freelance workers</label>
+    <label class="opt"><input type="radio" name="q191" value="B"><span class="opt-l">B</span>Strong post-pandemic demand and a shrinking pool of experienced independents</label>
+    <label class="opt"><input type="radio" name="q191" value="C"><span class="opt-l">C</span>New minimum rate legislation for freelancers</label>
+    <label class="opt"><input type="radio" name="q191" value="D"><span class="opt-l">D</span>An increase in the number of freelance consultants entering the market</label>
+  </div>
+</div><div class="qi" id="qi-192">
+  <div class="qnum">Question 192</div>
+  <div class="qtxt">Which of Maya Reeves's services has the highest day rate?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q192" value="A"><span class="opt-l">A</span>Copywriting (general)</label>
+    <label class="opt"><input type="radio" name="q192" value="B"><span class="opt-l">B</span>Brand strategy</label>
+    <label class="opt"><input type="radio" name="q192" value="C"><span class="opt-l">C</span>Content strategy</label>
+    <label class="opt"><input type="radio" name="q192" value="D"><span class="opt-l">D</span>Financial copywriting</label>
+  </div>
+</div><div class="qi" id="qi-193">
+  <div class="qnum">Question 193</div>
+  <div class="qtxt">What rate would James Holloway's project most likely attract from Maya Reeves?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q193" value="A"><span class="opt-l">A</span>£620 per day</label>
+    <label class="opt"><input type="radio" name="q193" value="B"><span class="opt-l">B</span>£650 per day</label>
+    <label class="opt"><input type="radio" name="q193" value="C"><span class="opt-l">C</span>£680 per day</label>
+    <label class="opt"><input type="radio" name="q193" value="D"><span class="opt-l">D</span>£750 per day</label>
+  </div>
+</div><div class="qi" id="qi-194">
+  <div class="qnum">Question 194</div>
+  <div class="qtxt">What does James Holloway mean when he says the timeline is tight?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q194" value="A"><span class="opt-l">A</span>The project has a fixed budget that cannot change</label>
+    <label class="opt"><input type="radio" name="q194" value="B"><span class="opt-l">B</span>The first draft and final copy are needed within a short period</label>
+    <label class="opt"><input type="radio" name="q194" value="C"><span class="opt-l">C</span>The project requires more than three days of work</label>
+    <label class="opt"><input type="radio" name="q194" value="D"><span class="opt-l">D</span>The client cannot change the word count</label>
+  </div>
+</div><div class="qi" id="qi-195">
+  <div class="qnum">Question 195</div>
+  <div class="qtxt">What information does James Holloway ask Maya to provide?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q195" value="A"><span class="opt-l">A</span>Her portfolio and references</label>
+    <label class="opt"><input type="radio" name="q195" value="B"><span class="opt-l">B</span>Her availability and day rate for this type of project</label>
+    <label class="opt"><input type="radio" name="q195" value="C"><span class="opt-l">C</span>Her terms and conditions</label>
+    <label class="opt"><input type="radio" name="q195" value="D"><span class="opt-l">D</span>Her earliest available start date only</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 196–200 — Notice + Booking Table + E-mail</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — Staff Notice</h3>
+<p class="meta">Thornwick Publishing House — Internal Notice | Date: 4 October</p>
+<p><strong>SUBJECT: NEW BOOKING SYSTEM FOR MEETING ROOMS AND QUIET ZONES</strong></p>
+<p>From Monday 14 October, all meeting room and quiet zone bookings must be made through the new online booking system, accessible via the staff intranet. The previous paper-based sign-up sheet system will be discontinued.</p>
+<p>Rooms may be booked up to 10 business days in advance and for a maximum of three hours per session. Back-to-back bookings by the same team are not permitted without prior approval from the Facilities Manager. All unused bookings must be cancelled at least one hour before the start time to release the room for other users.</p>
+<p>A summary of available rooms and their capacities is shown below.</p>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 2 — Room Availability Summary</h3>
+<p class="meta">Thornwick Publishing House — Rooms available for booking</p>
+<table>
+  <tr><th>Room</th><th>Type</th><th>Capacity</th><th>AV equipment</th><th>Floor</th></tr>
+  <tr><td>Aldgate Suite</td><td>Meeting room</td><td>12</td><td>Yes</td><td>3</td></tr>
+  <tr><td>Bermondsey Suite</td><td>Meeting room</td><td>8</td><td>Yes</td><td>2</td></tr>
+  <tr><td>Clerkenwell Room</td><td>Meeting room</td><td>4</td><td>No</td><td>1</td></tr>
+  <tr><td>Quiet Zone A</td><td>Quiet zone</td><td>6</td><td>No</td><td>4</td></tr>
+  <tr><td>Quiet Zone B</td><td>Quiet zone</td><td>6</td><td>No</td><td>4</td></tr>
+</table>
+<hr style="margin:12px 0;border-color:var(--border)">
+<h3>Document 3 — E-mail</h3>
+<p><strong>To:</strong> Facilities Manager &lt;facilities@thornwickpublishing.com&gt;<br>
+<strong>From:</strong> Carla Vance &lt;c.vance@thornwickpublishing.com&gt;<br>
+<strong>Subject:</strong> Meeting room request — external client visit, 22 October<br>
+<strong>Date:</strong> 10 October</p>
+<p>Hi,</p>
+<p>I need to book a meeting room for an external client visit on Tuesday 22 October from 10:00 A.M. to 1:00 P.M. There will be seven people in total (four from our side and three from the client). We will need to present slides during the meeting.</p>
+<p>I tried to book the Bermondsey Suite through the new system, but it appears to already be taken on that date. The only available option in the system was the Clerkenwell Room, which is too small and has no AV equipment.</p>
+<p>Could you check whether the Aldgate Suite can be made available? I am aware that my team already has the Bermondsey Suite booked for the afternoon session, so I understand that approval may be needed.</p>
+<p>Thank you,<br>Carla Vance</p></div>
+    <div class="q-pane"><div class="qi" id="qi-196">
+  <div class="qnum">Question 196</div>
+  <div class="qtxt">What change to room booking does the notice announce?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q196" value="A"><span class="opt-l">A</span>Rooms may now be booked up to 30 days in advance</label>
+    <label class="opt"><input type="radio" name="q196" value="B"><span class="opt-l">B</span>A new online booking system will replace the paper sign-up system</label>
+    <label class="opt"><input type="radio" name="q196" value="C"><span class="opt-l">C</span>The number of available meeting rooms will be increased</label>
+    <label class="opt"><input type="radio" name="q196" value="D"><span class="opt-l">D</span>All bookings must now be approved by a line manager</label>
+  </div>
+</div><div class="qi" id="qi-197">
+  <div class="qnum">Question 197</div>
+  <div class="qtxt">Why does Carla Vance contact the Facilities Manager rather than simply booking a room herself?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q197" value="A"><span class="opt-l">A</span>The new booking system is not yet live</label>
+    <label class="opt"><input type="radio" name="q197" value="B"><span class="opt-l">B</span>She needs a room larger than the system allows</label>
+    <label class="opt"><input type="radio" name="q197" value="C"><span class="opt-l">C</span>The room she needs is unavailable through the system</label>
+    <label class="opt"><input type="radio" name="q197" value="D"><span class="opt-l">D</span>She does not have access to the staff intranet</label>
+  </div>
+</div><div class="qi" id="qi-198">
+  <div class="qnum">Question 198</div>
+  <div class="qtxt">Why is the Clerkenwell Room unsuitable for Carla's meeting?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q198" value="A"><span class="opt-l">A</span>It is on the wrong floor</label>
+    <label class="opt"><input type="radio" name="q198" value="B"><span class="opt-l">B</span>It is too small and has no AV equipment</label>
+    <label class="opt"><input type="radio" name="q198" value="C"><span class="opt-l">C</span>It is already booked for 22 October</label>
+    <label class="opt"><input type="radio" name="q198" value="D"><span class="opt-l">D</span>It does not have enough seating for seven people</label>
+  </div>
+</div><div class="qi" id="qi-199">
+  <div class="qnum">Question 199</div>
+  <div class="qtxt">Why might Carla's request for the Aldgate Suite require special approval?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q199" value="A"><span class="opt-l">A</span>The Aldgate Suite is reserved for senior management use only</label>
+    <label class="opt"><input type="radio" name="q199" value="B"><span class="opt-l">B</span>Her team already has another booking on the same day, which may constitute a back-to-back booking</label>
+    <label class="opt"><input type="radio" name="q199" value="C"><span class="opt-l">C</span>The client visit exceeds the maximum three-hour booking limit</label>
+    <label class="opt"><input type="radio" name="q199" value="D"><span class="opt-l">D</span>The Aldgate Suite is undergoing maintenance on 22 October</label>
+  </div>
+</div><div class="qi" id="qi-200">
+  <div class="qnum">Question 200</div>
+  <div class="qtxt">Which room would best meet Carla's requirements if it were available?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q200" value="A"><span class="opt-l">A</span>Clerkenwell Room</label>
+    <label class="opt"><input type="radio" name="q200" value="B"><span class="opt-l">B</span>Quiet Zone A</label>
+    <label class="opt"><input type="radio" name="q200" value="C"><span class="opt-l">C</span>Bermondsey Suite</label>
+    <label class="opt"><input type="radio" name="q200" value="D"><span class="opt-l">D</span>Aldgate Suite</label>
+  </div>
+</div></div>
+  </div>
+</div>
+  <div id="sub-sec">
+    <span id="unans">54 questions sans réponse</span>
+    <p>Répondez à toutes les questions pour activer la soumission.</p>
+    <button id="sub-btn" disabled onclick="submitTest()">Terminer &amp; voir la correction</button>
+  </div>
+  <div id="corr-sec">
+    <div class="score-banner"><h2>Résultats — Marc VASSEUR — Polytech Lille</h2><div class="big-score" id="sc-disp">--/54</div><div class="score-sub" id="sc-pct"></div><div class="toeic-est" id="sc-est"></div></div>
+    <div id="corr-content"></div>
+  </div>
+</div>
+<script>
+const KEYS={"q147": "C", "q148": "C", "q149": "C", "q150": "C", "q151": "B", "q152": "B", "q153": "B", "q154": "C", "q155": "B", "q156": "C", "q157": "B", "q158": "B", "q159": "C", "q160": "B", "q161": "C", "q162": "B", "q163": "B", "q164": "C", "q165": "B", "q166": "C", "q167": "B", "q168": "B", "q169": "B", "q170": "B", "q171": "C", "q172": "B", "q173": "C", "q174": "D", "q175": "C", "q176": "B", "q177": "B", "q178": "C", "q179": "C", "q180": "C", "q181": "B", "q182": "C", "q183": "B", "q184": "C", "q185": "B", "q186": "C", "q187": "B", "q188": "D", "q189": "C", "q190": "B", "q191": "B", "q192": "D", "q193": "D", "q194": "B", "q195": "B", "q196": "B", "q197": "C", "q198": "B", "q199": "B", "q200": "D"};
+const EXPL={
+  "q147":{q:"Which facilitator is running more than one workshop?",correct:"C",optLabels:{"A": "R. Owusu", "B": "L. Marsh", "C": "D. Pearce", "D": "External provider"},fr:"Le tableau montre D. Pearce animant deux ateliers : <em>Differentiated Instruction</em> et <em>Using AI in the Classroom</em> → (C). Les autres animateurs n'apparaissent qu'une fois.",vocab:"<span>facilitator</span> = animateur, formateur | <span>CPD</span> = Continuing Professional Development (formation continue) | <span>workshop</span> = atelier"},
+  "q148":{q:"Which workshops still have places available?",correct:"C",optLabels:{"A": "Data-Driven Feedback and Using AI in the Classroom", "B": "Differentiated Instruction and Behaviour Management Strategies", "C": "Data-Driven Feedback, Using AI in the Classroom, and Wellbeing & Staff Resilience", "D": "All five workshops"},fr:"Statut Open : Data-Driven Feedback (14/20), Using AI in the Classroom (18/20), Wellbeing & Staff Resilience (22/30) → trois ateliers (C). Differentiated Instruction et Behaviour Management Strategies sont complets (Full).",vocab:"<span>places available</span> = places disponibles | <span>full</span> = complet | <span>open</span> = ouvert, des places restantes"},
+  "q149":{q:"Why is the product demo being rescheduled?",correct:"C",optLabels:{"A": "Ray Sato is unavailable on Tuesday", "B": "The demo room is already booked", "C": "The client has a conflict on the original date", "D": "The product is not yet ready for demonstration"},fr:"<em>the client — they want to move next Tuesday's product demo... Something came up on their end</em> → conflit du côté client (C). Ray est disponible mercredi. Le problème de salle de démo est une préoccupation séparée soulevée par Ray.",vocab:"<span>reschedule</span> = reporter, reprogrammer | <span>something came up</span> = un imprévu est survenu | <span>conflict</span> = conflit, empêchement"},
+  "q150":{q:"What will Tessa Bloom do before confirming the new date with the client?",correct:"C",optLabels:{"A": "Check Ray's availability for Wednesday", "B": "Book the client's preferred venue", "C": "Verify whether the demo room is available on Wednesday", "D": "Contact the facilities team about the board meeting"},fr:"<em>I'll confirm with the client once I've checked the room</em> → vérifier la disponibilité de la salle d'abord (C). Ray est déjà confirmé pour le mercredi. Il n'y a pas de lieu externe à réserver.",vocab:"<span>verify</span> = vérifier | <span>demo room</span> = salle de démonstration | <span>clash</span> = conflit de planning"},
+  "q151":{q:"Why will the power be cut on 8 March?",correct:"B",optLabels:{"A": "A fault has been detected in the emergency lighting system", "B": "Upgrades are being made to the main electrical distribution board", "C": "An external power line is being replaced", "D": "The building is being connected to a new energy provider"},fr:"<em>necessary to allow contractors to upgrade the main distribution board serving the south wing</em> → mise à niveau du tableau de distribution principal (B). L'éclairage de secours reste opérationnel. Aucun câble externe ni nouveau fournisseur d'énergie n'est mentionné.",vocab:"<span>power outage</span> = coupure de courant | <span>distribution board</span> = tableau de distribution électrique | <span>south wing</span> = aile sud"},
+  "q152":{q:"What will tenants affected by the outage receive?",correct:"B",optLabels:{"A": "A full refund of one month's rent", "B": "A £50 credit applied to their next service charge invoice", "C": "Priority access to the building's backup generator", "D": "Free use of a temporary office space"},fr:"<em>a £50 service charge credit to each affected tenancy... applied automatically to your next quarterly invoice</em> → crédit de £50 sur la prochaine facture de charges (B). Aucun remboursement de loyer, accès prioritaire au groupe électrogène ni bureau temporaire gratuit n'est proposé.",vocab:"<span>service charge credit</span> = crédit sur les charges de service | <span>quarterly invoice</span> = facture trimestrielle | <span>tenancy</span> = location, locataire"},
+  "q153":{q:"What does Oliver K. say is a strength of Beaumont Conference Centre?",correct:"B",optLabels:{"A": "The size of the car park", "B": "The auditorium and AV setup", "C": "The proximity to public transport", "D": "The range of breakout rooms available"},fr:"<em>The main auditorium accommodates 300 comfortably, and the AV setup... is among the best I have encountered at this price point</em> → l'auditorium et la configuration AV (B). Le parking est précisément le point faible. Les transports en commun et les salles de sous-groupe ne sont pas mentionnés.",vocab:"<span>auditorium</span> = auditorium, grande salle de conférence | <span>AV setup</span> = configuration audiovisuelle | <span>live-streaming capability</span> = capacité de diffusion en direct"},
+  "q154":{q:"What improvement does the reviewer suggest?",correct:"C",optLabels:{"A": "Upgrading the catering service", "B": "Reducing the room hire price", "C": "Arranging additional parking for large events", "D": "Expanding the main auditorium"},fr:"<em>worth considering a parking arrangement with the adjacent retail park for large events</em> → trouver une solution de stationnement supplémentaire (C). La restauration est satisfaisante. Le prix et la taille de l'auditorium ne sont pas critiqués.",vocab:"<span>parking arrangement</span> = accord de stationnement | <span>adjacent</span> = adjacent, attenant | <span>delegate</span> = participant, délégué"},
+  "q155":{q:"What is the Innovation Challenge designed to do?",correct:"B",optLabels:{"A": "Replace the existing product development process", "B": "Surface and develop new ideas from engineering staff", "C": "Identify staff members for promotion", "D": "Reduce the company's operating costs"},fr:"<em>designed to surface new ideas from within our engineering teams and develop them into viable product or process improvements</em> → faire émerger et développer des idées des équipes (B). Aucun remplacement de processus, identification de talents ni réduction de coûts n'est l'objet déclaré.",vocab:"<span>surface</span> = faire émerger, mettre au jour | <span>viable</span> = viable, réalisable | <span>Innovation Challenge</span> = défi innovation interne"},
+  "q156":{q:"What is the maximum length allowed for a proposal submission?",correct:"C",optLabels:{"A": "Two pages", "B": "Three pages", "C": "Four pages", "D": "Six pages"},fr:"<em>Submissions should be no longer than four pages</em> → quatre pages maximum (C).",vocab:"<span>proposal</span> = proposition, dossier de candidature | <span>submission</span> = soumission, dépôt | <span>no longer than</span> = ne dépassant pas"},
+  "q157":{q:"What will the top three proposals receive?",correct:"B",optLabels:{"A": "A trophy and a certificate", "B": "£10,000 of development funding each", "C": "An invitation to present at an international conference", "D": "Automatic promotion for the team members"},fr:"<em>The top three proposals will receive development funding of £10,000 each</em> → £10 000 chacune (B). L'invitation à présenter au summit est réservée à la seule équipe gagnante (1ère place), pas aux trois premières.",vocab:"<span>development funding</span> = financement de développement | <span>shortlist</span> = liste restreinte | <span>Innovation Review Panel</span> = comité de révision des innovations"},
+  "q158":{q:"What is described as optional but encouraged?",correct:"B",optLabels:{"A": "Submitting a proposal", "B": "Attending the proposal-writing workshop", "C": "Joining a team of up to four people", "D": "Presenting at the June summit"},fr:"<em>Attendance is optional but strongly encouraged</em> → assister à l'atelier de rédaction de proposition (B). La soumission d'un dossier est volontaire mais c'est l'objet du programme. La constitution d'une équipe est une option, pas un atout présenté avec cette formulation.",vocab:"<span>optional</span> = facultatif | <span>strongly encouraged</span> = vivement encouragé | <span>drop-in workshop</span> = atelier de soutien"},
+  "q159":{q:"What change in the global container shipping industry does the article describe?",correct:"C",optLabels:{"A": "Freight rates have risen to new records", "B": "Shipping capacity has decreased significantly", "C": "Conditions have normalised after a period of disruption", "D": "New regulations have reduced the number of container ships"},fr:"<em>the global container shipping industry is entering a period of relative normalisation</em> → normalisation après une période de perturbation (C). Les tarifs ont au contraire baissé. La capacité a augmenté avec les nouvelles commandes. Aucune réglementation réduisant le nombre de navires n'est mentionnée.",vocab:"<span>freight rates</span> = taux de fret | <span>normalisation</span> = normalisation | <span>capacity shortfalls</span> = manques de capacité"},
+  "q160":{q:"What has contributed to lower freight rates, according to the article?",correct:"B",optLabels:{"A": "Reduced demand from Asian manufacturers", "B": "New vessel capacity entering service and improved port efficiency", "C": "A government subsidy scheme for shipping companies", "D": "A reduction in the price of marine fuel"},fr:"<em>a significant increase in vessel capacity as a wave of new container ships... entered service... gradual improvements in port throughput efficiency</em> → nouvelles capacités de navires + efficacité portuaire améliorée (B). La demande asiatique, les subventions et le prix du carburant ne sont pas mentionnés.",vocab:"<span>vessel capacity</span> = capacité des navires | <span>port throughput efficiency</span> = efficacité du débit portuaire | <span>long-run averages</span> = moyennes à long terme"},
+  "q161":{q:"What do analysts recommend businesses do despite the current stability?",correct:"C",optLabels:{"A": "Return to single-supplier dependency to reduce costs", "B": "Reduce their shipping volumes", "C": "Maintain diversified sourcing strategies", "D": "Invest in their own logistics infrastructure"},fr:"<em>supply chain teams are advised to maintain diversified sourcing strategies rather than returning to single-supplier dependency</em> → maintenir des stratégies d'approvisionnement diversifiées (C). Les analystes conseillent l'inverse de la dépendance à un seul fournisseur.",vocab:"<span>diversified sourcing</span> = approvisionnement diversifié | <span>geopolitical tensions</span> = tensions géopolitiques | <span>single-supplier dependency</span> = dépendance à un seul fournisseur"},
+  "q162":{q:"What is the last outstanding item preventing the website build from starting?",correct:"B",optLabels:{"A": "Client approval of the design files", "B": "Product photography from the client", "C": "Payment for the development phase", "D": "A revision to the website content"},fr:"<em>The only outstanding item is the product photography — we are still waiting on eight images from the client</em> → la photographie produit (B). Les fichiers de design sont approuvés. Le contenu est complet. Le paiement n'est pas mentionné comme bloquant.",vocab:"<span>outstanding item</span> = élément en attente | <span>product photography</span> = photographie de produit | <span>development team</span> = équipe de développement"},
+  "q163":{q:"Why were the product photos not delivered on the original schedule?",correct:"B",optLabels:{"A": "The client changed the brief", "B": "The photographer became ill", "C": "The images were lost in transit", "D": "The client's marketing team was on leave"},fr:"<em>the photographer was originally scheduled for last Friday but had to reschedule due to illness</em> → maladie du photographe (B). Aucun changement de brief, perte de fichiers ni congé de l'équipe marketing n'est mentionné.",vocab:"<span>reschedule</span> = reporter | <span>reshoot</span> = nouvelle séance photo | <span>due to illness</span> = en raison d'une maladie"},
+  "q164":{q:"What does Hannah suggest at the end of her e-mail?",correct:"C",optLabels:{"A": "Postponing the launch date to allow more time", "B": "Hiring an alternative photographer", "C": "Informing the development team of the situation", "D": "Requesting a penalty payment from the client"},fr:"<em>Should we communicate the situation to the development team so they can plan around it?</em> → informer l'équipe de développement (C). Aucun report de lancement, photographe alternatif ni pénalité contractuelle n'est suggéré.",vocab:"<span>communicate the situation</span> = informer de la situation | <span>plan around it</span> = s'organiser en conséquence | <span>flag</span> = signaler"},
+  "q165":{q:"What type of organisations does Skybridge Executive Search work with?",correct:"B",optLabels:{"A": "Only publicly listed companies", "B": "Listed companies, private equity-backed businesses, and public sector organisations", "C": "Exclusively start-up and early-stage businesses", "D": "Only financial services firms"},fr:"<em>partners with listed companies, private equity-backed businesses, and public sector organisations</em> → (B). Le cabinet travaille avec trois types d'organisations, pas uniquement les sociétés cotées.",vocab:"<span>private equity-backed</span> = soutenu par du capital-investissement | <span>C-suite</span> = niveau direction générale | <span>retained basis</span> = mandat exclusif"},
+  "q166":{q:"What guarantee does Skybridge offer on permanent placements?",correct:"C",optLabels:{"A": "A six-week delivery guarantee", "B": "A fee refund if the candidate leaves within one year", "C": "A 12-month replacement guarantee", "D": "A two-year performance review"},fr:"<em>we offer a 12-month replacement guarantee on all permanent placements</em> → garantie de remplacement de 12 mois (C). Les six semaines concernent le délai de présentation d'une liste restreinte. Aucun remboursement ni revue biennale n'est mentionné.",vocab:"<span>replacement guarantee</span> = garantie de remplacement | <span>permanent placements</span> = recrutements permanents | <span>time-to-shortlist</span> = délai de présentation de candidats"},
+  "q167":{q:"What does working on an exclusive retained basis mean for clients?",correct:"B",optLabels:{"A": "The client pays a success fee only if a hire is made", "B": "Skybridge works on the assignment without competition from other agencies", "C": "The client must use Skybridge for all future hires", "D": "The search is limited to candidates already in the Skybridge database"},fr:"<em>exclusive retained basis, ensuring dedicated resource and full accountability at every stage</em> → Skybridge travaille sur le mandat sans concurrence d'autres agences (B). Un mandat exclusif est différent d'un mandat contingent (success fee uniquement). Il ne lie pas le client pour les futurs recrutements.",vocab:"<span>retained basis</span> = mandat retenu (avec acompte) | <span>exclusive</span> = exclusif | <span>accountability</span> = responsabilité, imputabilité"},
+  "q168":{q:"How has the Chief Sustainability Officer role changed from its origins?",correct:"B",optLabels:{"A": "It is now mainly focused on public communications", "B": "It is increasingly held by people with operational or financial backgrounds", "C": "It has been replaced by a committee rather than a single executive", "D": "It is only found in companies with more than 500 employees"},fr:"<em>companies are appointing candidates with operational or financial backgrounds who can integrate sustainability targets directly into business planning</em> → profils opérationnels ou financiers (B). Le rôle de communication est décrit comme son origine, pas son évolution. Aucun remplacement par un comité ni seuil d'effectif n'est mentionné.",vocab:"<span>CSO</span> = Chief Sustainability Officer | <span>capital allocation</span> = allocation du capital | <span>boardroom priority</span> = priorité stratégique au niveau du conseil"},
+  "q169":{q:"What has driven growth in the number of CSO appointments?",correct:"B",optLabels:{"A": "Voluntary corporate initiatives", "B": "Regulatory requirements, investor pressure, and recognition of sustainability as financial risk", "C": "Pressure from trade unions", "D": "A reduction in the cost of sustainability reporting"},fr:"<em>driven by a convergence of regulatory pressure... investor expectations, and the growing recognition that sustainability risks are financial risks</em> → (B). Les syndicats et la réduction des coûts de reporting ne sont pas mentionnés. La croissance n'est pas volontaire mais contrainte par plusieurs facteurs.",vocab:"<span>TCFD</span> = Task Force on Climate-related Financial Disclosures | <span>mandatory reporting</span> = reporting obligatoire | <span>investor expectations</span> = attentes des investisseurs"},
+  "q170":{q:"What criticism does the article raise about the CSO role?",correct:"B",optLabels:{"A": "CSOs are generally paid more than other C-suite executives", "B": "Many CSOs lack operational authority to drive real change", "C": "The role is only relevant for companies in polluting industries", "D": "CSOs focus too much on financial metrics"},fr:"<em>in many organisations, the CSO role remains largely cosmetic... lacks the operational authority to drive real change</em> → manque d'autorité opérationnelle (B). Aucune comparaison salariale, restriction sectorielle ni critique sur les métriques financières n'est formulée.",vocab:"<span>cosmetic</span> = cosmétique, de façade | <span>operational authority</span> = autorité opérationnelle | <span>right of veto</span> = droit de veto"},
+  "q171":{q:"What proportion of CSOs reportedly lack budget control or investment veto rights?",correct:"C",optLabels:{"A": "11%", "B": "43%", "C": "Roughly one third", "D": "More than half"},fr:"<em>in roughly a third of cases, the CSO has no direct budget control or right of veto over investment decisions</em> → environ un tiers (C). 11% = proportion de FTSE 250 ayant un CSO en 2018. 43% = proportion en 2024.",vocab:"<span>roughly a third</span> = environ un tiers | <span>budget control</span> = contrôle budgétaire | <span>right of veto</span> = droit de veto"},
+  "q172":{q:"What problem has Anton Reyes discovered?",correct:"B",optLabels:{"A": "The workshop has been double-booked", "B": "The handouts contain the wrong logo", "C": "There are not enough copies of the materials", "D": "The workshop venue has changed"},fr:"<em>the handouts still have last year's logo</em> → l'ancien logo figure sur les supports (B). Les matériaux ont été imprimés en quantité suffisante. Aucun double booking ni changement de lieu.",vocab:"<span>handouts</span> = documents à distribuer, supports de cours | <span>logo</span> = logo | <span>brand guidelines</span> = charte graphique"},
+  "q173":{q:"Why does Stella Park say the materials must be reprinted?",correct:"C",optLabels:{"A": "The content has changed since last year", "B": "The number of delegates has increased", "C": "The old logo cannot be used on client-facing materials after 1 January", "D": "The print quality is not good enough"},fr:"<em>The new brand guidelines were very clear — the old logo cannot appear on any client-facing materials after 1 January</em> → règle de charte graphique interdisant l'ancien logo (C). Aucun changement de contenu, hausse du nombre de participants ni problème de qualité n'est mentionné.",vocab:"<span>brand guidelines</span> = charte graphique | <span>client-facing materials</span> = supports destinés aux clients | <span>after 1 January</span> = à partir du 1er janvier"},
+  "q174":{q:"How many pages in total need to be reprinted?",correct:"D",optLabels:{"A": "40", "B": "80", "C": "200", "D": "240"},fr:"<em>40 sets — 6 pages each. So 240 pages</em> → 40 × 6 = 240 pages (D). Anton fait lui-même le calcul dans son message.",vocab:"<span>sets</span> = jeux, exemplaires complets | <span>pages</span> = pages | <span>reprint</span> = réimprimer"},
+  "q175":{q:"What does Stella Park offer to help with?",correct:"C",optLabels:{"A": "Updating the workshop materials template", "B": "Contacting the delegates", "C": "Collating the reprinted handouts", "D": "Booking the print room"},fr:"<em>Let me know if you need help collating</em> → assembler/trier les documents réimprimés (C). Stella ne propose pas de mettre à jour le modèle, de contacter les participants ni de réserver la salle d'impression.",vocab:"<span>collating</span> = assembler, trier (des documents) | <span>offer to help</span> = proposer son aide | <span>let me know</span> = faites-moi signe"},
+  "q176":{q:"What prompted this review?",correct:"B",optLabels:{"A": "A drop in new customer sign-ups", "B": "A rise in early customer churn", "C": "A complaint from a major client", "D": "A regulatory inspection of the company"},fr:"<em>The audit was prompted by an increase in churn during the first 90 days, which rose from 8% to 14%</em> → hausse du taux de résiliation précoce (B). Aucune baisse d'acquisitions, plainte client ni inspection réglementaire n'est mentionnée.",vocab:"<span>churn</span> = taux de désabonnement, résiliation | <span>prompted by</span> = déclenché par | <span>first 90 days</span> = 90 premiers jours"},
+  "q177":{q:"How does the current time to activation compare to the industry benchmark?",correct:"B",optLabels:{"A": "It is the same as the benchmark", "B": "It is 6 days slower than the benchmark", "C": "It is 3 days faster than the benchmark", "D": "It is 11 days slower than the benchmark"},fr:"<em>The average time... is currently 11 days. Industry benchmark is 5 days</em> → 11 − 5 = 6 jours de retard sur le benchmark (B). L'entreprise est plus lente, pas plus rapide.",vocab:"<span>time to activation</span> = délai d'activation | <span>industry benchmark</span> = référence du secteur | <span>legacy system</span> = système informatique ancien"},
+  "q178":{q:"What effect did a welcome contact in week one have on customer churn?",correct:"C",optLabels:{"A": "It had no measurable effect", "B": "It increased churn by 34%", "C": "It reduced churn by 34%", "D": "It reduced churn by 61%"},fr:"<em>Customers who did receive a welcome contact in week one showed a 34% lower churn rate in the first 90 days</em> → réduction du taux de résiliation de 34% (C). 61% = proportion n'ayant pas reçu de message de bienvenue.",vocab:"<span>welcome contact</span> = prise de contact de bienvenue | <span>churn rate</span> = taux de résiliation | <span>personalised</span> = personnalisé"},
+  "q179":{q:"What proportion of new customers tried to access support outside business hours?",correct:"C",optLabels:{"A": "14%", "B": "34%", "C": "42%", "D": "61%"},fr:"<em>42% of new customers attempted to access support outside these hours and received no response</em> → 42% (C). 14% = taux de churn initial. 34% = réduction du churn après message de bienvenue. 61% = proportion sans communication de bienvenue.",vocab:"<span>outside business hours</span> = en dehors des heures d'ouverture | <span>no response</span> = sans réponse | <span>support availability</span> = disponibilité du support"},
+  "q180":{q:"What does the report recommend regarding support availability?",correct:"C",optLabels:{"A": "Reducing support costs by moving to a chatbot only", "B": "Outsourcing support to a third-party call centre", "C": "Extending availability to evenings and Saturday mornings", "D": "Closing support on Fridays to allow for staff training"},fr:"<em>Extend support availability to include weekday evenings and Saturday mornings</em> → (C). Aucun chatbot, externalisation ni fermeture du vendredi n'est recommandé.",vocab:"<span>support availability</span> = disponibilité du support | <span>weekday evenings</span> = soirs de semaine | <span>recommendation</span> = recommandation"},
+  "q181":{q:"What percentage of annual profits does Bridgeton Holdings donate through the initiative?",correct:"B",optLabels:{"A": "0.5%", "B": "1%", "C": "2%", "D": "5%"},fr:"<em>donate 1% of annual pre-tax profits to locally operating charities</em> → 1% (B).",vocab:"<span>pre-tax profits</span> = bénéfices avant impôts | <span>Community Interest Companies</span> = sociétés d'intérêt communautaire (CIC) | <span>funding round</span> = cycle de financement"},
+  "q182":{q:"What is the maximum grant that a single organisation can apply for?",correct:"C",optLabels:{"A": "£5,000", "B": "£35,000", "C": "£50,000", "D": "£240,000"},fr:"<em>Applications can be for between £5,000 and £50,000</em> → maximum £50 000 (C). £35 000 = montant demandé par Rowan Vale. £240 000 = fonds total de l'initiative.",vocab:"<span>maximum grant</span> = subvention maximale | <span>eligible</span> = éligible | <span>registered charity</span> = association caritative enregistrée"},
+  "q183":{q:"Does Rowan Vale Food Bank meet the geographic eligibility requirement?",correct:"B",optLabels:{"A": "No — it is more than 30 miles from a Bridgeton Holdings office", "B": "Yes — it is 8 miles from the nearest office", "C": "No — it is not a registered charity", "D": "Yes — but only because it has a Bridgeton Holdings employee on its board"},fr:"Croisement Doc 1 + Doc 2 : l'éligibilité exige d'être à moins de 30 miles d'un bureau Bridgeton. Rowan Vale Food Bank est à 8 miles → éligible (B). Elle est une charity enregistrée (No. 1184723). Aucun employé Bridgeton au conseil d'administration n'est mentionné.",vocab:"<span>geographic eligibility</span> = critère géographique d'éligibilité | <span>within 30 miles</span> = dans un rayon de 30 miles | <span>registered charity</span> = organisme de bienfaisance enregistré"},
+  "q184":{q:"What will the grant be used for, according to the application letter?",correct:"C",optLabels:{"A": "Building a permanent food bank premises", "B": "Funding staff salaries for one year", "C": "Purchasing a second vehicle and extending delivery coverage", "D": "Installing refrigeration equipment in the existing premises"},fr:"<em>The requested funding would allow us to purchase a second refrigerated vehicle and extend our delivery coverage to three additional rural communities</em> → achat d'un véhicule supplémentaire et extension de la couverture (C).",vocab:"<span>refrigerated vehicle</span> = véhicule réfrigéré | <span>delivery coverage</span> = zone de livraison | <span>food insecurity</span> = insécurité alimentaire"},
+  "q185":{q:"Who will decide which organisations receive funding?",correct:"B",optLabels:{"A": "The Bridgeton Holdings board directly", "B": "An independent panel of community representatives", "C": "A committee of Bridgeton Holdings staff volunteers", "D": "The Corporate Affairs team"},fr:"<em>An independent panel of community representatives will assess applications and make recommendations to the board</em> → le panel indépendant de représentants communautaires (B). Le conseil approuve les recommandations mais ne fait pas la sélection directement.",vocab:"<span>independent panel</span> = jury indépendant | <span>community representatives</span> = représentants de la communauté | <span>assess</span> = évaluer"},
+  "q186":{q:"Who leads the welcome session on Monday morning?",correct:"C",optLabels:{"A": "The Chief Compliance Officer", "B": "The Head of Client Relations", "C": "The CEO", "D": "The Chief Economist"},fr:"<em>Welcome & Programme Overview — CEO</em> → (C). Le Chief Compliance Officer anime la session réglementaire. Le Head of Client Relations anime les standards de communication client. Le Chief Economist anime les fondamentaux des marchés financiers.",vocab:"<span>welcome session</span> = séance de bienvenue | <span>CEO</span> = Directeur Général | <span>induction week</span> = semaine d'intégration"},
+  "q187":{q:"Which session takes place over an entire working day?",correct:"B",optLabels:{"A": "Financial Markets Fundamentals", "B": "Divisional Rotations", "C": "Risk Management Principles", "D": "Client Engagement Standards"},fr:"<em>Divisional Rotations (Finance, Risk, Ops) — 09:00 to 17:00</em> → une journée entière (B). Financial Markets = 3h. Risk Management = 2h. Client Engagement = 3h30.",vocab:"<span>divisional rotations</span> = rotations dans les différents services | <span>working day</span> = journée de travail | <span>division heads</span> = responsables de division"},
+  "q188":{q:"Who leads the Presentation Skills Workshop?",correct:"D",optLabels:{"A": "The Chief Risk Officer", "B": "The Head of Client Relations", "C": "An internal HR trainer", "D": "An external coach"},fr:"<em>Presentation Skills Workshop — External coach</em> → (D). Le Chief Risk Officer anime les principes de gestion des risques. Le Head of Client Relations anime les standards de communication client. Aucun formateur RH interne n'est mentionné.",vocab:"<span>external coach</span> = coach externe | <span>presentation skills</span> = compétences de présentation | <span>workshop</span> = atelier pratique"},
+  "q189":{q:"Where does the team-building activity take place?",correct:"C",optLabels:{"A": "Training Suite A", "B": "The Executive Boardroom", "C": "Off-site", "D": "The Computer Lab"},fr:"<em>Team-Building Activity — Off-site</em> → hors site (C). Training Suite A accueille plusieurs formations. L'Executive Boardroom = bienvenue et Q&A. Le Computer Lab = orientation IT.",vocab:"<span>off-site</span> = hors site, à l'extérieur | <span>team-building</span> = activités de cohésion d'équipe | <span>external provider</span> = prestataire externe"},
+  "q190":{q:"Which two sessions are held in the Executive Boardroom during the week?",correct:"B",optLabels:{"A": "Welcome and Financial Markets Fundamentals", "B": "Welcome and Graduates Q&A with Senior Leadership", "C": "Regulatory Briefing and Risk Management Principles", "D": "IT Orientation and Client Engagement Standards"},fr:"<em>Welcome & Programme Overview</em> (lundi 09:00) et <em>Graduates Q&A with Senior Leadership</em> (vendredi 09:30) ont lieu dans l'Executive Boardroom → (B). Le Financial Markets est en Training Suite B. La session réglementaire et Risk Management sont aussi en suites de formation.",vocab:"<span>Executive Boardroom</span> = salle du conseil de direction | <span>Q&A</span> = questions-réponses | <span>Senior Leadership</span> = direction générale"},
+  "q191":{q:"According to the article, what has driven the rise in day rates for independent consultants?",correct:"B",optLabels:{"A": "A government scheme supporting freelance workers", "B": "Strong post-pandemic demand and a shrinking pool of experienced independents", "C": "New minimum rate legislation for freelancers", "D": "An increase in the number of freelance consultants entering the market"},fr:"<em>strong post-pandemic demand from businesses that reduced in-house capacity and a shrinking pool of highly experienced independents</em> → (B). Aucun programme gouvernemental, legislation ni augmentation du nombre de freelances n'est mentionné.",vocab:"<span>day rates</span> = tarifs journaliers | <span>shrinking pool</span> = vivier en diminution | <span>in-house capacity</span> = capacité interne"},
+  "q192":{q:"Which of Maya Reeves's services has the highest day rate?",correct:"D",optLabels:{"A": "Copywriting (general)", "B": "Brand strategy", "C": "Content strategy", "D": "Financial copywriting"},fr:"Le tableau de tarifs : Financial copywriting = £750/jour — tarif journalier le plus élevé (D). Brand strategy = £680. Content strategy = £650. Copywriting général = £620.",vocab:"<span>day rate</span> = tarif journalier | <span>sector premium</span> = prime sectorielle | <span>rate card</span> = grille tarifaire"},
+  "q193":{q:"What rate would James Holloway's project most likely attract from Maya Reeves?",correct:"D",optLabels:{"A": "£620 per day", "B": "£650 per day", "C": "£680 per day", "D": "£750 per day"},fr:"Croisement Doc 2 + Doc 3 : James Holloway travaille pour <em>an investment management firm</em> et a besoin de rédiger les sections narratives d'un rapport annuel → rédaction financière pour une entreprise de gestion d'investissements = <em>Financial copywriting</em> → £750/jour (D). Le tarif de copywriting général (£620) ne s'applique pas car le projet est dans le secteur financier.",vocab:"<span>investment management</span> = gestion d'investissements | <span>annual report</span> = rapport annuel | <span>financial copywriting</span> = rédaction financière"},
+  "q194":{q:"What does James Holloway mean when he says the timeline is tight?",correct:"B",optLabels:{"A": "The project has a fixed budget that cannot change", "B": "The first draft and final copy are needed within a short period", "C": "The project requires more than three days of work", "D": "The client cannot change the word count"},fr:"<em>We need a first draft by 25 April and final copy by 2 May</em> avec environ 3 jours de travail → le calendrier est serré entre le premier jet et la version finale (B). Aucun budget fixe ni contrainte de volume de mots n'est mentionné.",vocab:"<span>tight timeline</span> = calendrier serré | <span>first draft</span> = premier jet | <span>final copy</span> = version finale"},
+  "q195":{q:"What information does James Holloway ask Maya to provide?",correct:"B",optLabels:{"A": "Her portfolio and references", "B": "Her availability and day rate for this type of project", "C": "Her terms and conditions", "D": "Her earliest available start date only"},fr:"<em>Would you be available for approximately three days' work? Please also let me know your day rate for this type of project</em> → disponibilité ET tarif journalier pour ce type de projet (B). Le portfolio est mentionné comme déjà consulté. Les CGV et la seule date de début ne sont pas demandés.",vocab:"<span>availability</span> = disponibilité | <span>day rate</span> = tarif journalier | <span>this type of project</span> = ce type de projet (sous-entendu : financier)"},
+  "q196":{q:"What change to room booking does the notice announce?",correct:"B",optLabels:{"A": "Rooms may now be booked up to 30 days in advance", "B": "A new online booking system will replace the paper sign-up system", "C": "The number of available meeting rooms will be increased", "D": "All bookings must now be approved by a line manager"},fr:"<em>all meeting room and quiet zone bookings must be made through the new online booking system... The previous paper-based sign-up sheet system will be discontinued</em> → remplacement du système papier par un système en ligne (B). Le délai maximum reste 10 jours. Aucune augmentation de salles ni approbation hiérarchique n'est annoncée.",vocab:"<span>online booking system</span> = système de réservation en ligne | <span>discontinued</span> = abandonné, mis hors service | <span>sign-up sheet</span> = feuille d'inscription"},
+  "q197":{q:"Why does Carla Vance contact the Facilities Manager rather than simply booking a room herself?",correct:"C",optLabels:{"A": "The new booking system is not yet live", "B": "She needs a room larger than the system allows", "C": "The room she needs is unavailable through the system", "D": "She does not have access to the staff intranet"},fr:"<em>I tried to book the Bermondsey Suite through the new system, but it appears to already be taken</em> → la salle souhaitée est indisponible dans le système (C). Le nouveau système est en place (la notice annonce le 14 octobre, l'e-mail est du 10 octobre, mais elle a déjà essayé). Elle n'est pas limitée par la taille des salles disponibles.",vocab:"<span>unavailable</span> = indisponible | <span>already taken</span> = déjà réservé | <span>Facilities Manager</span> = responsable des services généraux"},
+  "q198":{q:"Why is the Clerkenwell Room unsuitable for Carla's meeting?",correct:"B",optLabels:{"A": "It is on the wrong floor", "B": "It is too small and has no AV equipment", "C": "It is already booked for 22 October", "D": "It does not have enough seating for seven people"},fr:"Croisement Doc 2 + Doc 3 : la réunion réunit 7 personnes et nécessite une présentation de diapositives. Clerkenwell Room = capacité 4 personnes, sans équipement AV → trop petite ET sans AV (B). L'option (D) est aussi une raison (4 < 7) mais (B) est la réponse complète qui couvre les deux critères explicitement mentionnés dans l'e-mail.",vocab:"<span>unsuitable</span> = inadapté, inapproprié | <span>AV equipment</span> = matériel audiovisuel | <span>capacity</span> = capacité"},
+  "q199":{q:"Why might Carla's request for the Aldgate Suite require special approval?",correct:"B",optLabels:{"A": "The Aldgate Suite is reserved for senior management use only", "B": "Her team already has another booking on the same day, which may constitute a back-to-back booking", "C": "The client visit exceeds the maximum three-hour booking limit", "D": "The Aldgate Suite is undergoing maintenance on 22 October"},fr:"Croisement Doc 1 + Doc 3 : la notice stipule que les <em>back-to-back bookings by the same team are not permitted without prior approval from the Facilities Manager</em>. Carla précise que <em>my team already has the Bermondsey Suite booked for the afternoon session</em> → deux réservations consécutives le même jour = nécessite une autorisation (B). La durée (10h–13h = 3h) est dans la limite. La suite n'est pas réservée à la direction.",vocab:"<span>back-to-back bookings</span> = réservations consécutives | <span>prior approval</span> = autorisation préalable | <span>constitute</span> = constituer"},
+  "q200":{q:"Which room would best meet Carla's requirements if it were available?",correct:"D",optLabels:{"A": "Clerkenwell Room", "B": "Quiet Zone A", "C": "Bermondsey Suite", "D": "Aldgate Suite"},fr:"Croisement Doc 2 + Doc 3 : besoins de Carla = 7 personnes + équipement AV. Bermondsey Suite (8 places, AV) = remplirait les critères mais est déjà réservée. Aldgate Suite (12 places, AV) = disponible si approuvée et répond aux deux critères → (D). Les Quiet Zones et la Clerkenwell Room n'ont pas d'AV.",vocab:"<span>requirements</span> = exigences, besoins | <span>if it were available</span> = si elle était disponible (conditionnel) | <span>best meet</span> = correspondre le mieux à"}
+};
+const GROUPS=[{label:"Q 147–148 — CPD Workshop Sign-Up Sheet (Thornfield Academy)",qs:[147,148]},{label:"Q 149–150 — Text-Message Chain (Tessa & Ray — Demo Rescheduling)",qs:[149,150]},{label:"Q 151–152 — Mardale Business Park Power Outage Notice",qs:[151,152]},{label:"Q 153–154 — Beaumont Conference Centre Review",qs:[153,154]},{label:"Q 155–158 — E-mail (Axonbridge Innovation Challenge 2025)",qs:[155,156,157,158]},{label:"Q 159–161 — Article (Global Shipping Normalisation)",qs:[159,160,161]},{label:"Q 162–164 — E-mail Chain (Bluebell Organics Website Launch)",qs:[162,163,164]},{label:"Q 165–167 — Skybridge Executive Search Advertisement",qs:[165,166,167]},{label:"Q 168–171 — Article (Rise of the Chief Sustainability Officer)",qs:[168,169,170,171]},{label:"Q 172–175 — Text-Message Chain (Anton & Stella — Workshop Materials)",qs:[172,173,174,175]},{label:"Q 176–180 — Customer Onboarding Process Review",qs:[176,177,178,179,180]},{label:"Q 181–185 — Newsletter + Application Letter (Bridgeton Community Initiative)",qs:[181,182,183,184,185]},{label:"Q 186–190 — Carrington Bank Graduate Induction Week Schedule",qs:[186,187,188,189,190]},{label:"Q 191–195 — Article + Rate Card + E-mail (Maya Reeves Creative Consultant)",qs:[191,192,193,194,195]},{label:"Q 196–200 — Notice + Room Table + E-mail (Thornwick Publishing Room Booking)",qs:[196,197,198,199,200]}];
+const QNUMS=[147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200];
+const TOTAL=54;
+let secs=2880;
+const answered={};
+const timerEl=document.getElementById('timer');
+function pad(n){return String(n).padStart(2,'0');}
+const iv=setInterval(()=>{secs--;timerEl.textContent=pad(Math.floor(secs/60))+':'+pad(secs%60);timerEl.className='';if(secs<=300)timerEl.classList.add('warn');if(secs<=60)timerEl.classList.add('danger');if(secs<=0){clearInterval(iv);timerEl.textContent='00:00';document.getElementById('to-ov').classList.add('show');}},1000);
+function updateProg(){const c=Object.keys(answered).length;document.getElementById('prog-txt').textContent=c+' / '+TOTAL+' réponses';document.getElementById('prog-bar').style.width=(c/TOTAL*100)+'%';const left=TOTAL-c;document.getElementById('unans').textContent=left===0?'✓ Toutes les questions répondues !':left+' question'+(left>1?'s':'')+' sans réponse';document.getElementById('sub-btn').disabled=c<TOTAL;}
+document.querySelectorAll('input[type="radio"]').forEach(r=>{r.addEventListener('change',function(){answered[this.name]=this.value;const qid=this.name.replace('q','qi-');const el=document.getElementById(qid);if(el)el.classList.add('answered');updateProg();});});
+function forceSubmit(){document.getElementById('to-ov').classList.remove('show');submitTest();}
+function submitTest(){clearInterval(iv);document.getElementById('sub-sec').style.display='none';document.querySelectorAll('input[type="radio"]').forEach(r=>r.disabled=true);let correct=0;QNUMS.forEach(n=>{const k='q'+n;if(answered[k]&&answered[k]===KEYS[k])correct++;});const pct=Math.round(correct/TOTAL*100);const est=Math.round(5+(correct/TOTAL)*490);document.getElementById('sc-disp').textContent=correct+'/'+TOTAL;document.getElementById('sc-pct').textContent=pct+'% de bonnes réponses';document.getElementById('sc-est').textContent='Estimation score Reading TOEIC : ~'+est+'/495';const container=document.getElementById('corr-content');container.innerHTML='';GROUPS.forEach(g=>{const block=document.createElement('div');block.className='corr-pg';const hdr=document.createElement('div');hdr.className='corr-pg-hdr';hdr.textContent=g.label;block.appendChild(hdr);g.qs.forEach(n=>{const k='q'+n;const ua=answered[k]||null;const ca=KEYS[k];const ok=ua===ca;const ex=EXPL[k];const item=document.createElement('div');item.className='ci '+(ua===null?'na':(ok?'ok':'ko'));const ut=ua?ex.optLabels[ua]:null;item.innerHTML=`<div class="ci-top"><span class="ci-icon">${ua===null?'—':(ok?'✔':'✗')}</span><span class="ci-badge">Q ${n}</span></div><div class="ci-q">${ex.q}</div><div class="ans-row">${ua&&!ok?`<span class="pill pill-ko">Votre réponse : (${ua}) ${ut}</span>`:''}${ok?`<span class="pill pill-ok">✔ (${ca}) ${ex.optLabels[ca]}</span>`:`<span class="pill pill-right">Bonne réponse : (${ca}) ${ex.optLabels[ca]}</span>`}${!ua?`<span class="pill" style="background:#fef3c7;color:#92400e">Non répondue</span>`:''}</div><div class="expl">${ex.fr}${ex.vocab?`<div class="voc">📚 <strong>Vocabulaire :</strong> ${ex.vocab}</div>`:''}</div>`;block.appendChild(item);});container.appendChild(block);});document.getElementById('corr-sec').classList.add('vis');document.getElementById('corr-sec').scrollIntoView({behavior:'smooth'});}
+updateProg();
+
+</script>
+</body>
+</html>

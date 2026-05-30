@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Part 7 — Test 3 — Marc VASSEUR — Polytech Lille</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a;--navy2:#162840;--navy3:#1e3a5f;
+    --gold:#c8993a;--gold-l:#e8b84b;
+    --cream:#f8f4ed;--cream2:#f0ead8;
+    --text:#1a1a2e;--muted:#6b7280;--border:#d4c5a9;
+    --correct:#1a7a4a;--wrong:#9b1c1c;
+    --correct-bg:#d1fae5;--wrong-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Source Serif 4',Georgia,serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+  /* HEADER */
+  #hdr{background:var(--navy);color:white;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+  #hdr h1{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold-l);letter-spacing:.03em}
+  #hdr p{font-size:.68rem;color:#94a3b8;margin-top:2px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em}
+  #timer{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:500;color:var(--gold-l);letter-spacing:.1em;transition:color .3s}
+  #timer.warn{color:#f97316}#timer.danger{color:#ef4444;animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  #timer-lbl{font-size:.6rem;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;text-align:center}
+  #prog-txt{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#cbd5e1}
+  #prog-wrap{width:150px;height:5px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:4px}
+  #prog-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:99px;transition:width .4s;width:0%}
+
+  /* MAIN */
+  #main{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+
+  /* DIRECTIONS */
+  .dir-box{background:var(--navy2);color:#e2d9c8;border-left:4px solid var(--gold);padding:16px 22px;border-radius:6px;margin-bottom:32px;font-size:.88rem;line-height:1.7}
+  .dir-box strong{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--gold-l);display:block;margin-bottom:6px}
+
+  /* SPLIT BLOCK */
+  .pb{border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:36px}
+  .pb-hdr{background:var(--navy3);color:var(--gold-l);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+  .pb-body{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+  .pb-body.wide{grid-template-columns:1.1fr .9fr}
+  /* For 2-question passages, single column is cleaner */
+  .pb-body.narrow{grid-template-columns:1fr 1fr}
+
+  /* PASSAGE PANE */
+  .pass-pane{background:white;padding:18px 22px;font-size:.88rem;line-height:1.75;border-right:1px solid var(--border);position:sticky;top:56px;max-height:calc(100vh - 76px);overflow-y:auto}
+  .pass-pane h3{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--cream2);padding-bottom:5px}
+  .pass-pane .meta{font-size:.74rem;color:var(--muted);font-style:italic;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+  .pass-pane p{margin-bottom:.6em}
+  .pass-pane table{width:100%;border-collapse:collapse;font-size:.83rem;margin:8px 0}
+  .pass-pane th{background:var(--navy);color:var(--gold-l);padding:6px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.74rem}
+  .pass-pane td{border:1px solid var(--border);padding:6px 10px}
+  .pass-pane tr:nth-child(even) td{background:var(--cream)}
+  .msg-chain{display:flex;flex-direction:column;gap:7px}
+  .msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:.86rem}
+  .ml{background:#f1f5f9;border-bottom-left-radius:3px;align-self:flex-start}
+  .mr{background:#dbeafe;border-bottom-right-radius:3px;align-self:flex-end}
+  .mn{font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:2px}
+  .mt{font-size:.64rem;color:var(--muted);text-align:right;margin-top:2px}
+  .blist{margin:6px 0 6px 18px}
+  .blist li{margin-bottom:4px}
+
+  /* QUESTIONS PANE */
+  .q-pane{background:var(--cream);padding:18px 20px}
+  .qi{margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)}
+  .qi:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .qnum{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+  .qtxt{font-weight:600;font-size:.9rem;margin-bottom:10px;line-height:1.45;color:var(--navy)}
+  .opts{display:flex;flex-direction:column;gap:5px}
+  .opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:.86rem;transition:all .18s;background:white;line-height:1.4}
+  .opt:hover{border-color:var(--navy3);background:#f0f4ff}
+  .opt input{accent-color:var(--navy);margin-top:2px;flex-shrink:0}
+  .opt-l{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.82rem;color:var(--navy3);min-width:16px;flex-shrink:0}
+
+  /* SUBMIT */
+  #sub-sec{text-align:center;margin-top:36px;padding:28px;background:var(--navy);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+  #sub-sec p{color:#94a3b8;font-size:.86rem;margin-bottom:14px}
+  #unans{color:var(--gold-l);font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;display:block;margin-bottom:8px}
+  #sub-btn{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--navy);border:none;padding:13px 44px;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;border-radius:8px;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(200,153,58,.4)}
+  #sub-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,153,58,.5)}
+  #sub-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+  /* CORRECTION */
+  #corr-sec{display:none;margin-top:40px}
+  #corr-sec.vis{display:block}
+  .score-banner{background:var(--navy);color:white;text-align:center;padding:36px 24px;border-radius:12px;margin-bottom:36px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+  .score-banner h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold-l);margin-bottom:8px}
+  .big-score{font-family:'JetBrains Mono',monospace;font-size:3.8rem;font-weight:600;color:white;line-height:1}
+  .score-sub{color:#94a3b8;font-size:.88rem;margin-top:8px}
+  .toeic-est{margin-top:16px;padding:12px 22px;background:rgba(200,153,58,.15);border:1px solid var(--gold);border-radius:8px;display:inline-block;font-size:.9rem;color:var(--gold-l)}
+  .corr-pg{margin-bottom:36px;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .corr-pg-hdr{background:var(--navy3);color:var(--gold-l);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+  .ci{padding:18px 22px;border-bottom:1px solid var(--cream2);background:white}
+  .ci:last-child{border-bottom:none}
+  .ci.ok{border-left:4px solid var(--correct)}.ci.ko{border-left:4px solid var(--wrong)}.ci.na{border-left:4px solid #f59e0b}
+  .ci-top{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+  .ci-icon{font-size:1.1rem}
+  .ci-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:2px 8px;border-radius:99px;font-weight:600}
+  .ok .ci-badge{background:var(--correct-bg);color:var(--correct)}.ko .ci-badge{background:var(--wrong-bg);color:var(--wrong)}.na .ci-badge{background:#fef3c7;color:#92400e}
+  .ci-q{font-weight:600;font-size:.9rem;color:var(--navy);margin-bottom:8px;line-height:1.45}
+  .ans-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+  .pill{padding:3px 12px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.74rem;font-weight:600}
+  .pill-ok{background:var(--correct-bg);color:var(--correct)}
+  .pill-ko{background:var(--wrong-bg);color:var(--wrong);text-decoration:line-through}
+  .pill-right{background:#dbeafe;color:#1d4ed8}
+  .expl{background:var(--cream);border-left:3px solid var(--gold);padding:11px 15px;border-radius:0 6px 6px 0;font-size:.85rem;line-height:1.68}
+  .voc{margin-top:9px;padding:7px 11px;background:#f0f4ff;border-radius:6px;font-size:.8rem;line-height:1.6}
+  .voc span{font-family:'JetBrains Mono',monospace;color:var(--navy3);font-weight:500}
+
+  /* TIMEOUT */
+  #to-ov{display:none;position:fixed;inset:0;background:rgba(13,27,42,.92);z-index:999;align-items:center;justify-content:center}
+  #to-ov.show{display:flex}
+  #to-box{background:var(--cream);border-radius:12px;padding:36px 44px;text-align:center;max-width:380px}
+  #to-box h2{font-family:'Playfair Display',serif;color:var(--navy);font-size:1.5rem;margin-bottom:10px}
+  #to-box p{color:var(--muted);margin-bottom:18px}
+  #to-btn{background:var(--navy);color:var(--gold-l);border:none;padding:11px 30px;border-radius:8px;font-family:'Playfair Display',serif;font-size:.95rem;cursor:pointer}
+
+  @media(max-width:780px){
+    .pb-body,.pb-body.wide,.pb-body.narrow{grid-template-columns:1fr}
+    .pass-pane{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--border)}
+    #hdr{flex-wrap:wrap;gap:8px}
+    #main{padding:16px 12px 60px}
+  }
+</style>
+</head>
+<body>
+<div id="to-ov"><div id="to-box"><h2>⏰ Temps écoulé</h2><p>Les 48 minutes sont terminées. Le test est soumis automatiquement.</p><button id="to-btn" onclick="forceSubmit()">Voir la correction</button></div></div>
+<div id="hdr">
+  <div><h1>TOEIC — Part 7 · Test 3</h1><p>MARC VASSEUR | POLYTECH LILLE</p></div>
+  <div style="text-align:center"><div id="timer">48:00</div><div id="timer-lbl">Temps restant</div></div>
+  <div style="text-align:right"><div id="prog-txt">0 / 54 réponses</div><div id="prog-wrap"><div id="prog-bar"></div></div></div>
+</div>
+<div id="main">
+  <div class="dir-box"><strong>PART 7 — Directions</strong> In this part you will read a selection of texts, such as magazine and newspaper articles, e-mails, and instant messages. Each text or set of texts is followed by several questions. Select the best answer for each question and mark the letter (A), (B), (C), or (D). Detailed corrections in French will be shown after submission.</div>
+
+<div class="pb">
+  <div class="pb-hdr">Questions 147–148 — Schedule</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><h3>Fernwood Community Library — Spring Events Schedule</h3>
+<p class="meta">March — April</p>
+<table>
+  <tr><th>Date</th><th>Event</th><th>Time</th><th>Room</th></tr>
+  <tr><td>Sat 8 Mar</td><td>Children's Reading Circle</td><td>10:00–11:30</td><td>Story Room</td></tr>
+  <tr><td>Wed 12 Mar</td><td>Local History Talk: Fernwood in the 1950s</td><td>18:30–20:00</td><td>Main Hall</td></tr>
+  <tr><td>Sat 22 Mar</td><td>Free CV &amp; Job Application Workshop</td><td>09:30–12:30</td><td>Training Room</td></tr>
+  <tr><td>Fri 4 Apr</td><td>Author Talk: Nina Vasquez — <em>The Saltwater Road</em></td><td>19:00–20:30</td><td>Main Hall</td></tr>
+  <tr><td>Sat 12 Apr</td><td>Spring Book Sale (all proceeds to library fund)</td><td>09:00–16:00</td><td>Entrance Hall</td></tr>
+  <tr><td>Wed 23 Apr</td><td>Digital Skills for Seniors</td><td>14:00–16:00</td><td>Training Room</td></tr>
+</table></div>
+    <div class="q-pane"><div class="qi" id="qi-147">
+  <div class="qnum">Question 147</div>
+  <div class="qtxt">What is the purpose of the schedule?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q147" value="A"><span class="opt-l">A</span>To advertise new library book releases</label>
+    <label class="opt"><input type="radio" name="q147" value="B"><span class="opt-l">B</span>To list community events held at the library</label>
+    <label class="opt"><input type="radio" name="q147" value="C"><span class="opt-l">C</span>To announce changes to library opening hours</label>
+    <label class="opt"><input type="radio" name="q147" value="D"><span class="opt-l">D</span>To provide information about library membership</label>
+  </div>
+</div><div class="qi" id="qi-148">
+  <div class="qnum">Question 148</div>
+  <div class="qtxt">Which event is intended to help people find employment?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q148" value="A"><span class="opt-l">A</span>Children's Reading Circle</label>
+    <label class="opt"><input type="radio" name="q148" value="B"><span class="opt-l">B</span>Local History Talk</label>
+    <label class="opt"><input type="radio" name="q148" value="C"><span class="opt-l">C</span>Free CV & Job Application Workshop</label>
+    <label class="opt"><input type="radio" name="q148" value="D"><span class="opt-l">D</span>Digital Skills for Seniors</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 149–150 — Text-Message Chain</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><div class="msg-chain">
+  <div class="msg ml"><div class="mn">Rachel Huang</div>Hi Damien. I've just checked in at the hotel. The conference starts at 9 tomorrow but I still haven't received the delegate pack from the organiser. Have you got yours?<div class="mt">7:12 P.M.</div></div>
+  <div class="msg mr"><div class="mn">Damien Cross</div>Yes, it arrived this afternoon by courier. There's a USB drive with all the presentation slides and a printed programme inside.<div class="mt">7:18 P.M.</div></div>
+  <div class="msg ml"><div class="mn">Rachel Huang</div>That's odd. Let me check with the front desk — maybe they're holding it for me.<div class="mt">7:19 P.M.</div></div>
+  <div class="msg mr"><div class="mn">Damien Cross</div>Good idea. If not, I can scan the programme and send it over tonight. The slides are online anyway — check the conference website.<div class="mt">7:21 P.M.</div></div>
+  <div class="msg ml"><div class="mn">Rachel Huang</div>Thanks. I'll check at reception first.<div class="mt">7:22 P.M.</div></div>
+</div></div>
+    <div class="q-pane"><div class="qi" id="qi-149">
+  <div class="qnum">Question 149</div>
+  <div class="qtxt">What problem does Ms. Huang have?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q149" value="A"><span class="opt-l">A</span>She has not yet arrived at the hotel.</label>
+    <label class="opt"><input type="radio" name="q149" value="B"><span class="opt-l">B</span>She has not received her conference materials.</label>
+    <label class="opt"><input type="radio" name="q149" value="C"><span class="opt-l">C</span>She cannot find the conference website.</label>
+    <label class="opt"><input type="radio" name="q149" value="D"><span class="opt-l">D</span>Her hotel room is not ready.</label>
+  </div>
+</div><div class="qi" id="qi-150">
+  <div class="qnum">Question 150</div>
+  <div class="qtxt">What does Mr. Cross offer to do if the delegate pack is not at the front desk?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q150" value="A"><span class="opt-l">A</span>Deliver the pack to her room in person</label>
+    <label class="opt"><input type="radio" name="q150" value="B"><span class="opt-l">B</span>Contact the conference organiser</label>
+    <label class="opt"><input type="radio" name="q150" value="C"><span class="opt-l">C</span>Scan the programme and send it to her</label>
+    <label class="opt"><input type="radio" name="q150" value="D"><span class="opt-l">D</span>Book her a replacement delegate pack</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 151–152 — Notice</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><h3>NOTICE — CHANGES TO EMPLOYEE CAR PARK ACCESS</h3>
+<p>Effective Monday, 7 April, access to the main employee car park at Whitmore Road will require use of the new proximity card issued to all staff last week. The barrier system previously operated by key fob will be decommissioned on Sunday, 6 April.</p>
+<p>Employees who have not yet collected their proximity card should do so from the Reception desk (Building A) before Friday, 4 April. Please bring your staff ID as proof of identity. Cards not collected by Friday will be held at Reception until further notice.</p>
+<p>Should you experience any difficulty using your proximity card, please contact the Facilities helpdesk on extension 4400 or at facilities@whitmore-group.co.uk.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-151">
+  <div class="qnum">Question 151</div>
+  <div class="qtxt">What will change on Monday, 7 April?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q151" value="A"><span class="opt-l">A</span>Car parking will become fee-based.</label>
+    <label class="opt"><input type="radio" name="q151" value="B"><span class="opt-l">B</span>A new barrier access system will take effect.</label>
+    <label class="opt"><input type="radio" name="q151" value="C"><span class="opt-l">C</span>The car park will close for maintenance.</label>
+    <label class="opt"><input type="radio" name="q151" value="D"><span class="opt-l">D</span>Car park capacity will be reduced.</label>
+  </div>
+</div><div class="qi" id="qi-152">
+  <div class="qnum">Question 152</div>
+  <div class="qtxt">What must employees bring when collecting their proximity card?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q152" value="A"><span class="opt-l">A</span>A completed application form</label>
+    <label class="opt"><input type="radio" name="q152" value="B"><span class="opt-l">B</span>Their old key fob</label>
+    <label class="opt"><input type="radio" name="q152" value="C"><span class="opt-l">C</span>Proof of identity</label>
+    <label class="opt"><input type="radio" name="q152" value="D"><span class="opt-l">D</span>A confirmation e-mail</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 153–154 — Online Review</div>
+  <div class="pb-body narrow">
+    <div class="pass-pane"><p class="meta">www.softwarereviewhub.com</p>
+<h3>Review: Planora Project Management Software — by Derek F., Operations Director</h3>
+<p>We switched to Planora eight months ago after years of using spreadsheets and we haven't looked back. The task assignment and deadline tracking features are genuinely excellent — our team leads can see at a glance which projects are on track and which need attention. The reporting dashboard has saved us hours of manual work each month.</p>
+<p>My one real gripe is the mobile app. While the desktop version is polished and fast, the mobile experience is clunky and lacks several key features available on desktop. For a team that frequently works remotely, this is a noticeable limitation. I've raised the issue with customer support, who confirmed that a major app update is in development, which is reassuring.</p>
+<p>Overall, Planora has significantly improved our workflow and I would recommend it to any operations team. I expect my rating to increase once the mobile issues are resolved.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-153">
+  <div class="qnum">Question 153</div>
+  <div class="qtxt">What does the reviewer say is a strength of Planora?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q153" value="A"><span class="opt-l">A</span>The quality of customer support</label>
+    <label class="opt"><input type="radio" name="q153" value="B"><span class="opt-l">B</span>The project tracking and reporting features</label>
+    <label class="opt"><input type="radio" name="q153" value="C"><span class="opt-l">C</span>The mobile app experience</label>
+    <label class="opt"><input type="radio" name="q153" value="D"><span class="opt-l">D</span>The price of the subscription</label>
+  </div>
+</div><div class="qi" id="qi-154">
+  <div class="qnum">Question 154</div>
+  <div class="qtxt">What does the reviewer say about the mobile app?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q154" value="A"><span class="opt-l">A</span>It works well for remote teams.</label>
+    <label class="opt"><input type="radio" name="q154" value="B"><span class="opt-l">B</span>It is the same as the desktop version.</label>
+    <label class="opt"><input type="radio" name="q154" value="C"><span class="opt-l">C</span>It is missing some features found on desktop.</label>
+    <label class="opt"><input type="radio" name="q154" value="D"><span class="opt-l">D</span>It has recently been updated.</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 155–158 — E-mail</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><p><strong>To:</strong> Martin Corrigan &lt;m.corrigan@osbourne-interiors.com&gt;<br>
+<strong>From:</strong> Jessie Park &lt;j.park@crystalvenue.co.uk&gt;<br>
+<strong>Subject:</strong> Re: Venue hire enquiry — product showcase<br>
+<strong>Date:</strong> 2 February</p>
+<p>Dear Mr. Corrigan,</p>
+<p>Thank you for your enquiry about hiring the Crystal Suite for your product showcase on the weekend of 14–15 March. I am delighted to confirm that the Crystal Suite is available on both days.</p>
+<p>The Crystal Suite has a standing capacity of 180 and a seated capacity of 120. It includes a built-in AV system with two large projection screens, a surround sound system, and full lighting control. Complimentary Wi-Fi is available throughout the building. The venue is fully accessible and includes dedicated lift access to all floors.</p>
+<p>Our standard hire rate is <strong>£1,200 per day</strong>, which includes use of the suite, all AV equipment, and the services of our on-site technical coordinator. Catering can be arranged through our preferred partner, Harvest &amp; Bloom, at additional cost. A full catering menu will be sent upon request.</p>
+<p>To secure the booking, we require a <strong>30% deposit</strong> within ten business days of confirming the reservation. The remainder is due <strong>14 days before the event</strong>. We accept bank transfer and all major credit cards.</p>
+<p>Please let me know if you would like to arrange a site visit or if you have any further questions. I look forward to hearing from you.</p>
+<p>Kind regards,<br>Jessie Park<br>Events Coordinator, Crystal Venue</p></div>
+    <div class="q-pane"><div class="qi" id="qi-155">
+  <div class="qnum">Question 155</div>
+  <div class="qtxt">What is the purpose of the e-mail?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q155" value="A"><span class="opt-l">A</span>To send a catering menu to Mr. Corrigan</label>
+    <label class="opt"><input type="radio" name="q155" value="B"><span class="opt-l">B</span>To respond to a venue hire enquiry</label>
+    <label class="opt"><input type="radio" name="q155" value="C"><span class="opt-l">C</span>To confirm a booking has been completed</label>
+    <label class="opt"><input type="radio" name="q155" value="D"><span class="opt-l">D</span>To request payment from the client</label>
+  </div>
+</div><div class="qi" id="qi-156">
+  <div class="qnum">Question 156</div>
+  <div class="qtxt">What is the seated capacity of the Crystal Suite?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q156" value="A"><span class="opt-l">A</span>80</label>
+    <label class="opt"><input type="radio" name="q156" value="B"><span class="opt-l">B</span>120</label>
+    <label class="opt"><input type="radio" name="q156" value="C"><span class="opt-l">C</span>150</label>
+    <label class="opt"><input type="radio" name="q156" value="D"><span class="opt-l">D</span>180</label>
+  </div>
+</div><div class="qi" id="qi-157">
+  <div class="qnum">Question 157</div>
+  <div class="qtxt">What is NOT included in the standard hire rate?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q157" value="A"><span class="opt-l">A</span>Use of projection screens</label>
+    <label class="opt"><input type="radio" name="q157" value="B"><span class="opt-l">B</span>Services of a technical coordinator</label>
+    <label class="opt"><input type="radio" name="q157" value="C"><span class="opt-l">C</span>Catering</label>
+    <label class="opt"><input type="radio" name="q157" value="D"><span class="opt-l">D</span>The AV system</label>
+  </div>
+</div><div class="qi" id="qi-158">
+  <div class="qnum">Question 158</div>
+  <div class="qtxt">When must the remaining balance be paid?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q158" value="A"><span class="opt-l">A</span>Within ten business days of confirming the reservation</label>
+    <label class="opt"><input type="radio" name="q158" value="B"><span class="opt-l">B</span>On the day of the event</label>
+    <label class="opt"><input type="radio" name="q158" value="C"><span class="opt-l">C</span>Two weeks before the event</label>
+    <label class="opt"><input type="radio" name="q158" value="D"><span class="opt-l">D</span>Upon receiving the catering menu</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 159–161 — Article</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Urban Beekeeping Takes Root in British Cities</h3>
+<p class="meta">The Environment Quarterly — Spring Issue</p>
+<p>Once considered the preserve of rural smallholders, beekeeping is rapidly gaining popularity in urban environments across the United Kingdom. City councils in London, Bristol, Manchester, and Edinburgh have all introduced initiatives to support the installation of beehives in parks, rooftop gardens, and community allotments.</p>
+<p>The trend is largely driven by growing public awareness of the decline in pollinator populations. According to the British Beekeepers Association, the number of registered urban beekeepers increased by 38% between 2020 and 2024. Many urban beekeepers report that city honey — produced from nectar gathered in parks and gardens — often develops distinctive and complex flavour profiles compared with commercially produced honey.</p>
+<p>Despite its benefits, urban beekeeping is not without challenges. Prospective beekeepers must complete a training course recognised by the local authority, and hive placement is subject to strict regulations to ensure the safety of neighbours and passers-by. Some urban residents have raised concerns about the risk of stings, although beekeeping associations point out that well-managed hives pose minimal risk in practice.</p>
+<p>A number of schools have introduced school-based beekeeping programmes as part of broader environmental education initiatives, with encouraging results in terms of student engagement with sustainability topics.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-159">
+  <div class="qnum">Question 159</div>
+  <div class="qtxt">What is the article mainly about?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q159" value="A"><span class="opt-l">A</span>The decline of bee populations in rural areas</label>
+    <label class="opt"><input type="radio" name="q159" value="B"><span class="opt-l">B</span>The growth of beekeeping in cities</label>
+    <label class="opt"><input type="radio" name="q159" value="C"><span class="opt-l">C</span>A new government agricultural policy</label>
+    <label class="opt"><input type="radio" name="q159" value="D"><span class="opt-l">D</span>The commercial honey industry in the UK</label>
+  </div>
+</div><div class="qi" id="qi-160">
+  <div class="qnum">Question 160</div>
+  <div class="qtxt">According to the article, what has happened to urban beekeeping since 2020?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q160" value="A"><span class="opt-l">A</span>It has been banned in several cities.</label>
+    <label class="opt"><input type="radio" name="q160" value="B"><span class="opt-l">B</span>The number of registered urban beekeepers has risen significantly.</label>
+    <label class="opt"><input type="radio" name="q160" value="C"><span class="opt-l">C</span>Government funding for beekeeping has been cut.</label>
+    <label class="opt"><input type="radio" name="q160" value="D"><span class="opt-l">D</span>City councils have limited the number of hives allowed.</label>
+  </div>
+</div><div class="qi" id="qi-161">
+  <div class="qnum">Question 161</div>
+  <div class="qtxt">What do critics of urban beekeeping worry about?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q161" value="A"><span class="opt-l">A</span>The high cost of maintaining hives</label>
+    <label class="opt"><input type="radio" name="q161" value="B"><span class="opt-l">B</span>The impact on commercially produced honey</label>
+    <label class="opt"><input type="radio" name="q161" value="C"><span class="opt-l">C</span>The risk of bee stings to local residents</label>
+    <label class="opt"><input type="radio" name="q161" value="D"><span class="opt-l">D</span>The effect on urban park aesthetics</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 162–164 — E-mail Chain</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><p><strong>E-mail 1</strong></p>
+<p><strong>To:</strong> customerservices@summitelectronics.co.uk<br>
+<strong>From:</strong> Carol Brent &lt;c.brent@privatemail.com&gt;<br>
+<strong>Subject:</strong> Faulty laptop — order #SE-99831<br>
+<strong>Date:</strong> 20 January</p>
+<p>To whom it may concern,</p>
+<p>I purchased a Summit Pro 14 laptop (order #SE-99831) on 8 January. Since the second day of use, the touchpad has been intermittently unresponsive. I have tried restarting the device and updating the drivers, but the problem persists. I would appreciate guidance on next steps — either a repair, replacement, or refund.</p>
+<p>Carol Brent</p>
+<hr style="margin:14px 0;border-color:var(--border)">
+<p><strong>E-mail 2</strong></p>
+<p><strong>To:</strong> Carol Brent<br>
+<strong>From:</strong> Summit Electronics Customer Services &lt;customerservices@summitelectronics.co.uk&gt;<br>
+<strong>Subject:</strong> Re: Faulty laptop — order #SE-99831<br>
+<strong>Date:</strong> 21 January</p>
+<p>Dear Ms. Brent,</p>
+<p>Thank you for contacting us. We apologise for the inconvenience caused by this fault.</p>
+<p>As your purchase is within the 30-day return window, you are entitled to a full replacement or a complete refund at your discretion. If you would prefer a repair, we can arrange collection of the device within 48 hours and aim to return it within 5 working days.</p>
+<p>Please reply to this e-mail indicating your preferred resolution and we will arrange everything from our end. If you choose a replacement or repair, a prepaid returns label will be e-mailed to you within one business day.</p>
+<p>Kind regards,<br>Summit Electronics Customer Services</p></div>
+    <div class="q-pane"><div class="qi" id="qi-162">
+  <div class="qnum">Question 162</div>
+  <div class="qtxt">What is wrong with Ms. Brent's laptop?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q162" value="A"><span class="opt-l">A</span>The screen has a crack.</label>
+    <label class="opt"><input type="radio" name="q162" value="B"><span class="opt-l">B</span>The battery does not charge.</label>
+    <label class="opt"><input type="radio" name="q162" value="C"><span class="opt-l">C</span>The touchpad does not always respond.</label>
+    <label class="opt"><input type="radio" name="q162" value="D"><span class="opt-l">D</span>The operating system will not load.</label>
+  </div>
+</div><div class="qi" id="qi-163">
+  <div class="qnum">Question 163</div>
+  <div class="qtxt">What options does Summit Electronics offer Ms. Brent?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q163" value="A"><span class="opt-l">A</span>Replacement or repair only</label>
+    <label class="opt"><input type="radio" name="q163" value="B"><span class="opt-l">B</span>Repair or refund only</label>
+    <label class="opt"><input type="radio" name="q163" value="C"><span class="opt-l">C</span>Replacement, refund, or repair</label>
+    <label class="opt"><input type="radio" name="q163" value="D"><span class="opt-l">D</span>Store credit or exchange</label>
+  </div>
+</div><div class="qi" id="qi-164">
+  <div class="qnum">Question 164</div>
+  <div class="qtxt">What will Summit Electronics send if Ms. Brent chooses a replacement or repair?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q164" value="A"><span class="opt-l">A</span>An engineer to collect the device</label>
+    <label class="opt"><input type="radio" name="q164" value="B"><span class="opt-l">B</span>A replacement laptop by courier</label>
+    <label class="opt"><input type="radio" name="q164" value="C"><span class="opt-l">C</span>A prepaid returns label by e-mail</label>
+    <label class="opt"><input type="radio" name="q164" value="D"><span class="opt-l">D</span>A refund confirmation letter</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 165–167 — Advertisement</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>CANOPY LANGUAGE INSTITUTE</h3>
+<p class="meta">Intensive Language Courses — Summer 2025</p>
+<p>Whether you are preparing for a professional certification, an international assignment, or simply looking to expand your horizons, Canopy Language Institute offers the most comprehensive range of short intensive courses in the region.</p>
+<p>Our Summer 2025 programme runs from <strong>7 July to 29 August</strong> and covers 14 languages including French, Spanish, Mandarin, Arabic, German, Japanese, and Portuguese. All courses are available at beginner, intermediate, and advanced levels.</p>
+<p>Each course comprises <strong>40 contact hours</strong> delivered over two weeks in small groups of no more than 8 students, ensuring maximum interaction and personalised feedback from our qualified native-speaker instructors. Assessment is available at the end of each course for students seeking a recognised proficiency certificate.</p>
+<p><strong>Early enrolment discount:</strong> Register before 30 April and save 20% on the course fee. Group bookings of 3 or more students receive an additional 10% discount.</p>
+<p>📍 Canopy Language Institute, 12 Regent Square, Bath &nbsp;|&nbsp; 🌐 canopylanguages.co.uk &nbsp;|&nbsp; ☎ 01225 773 400</p></div>
+    <div class="q-pane"><div class="qi" id="qi-165">
+  <div class="qnum">Question 165</div>
+  <div class="qtxt">What does Canopy Language Institute offer?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q165" value="A"><span class="opt-l">A</span>University-accredited degree programmes</label>
+    <label class="opt"><input type="radio" name="q165" value="B"><span class="opt-l">B</span>Short intensive language courses</label>
+    <label class="opt"><input type="radio" name="q165" value="C"><span class="opt-l">C</span>Online-only language learning</label>
+    <label class="opt"><input type="radio" name="q165" value="D"><span class="opt-l">D</span>Professional translation services</label>
+  </div>
+</div><div class="qi" id="qi-166">
+  <div class="qnum">Question 166</div>
+  <div class="qtxt">What is the maximum class size at Canopy Language Institute?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q166" value="A"><span class="opt-l">A</span>4 students</label>
+    <label class="opt"><input type="radio" name="q166" value="B"><span class="opt-l">B</span>6 students</label>
+    <label class="opt"><input type="radio" name="q166" value="C"><span class="opt-l">C</span>8 students</label>
+    <label class="opt"><input type="radio" name="q166" value="D"><span class="opt-l">D</span>12 students</label>
+  </div>
+</div><div class="qi" id="qi-167">
+  <div class="qnum">Question 167</div>
+  <div class="qtxt">What discount applies to a group of four students who register before 30 April?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q167" value="A"><span class="opt-l">A</span>10% only</label>
+    <label class="opt"><input type="radio" name="q167" value="B"><span class="opt-l">B</span>20% only</label>
+    <label class="opt"><input type="radio" name="q167" value="C"><span class="opt-l">C</span>25% combined discount</label>
+    <label class="opt"><input type="radio" name="q167" value="D"><span class="opt-l">D</span>30% combined discount</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 168–171 — Article</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Demand for Certified Nutritionists Reaches Record High</h3>
+<p class="meta">Careers Today Magazine — February Edition</p>
+<p>The United Kingdom is experiencing an unprecedented surge in demand for qualified nutrition professionals, driven by growing consumer interest in personalised health, rising rates of diet-related illness, and a booming wellness industry. According to the Association of Nutrition, job postings for registered nutritionists increased by 54% between 2022 and 2024.</p>
+<p>Private clinics, corporate wellness programmes, and digital health platforms are all competing for certified professionals. Particularly strong demand has emerged from the corporate sector, where employers are increasingly investing in workplace nutrition initiatives to reduce absenteeism and improve productivity.</p>
+<p>Dr. Simone Obi, head of professional development at the Association of Nutrition, notes that while demand is high, the supply of qualified practitioners has not kept pace. "We are seeing graduates entering roles almost immediately upon certification," she said. "The biggest challenge now is ensuring that training quality keeps up with the rapid expansion of the field."</p>
+<p>The rise of digital nutrition platforms has also created new opportunities for nutritionists to work remotely, offering consultations via video call and managing client programmes through dedicated apps. This flexibility has attracted a new generation of professionals who value work-life balance alongside career progression.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-168">
+  <div class="qnum">Question 168</div>
+  <div class="qtxt">What is the article mainly about?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q168" value="A"><span class="opt-l">A</span>A new government health initiative</label>
+    <label class="opt"><input type="radio" name="q168" value="B"><span class="opt-l">B</span>Growing demand for nutrition professionals</label>
+    <label class="opt"><input type="radio" name="q168" value="C"><span class="opt-l">C</span>The impact of digital technology on healthcare</label>
+    <label class="opt"><input type="radio" name="q168" value="D"><span class="opt-l">D</span>Changes to nutrition qualifications in the UK</label>
+  </div>
+</div><div class="qi" id="qi-169">
+  <div class="qnum">Question 169</div>
+  <div class="qtxt">According to the article, what has the corporate sector increasingly been doing?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q169" value="A"><span class="opt-l">A</span>Offering nutrition-based food products</label>
+    <label class="opt"><input type="radio" name="q169" value="B"><span class="opt-l">B</span>Hiring nutritionists to reduce absences and improve output</label>
+    <label class="opt"><input type="radio" name="q169" value="C"><span class="opt-l">C</span>Funding nutrition research programmes</label>
+    <label class="opt"><input type="radio" name="q169" value="D"><span class="opt-l">D</span>Partnering with universities to develop qualifications</label>
+  </div>
+</div><div class="qi" id="qi-170">
+  <div class="qnum">Question 170</div>
+  <div class="qtxt">What does Dr. Obi identify as the main challenge in the field?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q170" value="A"><span class="opt-l">A</span>A lack of funding for training programmes</label>
+    <label class="opt"><input type="radio" name="q170" value="B"><span class="opt-l">B</span>Insufficient job opportunities for graduates</label>
+    <label class="opt"><input type="radio" name="q170" value="C"><span class="opt-l">C</span>Ensuring training quality matches the growth rate of the sector</label>
+    <label class="opt"><input type="radio" name="q170" value="D"><span class="opt-l">D</span>Competition from overseas nutrition professionals</label>
+  </div>
+</div><div class="qi" id="qi-171">
+  <div class="qnum">Question 171</div>
+  <div class="qtxt">What new opportunity has the rise of digital platforms created?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q171" value="A"><span class="opt-l">A</span>Nutritionists can now earn higher salaries.</label>
+    <label class="opt"><input type="radio" name="q171" value="B"><span class="opt-l">B</span>Nutritionists can work remotely and offer consultations online.</label>
+    <label class="opt"><input type="radio" name="q171" value="C"><span class="opt-l">C</span>Nutritionists no longer need formal certification.</label>
+    <label class="opt"><input type="radio" name="q171" value="D"><span class="opt-l">D</span>Nutritionists can publish their own digital programmes without regulation.</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 172–175 — Text-Message Chain</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><div class="msg-chain">
+  <div class="msg ml"><div class="mn">Fiona Walsh</div>Hi Nico. Quick update — the supplier just called. The ceramic tile delivery for the Alderton project has been pushed back to Thursday. The site manager is not happy.<div class="mt">Tue 11:04 A.M.</div></div>
+  <div class="msg mr"><div class="mn">Nico Brandt</div>That's going to delay the bathroom fitting by at least two days. Has anyone told the client?<div class="mt">Tue 11:07 A.M.</div></div>
+  <div class="msg ml"><div class="mn">Fiona Walsh</div>Not yet. Should I call her or would you prefer to handle it?<div class="mt">Tue 11:08 A.M.</div></div>
+  <div class="msg mr"><div class="mn">Nico Brandt</div>I'll do it — I've been the main contact throughout. I'll explain the situation and give her a revised completion estimate. Can you ask the supplier if there's any possibility of a partial delivery before Thursday?<div class="mt">Tue 11:10 A.M.</div></div>
+  <div class="msg ml"><div class="mn">Fiona Walsh</div>Will do. I'll get back to you within the hour.<div class="mt">Tue 11:11 A.M.</div></div>
+</div></div>
+    <div class="q-pane"><div class="qi" id="qi-172">
+  <div class="qnum">Question 172</div>
+  <div class="qtxt">What has caused a delay on the Alderton project?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q172" value="A"><span class="opt-l">A</span>A shortage of workers on site</label>
+    <label class="opt"><input type="radio" name="q172" value="B"><span class="opt-l">B</span>A delivery of tiles has been postponed</label>
+    <label class="opt"><input type="radio" name="q172" value="C"><span class="opt-l">C</span>A client has changed the design specifications</label>
+    <label class="opt"><input type="radio" name="q172" value="D"><span class="opt-l">D</span>The site manager has cancelled an order</label>
+  </div>
+</div><div class="qi" id="qi-173">
+  <div class="qnum">Question 173</div>
+  <div class="qtxt">Who will contact the client about the delay?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q173" value="A"><span class="opt-l">A</span>Fiona Walsh</label>
+    <label class="opt"><input type="radio" name="q173" value="B"><span class="opt-l">B</span>The site manager</label>
+    <label class="opt"><input type="radio" name="q173" value="C"><span class="opt-l">C</span>The tile supplier</label>
+    <label class="opt"><input type="radio" name="q173" value="D"><span class="opt-l">D</span>Nico Brandt</label>
+  </div>
+</div><div class="qi" id="qi-174">
+  <div class="qnum">Question 174</div>
+  <div class="qtxt">What does Nico Brandt ask Fiona Walsh to do?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q174" value="A"><span class="opt-l">A</span>Call the site manager</label>
+    <label class="opt"><input type="radio" name="q174" value="B"><span class="opt-l">B</span>Check whether part of the delivery can come earlier</label>
+    <label class="opt"><input type="radio" name="q174" value="C"><span class="opt-l">C</span>Send the client a revised invoice</label>
+    <label class="opt"><input type="radio" name="q174" value="D"><span class="opt-l">D</span>Arrange alternative tiles from a different supplier</label>
+  </div>
+</div><div class="qi" id="qi-175">
+  <div class="qnum">Question 175</div>
+  <div class="qtxt">How soon does Fiona Walsh say she will respond?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q175" value="A"><span class="opt-l">A</span>Within the day</label>
+    <label class="opt"><input type="radio" name="q175" value="B"><span class="opt-l">B</span>By the end of the week</label>
+    <label class="opt"><input type="radio" name="q175" value="C"><span class="opt-l">C</span>Within one hour</label>
+    <label class="opt"><input type="radio" name="q175" value="D"><span class="opt-l">D</span>By Thursday</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 176–180 — Report</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>QUARTERLY SALES PERFORMANCE REPORT — Q2</h3>
+<p class="meta">Prepared by: Sales Analytics Team | Distribution: Senior Management | Date: 12 July</p>
+<p><strong>Summary:</strong> Total revenue for Q2 reached £4.2 million, a 9% increase on Q1 and an 18% year-on-year improvement. The strongest growth was recorded in the enterprise software segment (up 27% year-on-year), while consumer product sales remained flat.</p>
+<p><strong>Regional Performance:</strong> The Northern region outperformed all others, achieving 131% of its Q2 target. The Southern region fell short at 88% of target, primarily due to the loss of the Harrington Group contract in April, which had accounted for 14% of the region's Q1 revenue.</p>
+<p><strong>New Client Acquisition:</strong> 34 new clients were signed in Q2, bringing the annual total to 61. The average contract value of new clients increased by 22% compared with the same period last year.</p>
+<p><strong>Challenges:</strong> Supply chain disruptions continued to affect the hardware product line, resulting in delayed fulfilment for 12% of orders. Customer satisfaction scores for hardware orders averaged 3.2/5, compared to 4.5/5 for software orders.</p>
+<p><strong>Outlook:</strong> Q3 targets have been set at £4.6 million. The sales team will focus on strengthening the Southern region pipeline and expanding the enterprise software client base.</p></div>
+    <div class="q-pane"><div class="qi" id="qi-176">
+  <div class="qnum">Question 176</div>
+  <div class="qtxt">What was the total revenue for Q2?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q176" value="A"><span class="opt-l">A</span>£3.8 million</label>
+    <label class="opt"><input type="radio" name="q176" value="B"><span class="opt-l">B</span>£4.2 million</label>
+    <label class="opt"><input type="radio" name="q176" value="C"><span class="opt-l">C</span>£4.6 million</label>
+    <label class="opt"><input type="radio" name="q176" value="D"><span class="opt-l">D</span>£5.1 million</label>
+  </div>
+</div><div class="qi" id="qi-177">
+  <div class="qnum">Question 177</div>
+  <div class="qtxt">Why did the Southern region underperform in Q2?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q177" value="A"><span class="opt-l">A</span>A key sales manager left the company.</label>
+    <label class="opt"><input type="radio" name="q177" value="B"><span class="opt-l">B</span>The region missed its marketing budget.</label>
+    <label class="opt"><input type="radio" name="q177" value="C"><span class="opt-l">C</span>A major client contract was lost in April.</label>
+    <label class="opt"><input type="radio" name="q177" value="D"><span class="opt-l">D</span>A new product launch was delayed.</label>
+  </div>
+</div><div class="qi" id="qi-178">
+  <div class="qnum">Question 178</div>
+  <div class="qtxt">How many new clients were acquired in Q2?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q178" value="A"><span class="opt-l">A</span>22</label>
+    <label class="opt"><input type="radio" name="q178" value="B"><span class="opt-l">B</span>34</label>
+    <label class="opt"><input type="radio" name="q178" value="C"><span class="opt-l">C</span>47</label>
+    <label class="opt"><input type="radio" name="q178" value="D"><span class="opt-l">D</span>61</label>
+  </div>
+</div><div class="qi" id="qi-179">
+  <div class="qnum">Question 179</div>
+  <div class="qtxt">What is identified as a challenge in Q2?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q179" value="A"><span class="opt-l">A</span>Declining software sales</label>
+    <label class="opt"><input type="radio" name="q179" value="B"><span class="opt-l">B</span>Increased competition from overseas</label>
+    <label class="opt"><input type="radio" name="q179" value="C"><span class="opt-l">C</span>Supply chain issues affecting hardware delivery</label>
+    <label class="opt"><input type="radio" name="q179" value="D"><span class="opt-l">D</span>Reduced staff numbers in the sales team</label>
+  </div>
+</div><div class="qi" id="qi-180">
+  <div class="qnum">Question 180</div>
+  <div class="qtxt">What is the Q3 revenue target?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q180" value="A"><span class="opt-l">A</span>£4.2 million</label>
+    <label class="opt"><input type="radio" name="q180" value="B"><span class="opt-l">B</span>£4.4 million</label>
+    <label class="opt"><input type="radio" name="q180" value="C"><span class="opt-l">C</span>£4.6 million</label>
+    <label class="opt"><input type="radio" name="q180" value="D"><span class="opt-l">D</span>£5.0 million</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 181–185 — Advertisement + Enquiry Form</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — Advertisement</h3>
+<p class="meta">Lifestyle &amp; Business Magazine — March Issue</p>
+<p><strong>SUMMIT EXECUTIVE RETREATS</strong><br>
+Where leadership is redefined.</p>
+<p>Summit Executive Retreats offers tailored three-day leadership development retreats for senior management teams in some of the UK's most inspiring countryside locations. Our programme combines outdoor leadership activities, facilitated strategy workshops, and wellness sessions to help executive teams develop cohesion, clarity, and long-term vision.</p>
+<p>Groups of 8 to 20 participants. All inclusive: accommodation, meals, all activities, and facilitation. Locations include the Scottish Highlands, the Lake District, and the Brecon Beacons. Transport from the nearest rail station is included.</p>
+<p><strong>Early booking discount: 12% off</strong> for retreats confirmed more than 90 days in advance.</p>
+<p>Contact: hello@summitretreats.co.uk | 0800 321 7700</p>
+<hr style="margin:14px 0;border-color:var(--border)">
+<h3>Document 2 — Enquiry Form</h3>
+<p class="meta">Received: 15 February</p>
+<table>
+  <tr><th>Field</th><th>Details</th></tr>
+  <tr><td>Company</td><td>Aldgate &amp; Park Financial Services</td></tr>
+  <tr><td>Contact</td><td>Sandra Wei, Chief Operations Officer</td></tr>
+  <tr><td>Preferred retreat dates</td><td>12–14 May</td></tr>
+  <tr><td>Number of participants</td><td>16</td></tr>
+  <tr><td>Location preference</td><td>Scottish Highlands</td></tr>
+  <tr><td>Special requirements</td><td>Two participants have mobility limitations — ground floor accommodation required</td></tr>
+  <tr><td>Early booking discount</td><td>Not eligible — less than 90 days in advance</td></tr>
+</table></div>
+    <div class="q-pane"><div class="qi" id="qi-181">
+  <div class="qnum">Question 181</div>
+  <div class="qtxt">What does Summit Executive Retreats specialise in?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q181" value="A"><span class="opt-l">A</span>Online leadership certification courses</label>
+    <label class="opt"><input type="radio" name="q181" value="B"><span class="opt-l">B</span>Accommodation for individual business travellers</label>
+    <label class="opt"><input type="radio" name="q181" value="C"><span class="opt-l">C</span>Leadership retreats for management teams</label>
+    <label class="opt"><input type="radio" name="q181" value="D"><span class="opt-l">D</span>Corporate team-building days at city venues</label>
+  </div>
+</div><div class="qi" id="qi-182">
+  <div class="qnum">Question 182</div>
+  <div class="qtxt">Which of the following is included in the retreat fee?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q182" value="A"><span class="opt-l">A</span>Flights to the retreat location</label>
+    <label class="opt"><input type="radio" name="q182" value="B"><span class="opt-l">B</span>Transport from the nearest rail station</label>
+    <label class="opt"><input type="radio" name="q182" value="C"><span class="opt-l">C</span>Conference hall hire</label>
+    <label class="opt"><input type="radio" name="q182" value="D"><span class="opt-l">D</span>Equipment hire for outdoor activities</label>
+  </div>
+</div><div class="qi" id="qi-183">
+  <div class="qnum">Question 183</div>
+  <div class="qtxt">How many participants is Aldgate & Park Financial Services planning to send?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q183" value="A"><span class="opt-l">A</span>8</label>
+    <label class="opt"><input type="radio" name="q183" value="B"><span class="opt-l">B</span>12</label>
+    <label class="opt"><input type="radio" name="q183" value="C"><span class="opt-l">C</span>16</label>
+    <label class="opt"><input type="radio" name="q183" value="D"><span class="opt-l">D</span>20</label>
+  </div>
+</div><div class="qi" id="qi-184">
+  <div class="qnum">Question 184</div>
+  <div class="qtxt">Why will Aldgate & Park Financial Services NOT receive the early booking discount?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q184" value="A"><span class="opt-l">A</span>They registered after the programme was full.</label>
+    <label class="opt"><input type="radio" name="q184" value="B"><span class="opt-l">B</span>They are booking less than 90 days before the retreat.</label>
+    <label class="opt"><input type="radio" name="q184" value="C"><span class="opt-l">C</span>They chose a location not covered by the discount.</label>
+    <label class="opt"><input type="radio" name="q184" value="D"><span class="opt-l">D</span>Their group is too large to qualify.</label>
+  </div>
+</div><div class="qi" id="qi-185">
+  <div class="qnum">Question 185</div>
+  <div class="qtxt">What special accommodation requirement is indicated?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q185" value="A"><span class="opt-l">A</span>A private meeting room for two participants</label>
+    <label class="opt"><input type="radio" name="q185" value="B"><span class="opt-l">B</span>Wi-Fi access throughout the venue</label>
+    <label class="opt"><input type="radio" name="q185" value="C"><span class="opt-l">C</span>Ground-floor rooms for participants with mobility limitations</label>
+    <label class="opt"><input type="radio" name="q185" value="D"><span class="opt-l">D</span>A dedicated dining area for dietary requirements</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 186–190 — Programme</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>WESTFIELD INTERNATIONAL FOOD FESTIVAL — Day 1 Programme</h3>
+<p class="meta">Saturday 21 June | Westfield Civic Park</p>
+<table>
+  <tr><th>Time</th><th>Activity</th><th>Location</th><th>Notes</th></tr>
+  <tr><td>10:00</td><td>Official Opening Ceremony</td><td>Main Stage</td><td>Welcoming address by Mayor of Westfield</td></tr>
+  <tr><td>10:30–13:00</td><td>Street Food Market</td><td>Market Square</td><td>40+ international food stalls</td></tr>
+  <tr><td>11:00–12:00</td><td>Live Cooking Demo: Thai Cuisine</td><td>Demo Kitchen</td><td>Chef: Apichat Ruengrit</td></tr>
+  <tr><td>12:30–13:30</td><td>Live Cooking Demo: Moroccan Cuisine</td><td>Demo Kitchen</td><td>Chef: Fatima El Khatib</td></tr>
+  <tr><td>13:30–14:30</td><td>Children's Cooking Workshop</td><td>Activity Tent</td><td>Ages 5–12. Pre-registration required.</td></tr>
+  <tr><td>14:00–15:30</td><td>Food Photography Masterclass</td><td>Workshop Room</td><td>Max 20 participants. Bring your own camera/phone.</td></tr>
+  <tr><td>16:00–17:30</td><td>Panel Discussion: Sustainable Food Systems</td><td>Conference Room A</td><td>Moderated by Dr. Naomi Park</td></tr>
+  <tr><td>18:00–21:00</td><td>Evening Gala Dinner</td><td>Pavilion</td><td>Ticketed event — separate purchase required</td></tr>
+</table></div>
+    <div class="q-pane"><div class="qi" id="qi-186">
+  <div class="qnum">Question 186</div>
+  <div class="qtxt">Who will give a welcoming address at the opening ceremony?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q186" value="A"><span class="opt-l">A</span>Dr. Naomi Park</label>
+    <label class="opt"><input type="radio" name="q186" value="B"><span class="opt-l">B</span>Chef Apichat Ruengrit</label>
+    <label class="opt"><input type="radio" name="q186" value="C"><span class="opt-l">C</span>The Mayor of Westfield</label>
+    <label class="opt"><input type="radio" name="q186" value="D"><span class="opt-l">D</span>The festival director</label>
+  </div>
+</div><div class="qi" id="qi-187">
+  <div class="qnum">Question 187</div>
+  <div class="qtxt">Which activity requires participants to bring their own equipment?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q187" value="A"><span class="opt-l">A</span>Children's Cooking Workshop</label>
+    <label class="opt"><input type="radio" name="q187" value="B"><span class="opt-l">B</span>Live Cooking Demo: Thai Cuisine</label>
+    <label class="opt"><input type="radio" name="q187" value="C"><span class="opt-l">C</span>Food Photography Masterclass</label>
+    <label class="opt"><input type="radio" name="q187" value="D"><span class="opt-l">D</span>Panel Discussion: Sustainable Food Systems</label>
+  </div>
+</div><div class="qi" id="qi-188">
+  <div class="qnum">Question 188</div>
+  <div class="qtxt">Which activity requires advance registration?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q188" value="A"><span class="opt-l">A</span>Street Food Market</label>
+    <label class="opt"><input type="radio" name="q188" value="B"><span class="opt-l">B</span>Children's Cooking Workshop</label>
+    <label class="opt"><input type="radio" name="q188" value="C"><span class="opt-l">C</span>Live Cooking Demo: Moroccan Cuisine</label>
+    <label class="opt"><input type="radio" name="q188" value="D"><span class="opt-l">D</span>Evening Gala Dinner</label>
+  </div>
+</div><div class="qi" id="qi-189">
+  <div class="qnum">Question 189</div>
+  <div class="qtxt">How many cooking demonstrations are scheduled for Day 1?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q189" value="A"><span class="opt-l">A</span>One</label>
+    <label class="opt"><input type="radio" name="q189" value="B"><span class="opt-l">B</span>Two</label>
+    <label class="opt"><input type="radio" name="q189" value="C"><span class="opt-l">C</span>Three</label>
+    <label class="opt"><input type="radio" name="q189" value="D"><span class="opt-l">D</span>Four</label>
+  </div>
+</div><div class="qi" id="qi-190">
+  <div class="qnum">Question 190</div>
+  <div class="qtxt">What is true about the Evening Gala Dinner?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q190" value="A"><span class="opt-l">A</span>It is included in the general festival admission.</label>
+    <label class="opt"><input type="radio" name="q190" value="B"><span class="opt-l">B</span>It is open to festival staff only.</label>
+    <label class="opt"><input type="radio" name="q190" value="C"><span class="opt-l">C</span>It requires a separately purchased ticket.</label>
+    <label class="opt"><input type="radio" name="q190" value="D"><span class="opt-l">D</span>It takes place in the Activity Tent.</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 191–195 — Double Passage: Job Posting + Application E-mail</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>Document 1 — Job Posting</h3>
+<p class="meta">www.workbridge.co.uk — Posted 3 March</p>
+<p><strong>MARKETING COORDINATOR — HALSTON MEDIA GROUP</strong></p>
+<p><strong>Location:</strong> Leeds (hybrid — 3 days office, 2 days remote)<br>
+<strong>Salary:</strong> £28,000–£32,000 depending on experience<br>
+<strong>Contract:</strong> Permanent, full-time</p>
+<p>We are looking for an enthusiastic and organised Marketing Coordinator to join our growing team at Halston Media Group. The successful candidate will support the marketing team in the delivery of campaigns across digital and print channels, manage social media accounts, coordinate supplier relationships, and assist with event logistics.</p>
+<p><strong>Requirements:</strong> A degree in Marketing, Communications, or a related field; at least one year's experience in a marketing role; proficiency in Adobe Creative Suite and Google Analytics; excellent written English; and a driving licence.</p>
+<p><strong>Closing date:</strong> 28 March. Applications by e-mail only to hr@halstonmedia.co.uk. Please include a CV and a covering letter.</p>
+<hr style="margin:14px 0;border-color:var(--border)">
+<h3>Document 2 — Application E-mail</h3>
+<p><strong>To:</strong> hr@halstonmedia.co.uk<br>
+<strong>From:</strong> Zoe Harrington &lt;z.harrington@webmail.com&gt;<br>
+<strong>Subject:</strong> Application: Marketing Coordinator<br>
+<strong>Date:</strong> 24 March</p>
+<p>Dear Hiring Team,</p>
+<p>I am writing to apply for the Marketing Coordinator position advertised on Workbridge. I hold a BSc in Business with Marketing from the University of Sheffield and have 18 months of experience in a marketing agency, where I managed social media accounts and assisted with campaign delivery for clients across the retail and hospitality sectors.</p>
+<p>I am proficient in Adobe Creative Suite and have completed a Google Analytics certification. While I do not currently hold a driving licence, I am in the process of taking lessons and expect to pass my test before the end of April.</p>
+<p>Please find my CV and covering letter attached. I would welcome the opportunity to discuss my application at interview.</p>
+<p>Yours sincerely,<br>Zoe Harrington</p></div>
+    <div class="q-pane"><div class="qi" id="qi-191">
+  <div class="qnum">Question 191</div>
+  <div class="qtxt">What type of contract is being offered by Halston Media Group?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q191" value="A"><span class="opt-l">A</span>A six-month fixed-term contract</label>
+    <label class="opt"><input type="radio" name="q191" value="B"><span class="opt-l">B</span>A part-time permanent role</label>
+    <label class="opt"><input type="radio" name="q191" value="C"><span class="opt-l">C</span>A full-time permanent position</label>
+    <label class="opt"><input type="radio" name="q191" value="D"><span class="opt-l">D</span>A freelance consultancy arrangement</label>
+  </div>
+</div><div class="qi" id="qi-192">
+  <div class="qnum">Question 192</div>
+  <div class="qtxt">What does the job posting say about work location?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q192" value="A"><span class="opt-l">A</span>The role is entirely office-based.</label>
+    <label class="opt"><input type="radio" name="q192" value="B"><span class="opt-l">B</span>The role is entirely remote.</label>
+    <label class="opt"><input type="radio" name="q192" value="C"><span class="opt-l">C</span>The role combines office and remote working.</label>
+    <label class="opt"><input type="radio" name="q192" value="D"><span class="opt-l">D</span>The role involves regular travel between offices.</label>
+  </div>
+</div><div class="qi" id="qi-193">
+  <div class="qnum">Question 193</div>
+  <div class="qtxt">Which requirement listed in the job posting does Ms. Harrington NOT currently meet?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q193" value="A"><span class="opt-l">A</span>Experience in a marketing role</label>
+    <label class="opt"><input type="radio" name="q193" value="B"><span class="opt-l">B</span>Proficiency in Adobe Creative Suite</label>
+    <label class="opt"><input type="radio" name="q193" value="C"><span class="opt-l">C</span>A degree in a relevant field</label>
+    <label class="opt"><input type="radio" name="q193" value="D"><span class="opt-l">D</span>A driving licence</label>
+  </div>
+</div><div class="qi" id="qi-194">
+  <div class="qnum">Question 194</div>
+  <div class="qtxt">How long has Ms. Harrington worked in marketing?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q194" value="A"><span class="opt-l">A</span>Less than one year</label>
+    <label class="opt"><input type="radio" name="q194" value="B"><span class="opt-l">B</span>Exactly one year</label>
+    <label class="opt"><input type="radio" name="q194" value="C"><span class="opt-l">C</span>18 months</label>
+    <label class="opt"><input type="radio" name="q194" value="D"><span class="opt-l">D</span>Two years</label>
+  </div>
+</div><div class="qi" id="qi-195">
+  <div class="qnum">Question 195</div>
+  <div class="qtxt">By what date must applications be submitted?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q195" value="A"><span class="opt-l">A</span>March 3</label>
+    <label class="opt"><input type="radio" name="q195" value="B"><span class="opt-l">B</span>March 24</label>
+    <label class="opt"><input type="radio" name="q195" value="C"><span class="opt-l">C</span>March 28</label>
+    <label class="opt"><input type="radio" name="q195" value="D"><span class="opt-l">D</span>April 28</label>
+  </div>
+</div></div>
+  </div>
+</div>
+<div class="pb">
+  <div class="pb-hdr">Questions 196–200 — Advertisement</div>
+  <div class="pb-body wide">
+    <div class="pass-pane"><h3>CLEARPATH FINANCIAL PLANNING — Your Future, Clearly Mapped</h3>
+<p class="meta">Promotional brochure — Spring 2025</p>
+<p>At Clearpath Financial Planning, we believe that sound financial advice should be accessible to everyone — not just those with large assets. We provide independent, fee-based financial planning services for individuals, families, and small business owners across the South of England.</p>
+<p><strong>Our core services include:</strong></p>
+<ul class="blist">
+  <li>Retirement planning and pension reviews</li>
+  <li>Investment portfolio management</li>
+  <li>Tax-efficient savings strategies (ISAs, SIPPs)</li>
+  <li>Protection planning (life insurance, critical illness cover)</li>
+  <li>First-time buyer mortgage advice</li>
+</ul>
+<p>All our advisers are fully qualified and regulated by the Financial Conduct Authority (FCA). We operate on a <strong>fee-only basis</strong> — we do not earn commission on any product we recommend, ensuring our advice is always in your best interest.</p>
+<p><strong>Free initial consultation:</strong> All new clients are entitled to a free 60-minute introductory consultation with no obligation. Book online at clearpath-fp.co.uk or call 01273 445 600.</p>
+<p><em>Clearpath Financial Planning Ltd is authorised and regulated by the Financial Conduct Authority. Your investments can go down as well as up.</em></p></div>
+    <div class="q-pane"><div class="qi" id="qi-196">
+  <div class="qnum">Question 196</div>
+  <div class="qtxt">Who are Clearpath Financial Planning's target clients?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q196" value="A"><span class="opt-l">A</span>Exclusively high-net-worth individuals</label>
+    <label class="opt"><input type="radio" name="q196" value="B"><span class="opt-l">B</span>Large corporations and investment funds</label>
+    <label class="opt"><input type="radio" name="q196" value="C"><span class="opt-l">C</span>Individuals, families, and small business owners</label>
+    <label class="opt"><input type="radio" name="q196" value="D"><span class="opt-l">D</span>First-time investors with no financial experience</label>
+  </div>
+</div><div class="qi" id="qi-197">
+  <div class="qnum">Question 197</div>
+  <div class="qtxt">How do Clearpath advisers earn their income?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q197" value="A"><span class="opt-l">A</span>Through commission on financial products</label>
+    <label class="opt"><input type="radio" name="q197" value="B"><span class="opt-l">B</span>Through fees charged to clients</label>
+    <label class="opt"><input type="radio" name="q197" value="C"><span class="opt-l">C</span>Through government subsidies</label>
+    <label class="opt"><input type="radio" name="q197" value="D"><span class="opt-l">D</span>Through referral fees from partner companies</label>
+  </div>
+</div><div class="qi" id="qi-198">
+  <div class="qnum">Question 198</div>
+  <div class="qtxt">Which of the following services does Clearpath NOT list?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q198" value="A"><span class="opt-l">A</span>Investment portfolio management</label>
+    <label class="opt"><input type="radio" name="q198" value="B"><span class="opt-l">B</span>First-time buyer mortgage advice</label>
+    <label class="opt"><input type="radio" name="q198" value="C"><span class="opt-l">C</span>Business loan brokerage</label>
+    <label class="opt"><input type="radio" name="q198" value="D"><span class="opt-l">D</span>Retirement planning</label>
+  </div>
+</div><div class="qi" id="qi-199">
+  <div class="qnum">Question 199</div>
+  <div class="qtxt">What is offered to all new clients at no cost?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q199" value="A"><span class="opt-l">A</span>A free annual financial review</label>
+    <label class="opt"><input type="radio" name="q199" value="B"><span class="opt-l">B</span>A free 60-minute introductory consultation</label>
+    <label class="opt"><input type="radio" name="q199" value="C"><span class="opt-l">C</span>A free investment portfolio assessment</label>
+    <label class="opt"><input type="radio" name="q199" value="D"><span class="opt-l">D</span>A free tax return preparation</label>
+  </div>
+</div><div class="qi" id="qi-200">
+  <div class="qnum">Question 200</div>
+  <div class="qtxt">What does the small print at the bottom of the brochure warn about?</div>
+  <div class="opts">
+    <label class="opt"><input type="radio" name="q200" value="A"><span class="opt-l">A</span>Clearpath advisers are not qualified.</label>
+    <label class="opt"><input type="radio" name="q200" value="B"><span class="opt-l">B</span>The company is not regulated.</label>
+    <label class="opt"><input type="radio" name="q200" value="C"><span class="opt-l">C</span>Investment values can decrease.</label>
+    <label class="opt"><input type="radio" name="q200" value="D"><span class="opt-l">D</span>The free consultation has a time limit.</label>
+  </div>
+</div></div>
+  </div>
+</div>
+  <div id="sub-sec">
+    <span id="unans">54 questions sans réponse</span>
+    <p>Répondez à toutes les questions pour activer la soumission.</p>
+    <button id="sub-btn" disabled onclick="submitTest()">Terminer &amp; voir la correction</button>
+  </div>
+  <div id="corr-sec">
+    <div class="score-banner"><h2>Résultats — Marc VASSEUR — Polytech Lille</h2><div class="big-score" id="sc-disp">--/54</div><div class="score-sub" id="sc-pct"></div><div class="toeic-est" id="sc-est"></div></div>
+    <div id="corr-content"></div>
+  </div>
+</div>
+<script>
+const KEYS={"q147": "B", "q148": "C", "q149": "B", "q150": "C", "q151": "B", "q152": "C", "q153": "B", "q154": "C", "q155": "B", "q156": "B", "q157": "C", "q158": "C", "q159": "B", "q160": "B", "q161": "C", "q162": "C", "q163": "C", "q164": "C", "q165": "B", "q166": "C", "q167": "D", "q168": "B", "q169": "B", "q170": "C", "q171": "B", "q172": "B", "q173": "D", "q174": "B", "q175": "C", "q176": "B", "q177": "C", "q178": "B", "q179": "C", "q180": "C", "q181": "C", "q182": "B", "q183": "C", "q184": "B", "q185": "C", "q186": "C", "q187": "C", "q188": "B", "q189": "B", "q190": "C", "q191": "C", "q192": "C", "q193": "D", "q194": "C", "q195": "C", "q196": "C", "q197": "B", "q198": "C", "q199": "B", "q200": "C"};
+const EXPL={
+  "q147":{q:"What is the purpose of the schedule?",correct:"B",optLabels:{"A": "To advertise new library book releases", "B": "To list community events held at the library", "C": "To announce changes to library opening hours", "D": "To provide information about library membership"},fr:"Le tableau liste des événements variés (ateliers, ventes, conférences, talks d'auteur) organisés à la bibliothèque → (B). Aucune information sur de nouveaux livres, horaires ou adhésion n'est mentionnée.",vocab:"<span>schedule</span> = programme, calendrier | <span>community events</span> = événements communautaires | <span>proceeds</span> = bénéfices, recettes"},
+  "q148":{q:"Which event is intended to help people find employment?",correct:"C",optLabels:{"A": "Children's Reading Circle", "B": "Local History Talk", "C": "Free CV & Job Application Workshop", "D": "Digital Skills for Seniors"},fr:"<em>Free CV & Job Application Workshop</em> le 22 mars → atelier d'aide à l'emploi (C). Les autres événements concernent respectivement les enfants, l'histoire locale et les compétences numériques pour seniors.",vocab:"<span>CV</span> = curriculum vitae | <span>job application</span> = candidature à un emploi | <span>workshop</span> = atelier pratique"},
+  "q149":{q:"What problem does Ms. Huang have?",correct:"B",optLabels:{"A": "She has not yet arrived at the hotel.", "B": "She has not received her conference materials.", "C": "She cannot find the conference website.", "D": "Her hotel room is not ready."},fr:"<em>I still haven't received the delegate pack from the organiser</em> → elle n'a pas reçu les documents de la conférence (B). Elle est déjà à l'hôtel. Le site web est accessible. La chambre n'est pas mentionnée comme un problème.",vocab:"<span>delegate pack</span> = dossier du délégué | <span>conference materials</span> = documents de la conférence | <span>courier</span> = livreur, service de messagerie"},
+  "q150":{q:"What does Mr. Cross offer to do if the delegate pack is not at the front desk?",correct:"C",optLabels:{"A": "Deliver the pack to her room in person", "B": "Contact the conference organiser", "C": "Scan the programme and send it to her", "D": "Book her a replacement delegate pack"},fr:"<em>I can scan the programme and send it over tonight</em> → il propose de scanner et envoyer le programme (C). Il ne propose pas de livraison personnelle, de contact avec l'organisateur, ni de nouveau dossier.",vocab:"<span>scan</span> = scanner, numériser | <span>front desk</span> = réception | <span>delegate pack</span> = dossier du participant"},
+  "q151":{q:"What will change on Monday, 7 April?",correct:"B",optLabels:{"A": "Car parking will become fee-based.", "B": "A new barrier access system will take effect.", "C": "The car park will close for maintenance.", "D": "Car park capacity will be reduced."},fr:"<em>access to the main employee car park... will require use of the new proximity card</em> et <em>The barrier system previously operated by key fob will be decommissioned</em> → un nouveau système d'accès par carte (B). Il n'est pas question de payant, de fermeture ou de réduction de capacité.",vocab:"<span>proximity card</span> = carte de proximité, badge sans contact | <span>key fob</span> = télécommande, porte-clé badge | <span>decommissioned</span> = mis hors service"},
+  "q152":{q:"What must employees bring when collecting their proximity card?",correct:"C",optLabels:{"A": "A completed application form", "B": "Their old key fob", "C": "Proof of identity", "D": "A confirmation e-mail"},fr:"<em>Please bring your staff ID as proof of identity</em> → une preuve d'identité (C). Aucun formulaire, télécommande ni e-mail de confirmation n'est demandé.",vocab:"<span>proof of identity</span> = preuve d'identité | <span>staff ID</span> = badge employé | <span>proximity card</span> = carte d'accès sans contact"},
+  "q153":{q:"What does the reviewer say is a strength of Planora?",correct:"B",optLabels:{"A": "The quality of customer support", "B": "The project tracking and reporting features", "C": "The mobile app experience", "D": "The price of the subscription"},fr:"<em>The task assignment and deadline tracking features are genuinely excellent</em> et <em>The reporting dashboard has saved us hours of manual work</em> → les fonctionnalités de suivi et de reporting (B). Le support client est mentionné mais pas loué. L'app mobile est critiquée. Le prix n'est pas commenté.",vocab:"<span>task assignment</span> = attribution de tâches | <span>deadline tracking</span> = suivi des échéances | <span>dashboard</span> = tableau de bord"},
+  "q154":{q:"What does the reviewer say about the mobile app?",correct:"C",optLabels:{"A": "It works well for remote teams.", "B": "It is the same as the desktop version.", "C": "It is missing some features found on desktop.", "D": "It has recently been updated."},fr:"<em>the mobile experience is clunky and lacks several key features available on desktop</em> → l'appli manque de fonctionnalités présentes sur la version ordinateur (C). Elle est décrite comme maladroite, pas adaptée aux équipes à distance. La mise à jour est en cours de développement, pas encore publiée.",vocab:"<span>clunky</span> = maladroit, peu ergonomique | <span>mobile app</span> = application mobile | <span>in development</span> = en cours de développement"},
+  "q155":{q:"What is the purpose of the e-mail?",correct:"B",optLabels:{"A": "To send a catering menu to Mr. Corrigan", "B": "To respond to a venue hire enquiry", "C": "To confirm a booking has been completed", "D": "To request payment from the client"},fr:"<em>Thank you for your enquiry about hiring the Crystal Suite... I am delighted to confirm that the Crystal Suite is available</em> → réponse à une demande de location (B). Le menu traiteur est proposé sur demande. La réservation n'est pas encore finalisée. Aucun paiement n'est demandé dans cet e-mail.",vocab:"<span>venue hire</span> = location de salle | <span>enquiry</span> = demande de renseignements | <span>site visit</span> = visite des lieux"},
+  "q156":{q:"What is the seated capacity of the Crystal Suite?",correct:"B",optLabels:{"A": "80", "B": "120", "C": "150", "D": "180"},fr:"<em>a seated capacity of 120</em> → 120 personnes assises (B). 180 = capacité debout. 80 et 150 ne sont pas mentionnés.",vocab:"<span>seated capacity</span> = capacité assise | <span>standing capacity</span> = capacité debout | <span>suite</span> = salle, suite"},
+  "q157":{q:"What is NOT included in the standard hire rate?",correct:"C",optLabels:{"A": "Use of projection screens", "B": "Services of a technical coordinator", "C": "Catering", "D": "The AV system"},fr:"<em>Our standard hire rate is £1,200 per day, which includes use of the suite, all AV equipment, and the services of our on-site technical coordinator</em>. <em>Catering can be arranged... at additional cost</em> → la restauration n'est pas incluse (C).",vocab:"<span>hire rate</span> = tarif de location | <span>at additional cost</span> = à un coût supplémentaire | <span>preferred partner</span> = partenaire privilégié"},
+  "q158":{q:"When must the remaining balance be paid?",correct:"C",optLabels:{"A": "Within ten business days of confirming the reservation", "B": "On the day of the event", "C": "Two weeks before the event", "D": "Upon receiving the catering menu"},fr:"<em>The remainder is due 14 days before the event</em> → 14 jours = deux semaines avant l'événement (C). Les 10 jours ouvrables concernent le dépôt initial. Rien n'est dû le jour même ni à la réception du menu.",vocab:"<span>remaining balance</span> = solde restant | <span>deposit</span> = acompte | <span>bank transfer</span> = virement bancaire"},
+  "q159":{q:"What is the article mainly about?",correct:"B",optLabels:{"A": "The decline of bee populations in rural areas", "B": "The growth of beekeeping in cities", "C": "A new government agricultural policy", "D": "The commercial honey industry in the UK"},fr:"L'article traite de l'essor de l'apiculture urbaine dans les villes britanniques (B). Le déclin des abeilles est mentionné comme facteur déclencheur, mais ce n'est pas le sujet principal. Aucune politique gouvernementale ni industrie commerciale n'est le focus.",vocab:"<span>beekeeping</span> = apiculture | <span>urban</span> = urbain | <span>pollinator populations</span> = populations de pollinisateurs"},
+  "q160":{q:"According to the article, what has happened to urban beekeeping since 2020?",correct:"B",optLabels:{"A": "It has been banned in several cities.", "B": "The number of registered urban beekeepers has risen significantly.", "C": "Government funding for beekeeping has been cut.", "D": "City councils have limited the number of hives allowed."},fr:"<em>the number of registered urban beekeepers increased by 38% between 2020 and 2024</em> → hausse significative du nombre d'apiculteurs enregistrés (B). Aucune interdiction, réduction de financement ni limitation de ruches n'est mentionnée.",vocab:"<span>registered</span> = enregistré, déclaré | <span>increased by</span> = augmenté de | <span>beekeepers</span> = apiculteurs"},
+  "q161":{q:"What do critics of urban beekeeping worry about?",correct:"C",optLabels:{"A": "The high cost of maintaining hives", "B": "The impact on commercially produced honey", "C": "The risk of bee stings to local residents", "D": "The effect on urban park aesthetics"},fr:"<em>Some urban residents have raised concerns about the risk of stings</em> → les critiques s'inquiètent des piqûres d'abeilles (C). Le coût, l'impact sur le miel commercial et l'esthétique des parcs ne sont pas mentionnés.",vocab:"<span>stings</span> = piqûres | <span>critics</span> = détracteurs, opposants | <span>well-managed hives</span> = ruches bien entretenues"},
+  "q162":{q:"What is wrong with Ms. Brent's laptop?",correct:"C",optLabels:{"A": "The screen has a crack.", "B": "The battery does not charge.", "C": "The touchpad does not always respond.", "D": "The operating system will not load."},fr:"<em>the touchpad has been intermittently unresponsive</em> → le touchpad ne répond pas de façon intermittente (C). Aucun problème d'écran, de batterie ni de système d'exploitation n'est mentionné.",vocab:"<span>touchpad</span> = pavé tactile | <span>intermittently unresponsive</span> = qui ne répond pas de façon intermittente | <span>persists</span> = persiste, continue"},
+  "q163":{q:"What options does Summit Electronics offer Ms. Brent?",correct:"C",optLabels:{"A": "Replacement or repair only", "B": "Repair or refund only", "C": "Replacement, refund, or repair", "D": "Store credit or exchange"},fr:"<em>you are entitled to a full replacement or a complete refund at your discretion. If you would prefer a repair, we can arrange collection</em> → trois options : remplacement, remboursement ou réparation (C).",vocab:"<span>at your discretion</span> = à votre discrétion, selon votre choix | <span>within the 30-day return window</span> = dans la période de retour de 30 jours | <span>entitled to</span> = avoir droit à"},
+  "q164":{q:"What will Summit Electronics send if Ms. Brent chooses a replacement or repair?",correct:"C",optLabels:{"A": "An engineer to collect the device", "B": "A replacement laptop by courier", "C": "A prepaid returns label by e-mail", "D": "A refund confirmation letter"},fr:"<em>a prepaid returns label will be e-mailed to you within one business day</em> → une étiquette de retour prépayée par e-mail (C). Aucun ingénieur, colis de remplacement direct ni lettre de remboursement n'est mentionné dans cette étape.",vocab:"<span>prepaid returns label</span> = étiquette de retour prépayée | <span>collection</span> = collecte, enlèvement | <span>resolution</span> = solution, résolution"},
+  "q165":{q:"What does Canopy Language Institute offer?",correct:"B",optLabels:{"A": "University-accredited degree programmes", "B": "Short intensive language courses", "C": "Online-only language learning", "D": "Professional translation services"},fr:"<em>Canopy Language Institute offers the most comprehensive range of short intensive courses</em> → des cours intensifs courts (B). Aucun diplôme universitaire, cours exclusivement en ligne ni service de traduction n'est mentionné.",vocab:"<span>intensive courses</span> = cours intensifs | <span>proficiency certificate</span> = certificat de niveau | <span>contact hours</span> = heures de cours en présentiel"},
+  "q166":{q:"What is the maximum class size at Canopy Language Institute?",correct:"C",optLabels:{"A": "4 students", "B": "6 students", "C": "8 students", "D": "12 students"},fr:"<em>small groups of no more than 8 students</em> → effectif maximum de 8 (C).",vocab:"<span>class size</span> = effectif de classe | <span>no more than</span> = pas plus de | <span>small groups</span> = petits groupes"},
+  "q167":{q:"What discount applies to a group of four students who register before 30 April?",correct:"D",optLabels:{"A": "10% only", "B": "20% only", "C": "25% combined discount", "D": "30% combined discount"},fr:"Inscription avant le 30 avril = <em>20% early enrolment discount</em>. Groupe de 3 ou plus = <em>additional 10%</em>. Total : 20% + 10% = 30% (D). Les deux remises se cumulent.",vocab:"<span>early enrolment discount</span> = remise pour inscription anticipée | <span>group booking</span> = réservation de groupe | <span>combined</span> = cumulé, combiné"},
+  "q168":{q:"What is the article mainly about?",correct:"B",optLabels:{"A": "A new government health initiative", "B": "Growing demand for nutrition professionals", "C": "The impact of digital technology on healthcare", "D": "Changes to nutrition qualifications in the UK"},fr:"L'article traite de la forte demande de nutritionnistes qualifiés et de ses causes (B). La technologie numérique est mentionnée comme contexte, mais ce n'est pas le sujet central. Aucune initiative gouvernementale ni modification de qualifications n'est le focus.",vocab:"<span>nutritionist</span> = nutritionniste | <span>surge in demand</span> = forte hausse de la demande | <span>certified</span> = certifié, diplômé"},
+  "q169":{q:"According to the article, what has the corporate sector increasingly been doing?",correct:"B",optLabels:{"A": "Offering nutrition-based food products", "B": "Hiring nutritionists to reduce absences and improve output", "C": "Funding nutrition research programmes", "D": "Partnering with universities to develop qualifications"},fr:"<em>employers are increasingly investing in workplace nutrition initiatives to reduce absenteeism and improve productivity</em> → les employeurs investissent dans la nutrition en entreprise (B). Aucun produit alimentaire, financement de recherche ni partenariat universitaire n'est mentionné.",vocab:"<span>absenteeism</span> = absentéisme | <span>productivity</span> = productivité | <span>corporate wellness</span> = bien-être en entreprise"},
+  "q170":{q:"What does Dr. Obi identify as the main challenge in the field?",correct:"C",optLabels:{"A": "A lack of funding for training programmes", "B": "Insufficient job opportunities for graduates", "C": "Ensuring training quality matches the growth rate of the sector", "D": "Competition from overseas nutrition professionals"},fr:"<em>The biggest challenge now is ensuring that training quality keeps up with the rapid expansion of the field</em> → maintenir la qualité de la formation face à l'expansion rapide (C). Aucun problème de financement, d'emplois insuffisants ni de concurrence étrangère n'est cité.",vocab:"<span>keeps up with</span> = suit le rythme de | <span>rapid expansion</span> = expansion rapide | <span>practitioners</span> = praticiens, professionnels"},
+  "q171":{q:"What new opportunity has the rise of digital platforms created?",correct:"B",optLabels:{"A": "Nutritionists can now earn higher salaries.", "B": "Nutritionists can work remotely and offer consultations online.", "C": "Nutritionists no longer need formal certification.", "D": "Nutritionists can publish their own digital programmes without regulation."},fr:"<em>The rise of digital nutrition platforms has also created new opportunities for nutritionists to work remotely, offering consultations via video call</em> → travail à distance et consultations en ligne (B). Aucune hausse salariale, suppression de certification ni absence de régulation n'est mentionnée.",vocab:"<span>video call</span> = appel vidéo | <span>remote working</span> = travail à distance | <span>flexibility</span> = flexibilité"},
+  "q172":{q:"What has caused a delay on the Alderton project?",correct:"B",optLabels:{"A": "A shortage of workers on site", "B": "A delivery of tiles has been postponed", "C": "A client has changed the design specifications", "D": "The site manager has cancelled an order"},fr:"<em>The ceramic tile delivery for the Alderton project has been pushed back to Thursday</em> → livraison de carrelage reportée (B). Aucun manque de main-d'œuvre, modification de spécifications ni annulation de commande n'est mentionné.",vocab:"<span>pushed back</span> = repoussé, reporté | <span>ceramic tiles</span> = carrelage céramique | <span>delay</span> = retard"},
+  "q173":{q:"Who will contact the client about the delay?",correct:"D",optLabels:{"A": "Fiona Walsh", "B": "The site manager", "C": "The tile supplier", "D": "Nico Brandt"},fr:"<em>I'll do it — I've been the main contact throughout</em> (message de Nico Brandt) → c'est Nico qui contactera le client (D). Fiona Walsh propose de le faire mais Nico prend la main. Le chef de chantier et le fournisseur ne sont pas désignés.",vocab:"<span>main contact</span> = interlocuteur principal | <span>revised completion estimate</span> = estimation révisée de fin de travaux | <span>throughout</span> = tout au long du projet"},
+  "q174":{q:"What does Nico Brandt ask Fiona Walsh to do?",correct:"B",optLabels:{"A": "Call the site manager", "B": "Check whether part of the delivery can come earlier", "C": "Send the client a revised invoice", "D": "Arrange alternative tiles from a different supplier"},fr:"<em>Can you ask the supplier if there's any possibility of a partial delivery before Thursday?</em> → demander si une livraison partielle anticipée est possible (B). Il n'est pas question d'appeler le chef de chantier, d'une facture, ni d'un autre fournisseur.",vocab:"<span>partial delivery</span> = livraison partielle | <span>possibility</span> = possibilité | <span>supplier</span> = fournisseur"},
+  "q175":{q:"How soon does Fiona Walsh say she will respond?",correct:"C",optLabels:{"A": "Within the day", "B": "By the end of the week", "C": "Within one hour", "D": "By Thursday"},fr:"<em>I'll get back to you within the hour</em> → dans l'heure (C). 'Within the day', 'end of the week' et 'by Thursday' ne correspondent pas à ce qu'elle dit.",vocab:"<span>get back to you</span> = vous recontacter | <span>within the hour</span> = dans l'heure | <span>partial delivery</span> = livraison partielle"},
+  "q176":{q:"What was the total revenue for Q2?",correct:"B",optLabels:{"A": "£3.8 million", "B": "£4.2 million", "C": "£4.6 million", "D": "£5.1 million"},fr:"<em>Total revenue for Q2 reached £4.2 million</em> → £4,2 millions (B). £4,6 millions = objectif Q3. Les autres chiffres ne sont pas mentionnés.",vocab:"<span>revenue</span> = chiffre d'affaires | <span>year-on-year</span> = d'une année sur l'autre | <span>quarter</span> = trimestre"},
+  "q177":{q:"Why did the Southern region underperform in Q2?",correct:"C",optLabels:{"A": "A key sales manager left the company.", "B": "The region missed its marketing budget.", "C": "A major client contract was lost in April.", "D": "A new product launch was delayed."},fr:"<em>primarily due to the loss of the Harrington Group contract in April</em> → perte d'un contrat client majeur (C). Aucun départ de manager, problème de budget marketing ni retard de lancement n'est mentionné.",vocab:"<span>fell short</span> = n'a pas atteint | <span>contract loss</span> = perte de contrat | <span>accounted for</span> = représentait"},
+  "q178":{q:"How many new clients were acquired in Q2?",correct:"B",optLabels:{"A": "22", "B": "34", "C": "47", "D": "61"},fr:"<em>34 new clients were signed in Q2</em> → 34 (B). 61 = total annuel à ce stade. 22 et 47 ne sont pas mentionnés.",vocab:"<span>new client acquisition</span> = acquisition de nouveaux clients | <span>signed</span> = signés (contrats) | <span>annual total</span> = total annuel"},
+  "q179":{q:"What is identified as a challenge in Q2?",correct:"C",optLabels:{"A": "Declining software sales", "B": "Increased competition from overseas", "C": "Supply chain issues affecting hardware delivery", "D": "Reduced staff numbers in the sales team"},fr:"<em>Supply chain disruptions continued to affect the hardware product line, resulting in delayed fulfilment for 12% of orders</em> → perturbations de la chaîne d'approvisionnement (C). Les ventes logicielles ont progressé. Aucune concurrence étrangère ni réduction d'effectifs n'est mentionnée.",vocab:"<span>supply chain disruptions</span> = perturbations de la chaîne d'approvisionnement | <span>fulfilment</span> = traitement des commandes | <span>hardware</span> = matériel informatique"},
+  "q180":{q:"What is the Q3 revenue target?",correct:"C",optLabels:{"A": "£4.2 million", "B": "£4.4 million", "C": "£4.6 million", "D": "£5.0 million"},fr:"<em>Q3 targets have been set at £4.6 million</em> → £4,6 millions (C). £4,2 millions = chiffre Q2 réel. £4,4 et £5 millions ne sont pas mentionnés.",vocab:"<span>target</span> = objectif | <span>outlook</span> = perspectives | <span>pipeline</span> = pipeline commercial, opportunités en cours"},
+  "q181":{q:"What does Summit Executive Retreats specialise in?",correct:"C",optLabels:{"A": "Online leadership certification courses", "B": "Accommodation for individual business travellers", "C": "Leadership retreats for management teams", "D": "Corporate team-building days at city venues"},fr:"<em>Summit Executive Retreats offers tailored three-day leadership development retreats for senior management teams</em> → séjours de développement du leadership pour équipes de direction (C). Aucun cours en ligne, hébergement individuel ni journée en ville n'est mentionné.",vocab:"<span>retreat</span> = séjour résidentiel, retraite | <span>senior management teams</span> = équipes de direction | <span>facilitated</span> = animé, facilité"},
+  "q182":{q:"Which of the following is included in the retreat fee?",correct:"B",optLabels:{"A": "Flights to the retreat location", "B": "Transport from the nearest rail station", "C": "Conference hall hire", "D": "Equipment hire for outdoor activities"},fr:"<em>Transport from the nearest rail station is included</em> → (B). Les vols ne sont pas mentionnés comme inclus. Les salles de conférence et la location de matériel ne sont pas listées séparément.",vocab:"<span>all inclusive</span> = tout compris | <span>rail station</span> = gare ferroviaire | <span>transport</span> = transport"},
+  "q183":{q:"How many participants is Aldgate & Park Financial Services planning to send?",correct:"C",optLabels:{"A": "8", "B": "12", "C": "16", "D": "20"},fr:"Le formulaire indique <em>Number of participants: 16</em> → 16 (C). 8 = minimum de groupe. 20 = maximum. 12 n'est pas mentionné.",vocab:"<span>participants</span> = participants | <span>group size</span> = taille du groupe | <span>enquiry form</span> = formulaire de demande"},
+  "q184":{q:"Why will Aldgate & Park Financial Services NOT receive the early booking discount?",correct:"B",optLabels:{"A": "They registered after the programme was full.", "B": "They are booking less than 90 days before the retreat.", "C": "They chose a location not covered by the discount.", "D": "Their group is too large to qualify."},fr:"Le formulaire indique <em>Early booking discount: Not eligible — less than 90 days in advance</em>. La publicité précise que la remise s'applique <em>for retreats confirmed more than 90 days in advance</em> → réservation trop tardive (B).",vocab:"<span>early booking discount</span> = remise pour réservation anticipée | <span>in advance</span> = à l'avance | <span>eligible</span> = éligible"},
+  "q185":{q:"What special accommodation requirement is indicated?",correct:"C",optLabels:{"A": "A private meeting room for two participants", "B": "Wi-Fi access throughout the venue", "C": "Ground-floor rooms for participants with mobility limitations", "D": "A dedicated dining area for dietary requirements"},fr:"Le formulaire indique <em>Two participants have mobility limitations — ground floor accommodation required</em> → chambres au rez-de-chaussée (C). Aucune salle de réunion privée, Wi-Fi spécifique ni espace repas dédié n'est demandé.",vocab:"<span>mobility limitations</span> = difficultés de mobilité | <span>ground floor</span> = rez-de-chaussée | <span>accommodation</span> = hébergement"},
+  "q186":{q:"Who will give a welcoming address at the opening ceremony?",correct:"C",optLabels:{"A": "Dr. Naomi Park", "B": "Chef Apichat Ruengrit", "C": "The Mayor of Westfield", "D": "The festival director"},fr:"<em>Welcoming address by Mayor of Westfield</em> → le maire (C). Dr. Naomi Park anime la table ronde. Le chef Apichat Ruengrit anime la démo thaïlandaise. Aucun directeur de festival n'est mentionné.",vocab:"<span>welcoming address</span> = discours de bienvenue | <span>opening ceremony</span> = cérémonie d'ouverture | <span>Mayor</span> = maire"},
+  "q187":{q:"Which activity requires participants to bring their own equipment?",correct:"C",optLabels:{"A": "Children's Cooking Workshop", "B": "Live Cooking Demo: Thai Cuisine", "C": "Food Photography Masterclass", "D": "Panel Discussion: Sustainable Food Systems"},fr:"<em>Food Photography Masterclass — Bring your own camera/phone</em> → les participants doivent apporter leur propre appareil (C). Les autres activités ne demandent pas d'équipement personnel.",vocab:"<span>masterclass</span> = cours magistral, atelier de maître | <span>bring your own</span> = apporter le vôtre | <span>camera</span> = appareil photo"},
+  "q188":{q:"Which activity requires advance registration?",correct:"B",optLabels:{"A": "Street Food Market", "B": "Children's Cooking Workshop", "C": "Live Cooking Demo: Moroccan Cuisine", "D": "Evening Gala Dinner"},fr:"<em>Children's Cooking Workshop — Pre-registration required</em> → (B). La Street Food Market est ouverte à tous. La démo marocaine ne demande pas d'inscription. Le Gala du soir nécessite un billet séparé, pas une inscription préalable.",vocab:"<span>pre-registration</span> = inscription préalable | <span>required</span> = obligatoire | <span>activity tent</span> = tente d'activités"},
+  "q189":{q:"How many cooking demonstrations are scheduled for Day 1?",correct:"B",optLabels:{"A": "One", "B": "Two", "C": "Three", "D": "Four"},fr:"Le programme liste deux démos : <em>Live Cooking Demo: Thai Cuisine (11:00–12:00)</em> et <em>Live Cooking Demo: Moroccan Cuisine (12:30–13:30)</em> → deux (B). L'atelier enfants est un workshop, pas une démo.",vocab:"<span>cooking demonstration</span> = démonstration culinaire | <span>scheduled</span> = programmé, prévu | <span>demo kitchen</span> = cuisine de démonstration"},
+  "q190":{q:"What is true about the Evening Gala Dinner?",correct:"C",optLabels:{"A": "It is included in the general festival admission.", "B": "It is open to festival staff only.", "C": "It requires a separately purchased ticket.", "D": "It takes place in the Activity Tent."},fr:"<em>Evening Gala Dinner — Ticketed event — separate purchase required</em> → billet séparé requis (C). Il n'est pas inclus dans l'entrée générale. Il n'est pas réservé au personnel. Il a lieu au Pavillon, pas dans l'Activity Tent.",vocab:"<span>ticketed event</span> = événement payant à billet séparé | <span>separate purchase</span> = achat séparé | <span>pavilion</span> = pavillon"},
+  "q191":{q:"What type of contract is being offered by Halston Media Group?",correct:"C",optLabels:{"A": "A six-month fixed-term contract", "B": "A part-time permanent role", "C": "A full-time permanent position", "D": "A freelance consultancy arrangement"},fr:"<em>Contract: Permanent, full-time</em> → CDI à temps plein (C). Aucun CDD de 6 mois, temps partiel ni statut freelance n'est indiqué.",vocab:"<span>permanent</span> = permanent (CDI) | <span>full-time</span> = à temps plein | <span>fixed-term</span> = à durée déterminée (CDD)"},
+  "q192":{q:"What does the job posting say about work location?",correct:"C",optLabels:{"A": "The role is entirely office-based.", "B": "The role is entirely remote.", "C": "The role combines office and remote working.", "D": "The role involves regular travel between offices."},fr:"<em>hybrid — 3 days office, 2 days remote</em> → rôle hybride combinant présentiel et télétravail (C). Il n'est ni entièrement en bureau, ni entièrement à distance, ni itinérant.",vocab:"<span>hybrid</span> = hybride | <span>remote</span> = à distance, télétravail | <span>office-based</span> = en présentiel"},
+  "q193":{q:"Which requirement listed in the job posting does Ms. Harrington NOT currently meet?",correct:"D",optLabels:{"A": "Experience in a marketing role", "B": "Proficiency in Adobe Creative Suite", "C": "A degree in a relevant field", "D": "A driving licence"},fr:"<em>I do not currently hold a driving licence</em> → elle n'a pas encore le permis de conduire (D). Elle a 18 mois d'expérience, maîtrise Adobe Creative Suite, et détient un BSc en Business with Marketing.",vocab:"<span>driving licence</span> = permis de conduire | <span>proficiency</span> = maîtrise, compétence | <span>in the process of</span> = en train de"},
+  "q194":{q:"How long has Ms. Harrington worked in marketing?",correct:"C",optLabels:{"A": "Less than one year", "B": "Exactly one year", "C": "18 months", "D": "Two years"},fr:"<em>I have 18 months of experience in a marketing agency</em> → 18 mois (C). La fiche de poste exige au minimum 1 an, qu'elle dépasse.",vocab:"<span>experience</span> = expérience | <span>marketing agency</span> = agence de communication | <span>18 months</span> = 18 mois"},
+  "q195":{q:"By what date must applications be submitted?",correct:"C",optLabels:{"A": "March 3", "B": "March 24", "C": "March 28", "D": "April 28"},fr:"<em>Closing date: 28 March</em> → le 28 mars (C). Le 3 mars = date de publication de l'annonce. Le 24 mars = date de l'e-mail de candidature de Mme Harrington. Avril ne correspond à rien dans le contexte du délai de candidature.",vocab:"<span>closing date</span> = date limite de candidature | <span>applications by e-mail only</span> = candidatures uniquement par e-mail | <span>covering letter</span> = lettre de motivation"},
+  "q196":{q:"Who are Clearpath Financial Planning's target clients?",correct:"C",optLabels:{"A": "Exclusively high-net-worth individuals", "B": "Large corporations and investment funds", "C": "Individuals, families, and small business owners", "D": "First-time investors with no financial experience"},fr:"<em>We provide independent, fee-based financial planning services for individuals, families, and small business owners</em> → (C). La publicité souligne que <em>sound financial advice should be accessible to everyone — not just those with large assets</em>, excluant ainsi (A).",vocab:"<span>target clients</span> = clientèle cible | <span>high-net-worth</span> = à fort patrimoine | <span>small business owners</span> = propriétaires de petites entreprises"},
+  "q197":{q:"How do Clearpath advisers earn their income?",correct:"B",optLabels:{"A": "Through commission on financial products", "B": "Through fees charged to clients", "C": "Through government subsidies", "D": "Through referral fees from partner companies"},fr:"<em>We operate on a fee-only basis — we do not earn commission on any product we recommend</em> → revenus uniquement par honoraires facturés aux clients (B). Les commissions, subventions et frais de recommandation sont explicitement exclus.",vocab:"<span>fee-only basis</span> = uniquement sur la base d'honoraires | <span>commission</span> = commission | <span>in your best interest</span> = dans votre intérêt"},
+  "q198":{q:"Which of the following services does Clearpath NOT list?",correct:"C",optLabels:{"A": "Investment portfolio management", "B": "First-time buyer mortgage advice", "C": "Business loan brokerage", "D": "Retirement planning"},fr:"Les services listés incluent : retraite, gestion de portefeuille, épargne fiscale, assurance, et prêt immobilier primo-accédants. Le courtage en prêts professionnels (C) n'est pas mentionné.",vocab:"<span>business loan</span> = prêt professionnel | <span>brokerage</span> = courtage | <span>portfolio management</span> = gestion de portefeuille"},
+  "q199":{q:"What is offered to all new clients at no cost?",correct:"B",optLabels:{"A": "A free annual financial review", "B": "A free 60-minute introductory consultation", "C": "A free investment portfolio assessment", "D": "A free tax return preparation"},fr:"<em>All new clients are entitled to a free 60-minute introductory consultation with no obligation</em> → consultation initiale gratuite de 60 minutes (B). Aucun bilan annuel, évaluation de portefeuille ni déclaration fiscale gratuite n'est proposé.",vocab:"<span>introductory consultation</span> = consultation initiale | <span>no obligation</span> = sans engagement | <span>entitled to</span> = avoir droit à"},
+  "q200":{q:"What does the small print at the bottom of the brochure warn about?",correct:"C",optLabels:{"A": "Clearpath advisers are not qualified.", "B": "The company is not regulated.", "C": "Investment values can decrease.", "D": "The free consultation has a time limit."},fr:"<em>Your investments can go down as well as up</em> → avertissement légal standard indiquant que la valeur des investissements peut baisser (C). Les conseillers sont qualifiés et réglementés par la FCA. La consultation gratuite est mentionnée dans le texte principal, pas dans les petits caractères.",vocab:"<span>small print</span> = petits caractères, mentions légales | <span>go down as well as up</span> = peut monter comme baisser | <span>authorised and regulated</span> = agréé et réglementé"}
+};
+const GROUPS=[{label:"Q 147–148 — Fernwood Community Library Events Schedule",qs:[147,148]},{label:"Q 149–150 — Text-Message Chain (Conference Delegate Pack)",qs:[149,150]},{label:"Q 151–152 — Employee Car Park Access Notice",qs:[151,152]},{label:"Q 153–154 — Planora Software Online Review",qs:[153,154]},{label:"Q 155–158 — E-mail (Crystal Venue Hire Enquiry)",qs:[155,156,157,158]},{label:"Q 159–161 — Magazine Article (Urban Beekeeping)",qs:[159,160,161]},{label:"Q 162–164 — E-mail Chain (Summit Electronics Faulty Laptop)",qs:[162,163,164]},{label:"Q 165–167 — Canopy Language Institute Advertisement",qs:[165,166,167]},{label:"Q 168–171 — Magazine Article (Demand for Nutritionists)",qs:[168,169,170,171]},{label:"Q 172–175 — Text-Message Chain (Alderton Project Delay)",qs:[172,173,174,175]},{label:"Q 176–180 — Q2 Sales Performance Report",qs:[176,177,178,179,180]},{label:"Q 181–185 — Advertisement + Enquiry Form (Summit Executive Retreats)",qs:[181,182,183,184,185]},{label:"Q 186–190 — Westfield International Food Festival Programme",qs:[186,187,188,189,190]},{label:"Q 191–195 — Job Posting + Application E-mail (Halston Media)",qs:[191,192,193,194,195]},{label:"Q 196–200 — Clearpath Financial Planning Advertisement",qs:[196,197,198,199,200]}];
+const QNUMS=[147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200];
+const TOTAL=54;
+let secs=2880;
+const answered={};
+const timerEl=document.getElementById('timer');
+function pad(n){return String(n).padStart(2,'0');}
+const iv=setInterval(()=>{secs--;timerEl.textContent=pad(Math.floor(secs/60))+':'+pad(secs%60);timerEl.className='';if(secs<=300)timerEl.classList.add('warn');if(secs<=60)timerEl.classList.add('danger');if(secs<=0){clearInterval(iv);timerEl.textContent='00:00';document.getElementById('to-ov').classList.add('show');}},1000);
+function updateProg(){const c=Object.keys(answered).length;document.getElementById('prog-txt').textContent=c+' / '+TOTAL+' réponses';document.getElementById('prog-bar').style.width=(c/TOTAL*100)+'%';const left=TOTAL-c;document.getElementById('unans').textContent=left===0?'✓ Toutes les questions répondues !':left+' question'+(left>1?'s':'')+' sans réponse';document.getElementById('sub-btn').disabled=c<TOTAL;}
+document.querySelectorAll('input[type="radio"]').forEach(r=>{r.addEventListener('change',function(){answered[this.name]=this.value;const qid=this.name.replace('q','qi-');const el=document.getElementById(qid);if(el)el.classList.add('answered');updateProg();});});
+function forceSubmit(){document.getElementById('to-ov').classList.remove('show');submitTest();}
+function submitTest(){clearInterval(iv);document.getElementById('sub-sec').style.display='none';document.querySelectorAll('input[type="radio"]').forEach(r=>r.disabled=true);let correct=0;QNUMS.forEach(n=>{const k='q'+n;if(answered[k]&&answered[k]===KEYS[k])correct++;});const pct=Math.round(correct/TOTAL*100);const est=Math.round(5+(correct/TOTAL)*490);document.getElementById('sc-disp').textContent=correct+'/'+TOTAL;document.getElementById('sc-pct').textContent=pct+'% de bonnes réponses';document.getElementById('sc-est').textContent='Estimation score Reading TOEIC : ~'+est+'/495';const container=document.getElementById('corr-content');container.innerHTML='';GROUPS.forEach(g=>{const block=document.createElement('div');block.className='corr-pg';const hdr=document.createElement('div');hdr.className='corr-pg-hdr';hdr.textContent=g.label;block.appendChild(hdr);g.qs.forEach(n=>{const k='q'+n;const ua=answered[k]||null;const ca=KEYS[k];const ok=ua===ca;const ex=EXPL[k];const item=document.createElement('div');item.className='ci '+(ua===null?'na':(ok?'ok':'ko'));const ut=ua?ex.optLabels[ua]:null;item.innerHTML=`<div class="ci-top"><span class="ci-icon">${ua===null?'—':(ok?'✔':'✗')}</span><span class="ci-badge">Q ${n}</span></div><div class="ci-q">${ex.q}</div><div class="ans-row">${ua&&!ok?`<span class="pill pill-ko">Votre réponse : (${ua}) ${ut}</span>`:''}${ok?`<span class="pill pill-ok">✔ (${ca}) ${ex.optLabels[ca]}</span>`:`<span class="pill pill-right">Bonne réponse : (${ca}) ${ex.optLabels[ca]}</span>`}${!ua?`<span class="pill" style="background:#fef3c7;color:#92400e">Non répondue</span>`:''}</div><div class="expl">${ex.fr}${ex.vocab?`<div class="voc">📚 <strong>Vocabulaire :</strong> ${ex.vocab}</div>`:''}</div>`;block.appendChild(item);});container.appendChild(block);});document.getElementById('corr-sec').classList.add('vis');document.getElementById('corr-sec').scrollIntoView({behavior:'smooth'});}
+updateProg();
+</script>
+</body>
+</html>
